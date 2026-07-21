@@ -249,11 +249,11 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
 }
 .folk-col { display: flex; flex-direction: column; min-width: 0; }
 
-/* Korthöjder — variera dessa för att styra förskjutningen */
-.fc-short { height: 300px; }
-.fc-mid   { height: 420px; }
-.fc-tall  { height: 560px; }
-.fc-xtall { height: 640px; }
+/* Hela och halva kvadrater (Folkoperan-principen).
+   aspect-ratio håller dem exakt kvadratiska vid alla bredder:
+   full = kvadrat, half = halva höjden. */
+.fc-full { aspect-ratio: 1 / 1; }
+.fc-half { aspect-ratio: 2 / 1; }
 
 .f-img { position: relative; overflow: hidden; }
 
@@ -397,7 +397,7 @@ footer {
 /* ── Mobil ──────────────────────────────────────────────── */
 @media (max-width: 720px) {
   .folk-grid { grid-template-columns: 1fr; }  /* en kolumn på mobil */
-  .fc-short, .fc-mid, .fc-tall, .fc-xtall { height: auto; min-height: 300px; }
+  .fc-full, .fc-half { aspect-ratio: auto; min-height: 260px; }
   .f-img { min-height: 300px; }
   .f-solid { padding: 2.4rem 1.8rem; min-height: 240px; }
   .footer-grid { grid-template-columns: 1fr; gap: 2rem; }

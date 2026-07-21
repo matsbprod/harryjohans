@@ -59,78 +59,39 @@
      ASYMMETRISKT GRID — samma struktur som andunge.se
      ═══════════════════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════════════════
-     KAPITELGRID — 12 kapitel, asymmetrisk struktur
-     Bilder är placeholders — byt fritt.
-     ═══════════════════════════════════════════════════════ -->
-<!-- ═══════════════════════════════════════════════════════
-     KAPITELGRID — ren 50/50 centrumdelning, två oberoende
-     kolumner. Oregelbundenheten kommer från korthöjderna
-     (fc-short / fc-mid / fc-tall), inte kolumnbredden.
+     KAPITELGRID — Folkoperans indelning
+     Hela kvadrater (fc-full) och halva (fc-half).
+     Vänster: 1,1,0.5,1,1   Höger: 0.5,1,1,0.5,1,0.5
+     Båda kolumnerna summerar till 4.5 — möts i topp & botten.
+     11 rutor. Ren 50/50 centrumdelning.
      ═══════════════════════════════════════════════════════ -->
 <div class="folk-grid" id="filmen">
   <div class="folk-col">
-    <div class="f-solid f-solid-a fc-short reveal">
-      <p class="lbl">01</p>
-      <div class="rule"></div>
-      <h2 class="h2">Barndom på Åland</h2>
-      <p class="body" style="margin-top:.9rem;max-width:300px">
-        Uppväxt på Sottunga. In i båtbyggeriet efter skolan — valet mellan båtbyggare, sjöman eller jordbrukare.
-      </p>
-    </div>
-    <div class="f-img fc-tall">
+    <div class="f-img fc-full">
       <div class="inner ph ph-1"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">01</p>
+        <h2 class="h3" style="margin:.3rem 0">Barndom på Åland</h2>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner ph ph-2"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">02</p>
+        <h2 class="h3" style="margin:.3rem 0">Beatrice Aurore</h2>
+      </div>
+    </div>
+    <div class="f-img fc-half">
+      <div class="inner ph ph-3"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
         <p class="lbl">03</p>
         <h2 class="h3" style="margin:.3rem 0">Flytt till Stockholm</h2>
       </div>
     </div>
-    <div class="f-img fc-mid">
-      <div class="inner ph ph-3"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">05</p>
-        <h2 class="h3" style="margin:.3rem 0">Egen verkstad</h2>
-      </div>
-    </div>
-    <div class="f-solid f-solid-c fc-short reveal">
-      <p class="lbl">07</p>
-      <div class="rule"></div>
-      <h2 class="h2">Alba</h2>
-      <p class="body" style="margin-top:.9rem;max-width:300px">
-        Historiken runt båten och bärgningsprojektet.
-      </p>
-    </div>
-    <div class="f-img fc-tall">
-      <div class="inner ph ph-2"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">09</p>
-        <h2 class="h3" style="margin:.3rem 0">Lärlingar</h2>
-      </div>
-    </div>
-    <div class="f-img fc-mid">
-      <div class="inner ph ph-4"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">11</p>
-        <h2 class="h3" style="margin:.3rem 0">Självhushåll</h2>
-      </div>
-    </div>
-  </div>
-  <div class="folk-col">
-    <div class="f-img fc-tall">
-      <div class="inner ph ph-2"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">02</p>
-        <h2 class="h2" style="margin:.35rem 0 .5rem">Beatrice Aurore</h2>
-        <p class="body" style="max-width:300px">
-          Filmstart. Renoveringens början, Harry vid Bea i nutid.
-        </p>
-      </div>
-    </div>
-    <div class="f-img fc-short">
+    <div class="f-img fc-full">
       <div class="inner ph ph-4"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
@@ -138,43 +99,63 @@
         <h2 class="h3" style="margin:.3rem 0">Nybygge</h2>
       </div>
     </div>
-    <div class="f-solid f-solid-b fc-mid reveal">
-      <p class="lbl">06</p>
-      <div class="rule"></div>
-      <h2 class="h2">Thomas</h2>
-      <p class="body" style="margin-top:.9rem;max-width:300px">
-        Harry och Thomas hoppade in för varandra och delade verkstad i många år.
-      </p>
-    </div>
-    <div class="f-img fc-tall">
+    <div class="f-img fc-full">
       <div class="inner ph ph-1"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
-        <p class="lbl">08</p>
-        <h2 class="h2" style="margin:.35rem 0 .5rem">Renoveringar</h2>
-        <p class="body" style="max-width:300px">
-          Några av de större renoveringarna genom åren.
-        </p>
+        <p class="lbl">05</p>
+        <h2 class="h3" style="margin:.3rem 0">Egen verkstad</h2>
       </div>
     </div>
-    <div class="f-img fc-short">
+  </div>
+  <div class="folk-col">
+    <div class="f-img fc-half">
+      <div class="inner ph ph-2"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">06</p>
+        <h2 class="h3" style="margin:.3rem 0">Thomas</h2>
+      </div>
+    </div>
+    <div class="f-img fc-full">
       <div class="inner ph ph-3"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
-        <p class="lbl">10</p>
-        <h2 class="h2" style="margin:.35rem 0 .5rem">Nutid</h2>
-        <p class="body" style="max-width:300px">
-          Harry vid ångbåten, snickringssekvenser filmade idag.
-        </p>
+        <p class="lbl">07</p>
+        <h2 class="h3" style="margin:.3rem 0">Alba</h2>
       </div>
     </div>
-    <div class="f-solid f-solid-accent fc-mid reveal">
-      <p class="lbl" style="color:rgba(236,238,240,.7)">12</p>
-      <div class="rule" style="background:rgba(236,238,240,.4)"></div>
-      <h2 class="h2">Till sjöss</h2>
-      <p class="body" style="margin-top:.9rem;max-width:300px;color:var(--white-dim)">
-        Ombord på en av båtarna Harry arbetat med.
-      </p>
+    <div class="f-img fc-full">
+      <div class="inner ph ph-4"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">08</p>
+        <h2 class="h3" style="margin:.3rem 0">Renoveringar</h2>
+      </div>
+    </div>
+    <div class="f-img fc-half">
+      <div class="inner ph ph-1"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">09</p>
+        <h2 class="h3" style="margin:.3rem 0">Lärlingar</h2>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner ph ph-2"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">10</p>
+        <h2 class="h3" style="margin:.3rem 0">Nutid</h2>
+      </div>
+    </div>
+    <div class="f-img fc-half">
+      <div class="inner ph ph-3"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">11</p>
+        <h2 class="h3" style="margin:.3rem 0">Självhushåll</h2>
+      </div>
     </div>
   </div>
 </div><!-- /folk-grid -->
