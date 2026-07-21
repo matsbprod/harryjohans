@@ -62,25 +62,65 @@
      KAPITELGRID — 12 kapitel, asymmetrisk struktur
      Bilder är placeholders — byt fritt.
      ═══════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════
+     KAPITELGRID — ren 50/50 centrumdelning, två oberoende
+     kolumner. Oregelbundenheten kommer från korthöjderna
+     (fc-short / fc-mid / fc-tall), inte kolumnbredden.
+     ═══════════════════════════════════════════════════════ -->
 <div class="folk-grid" id="filmen">
-
-  <!-- ── BLOCK A ──────────────────────────────────────────── -->
-  <div class="folk-block">
-
-    <!-- 01 · solid -->
-    <div class="f-solid f-solid-a reveal">
+  <div class="folk-col">
+    <div class="f-solid f-solid-a fc-short reveal">
       <p class="lbl">01</p>
       <div class="rule"></div>
       <h2 class="h2">Barndom på Åland</h2>
       <p class="body" style="margin-top:.9rem;max-width:300px">
-        Uppväxt på Sottunga. In i båtbyggeriet efter skolan — valet mellan
-        båtbyggare, sjöman eller jordbrukare.
+        Uppväxt på Sottunga. In i båtbyggeriet efter skolan — valet mellan båtbyggare, sjöman eller jordbrukare.
       </p>
     </div>
-
-    <!-- 02 · tall image -->
-    <div class="f-img-tall">
+    <div class="f-img fc-tall">
       <div class="inner ph ph-1"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">03</p>
+        <h2 class="h3" style="margin:.3rem 0">Flytt till Stockholm</h2>
+      </div>
+    </div>
+    <div class="f-img fc-mid">
+      <div class="inner ph ph-3"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">05</p>
+        <h2 class="h3" style="margin:.3rem 0">Egen verkstad</h2>
+      </div>
+    </div>
+    <div class="f-solid f-solid-c fc-short reveal">
+      <p class="lbl">07</p>
+      <div class="rule"></div>
+      <h2 class="h2">Alba</h2>
+      <p class="body" style="margin-top:.9rem;max-width:300px">
+        Historiken runt båten och bärgningsprojektet.
+      </p>
+    </div>
+    <div class="f-img fc-tall">
+      <div class="inner ph ph-2"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">09</p>
+        <h2 class="h3" style="margin:.3rem 0">Lärlingar</h2>
+      </div>
+    </div>
+    <div class="f-img fc-mid">
+      <div class="inner ph ph-4"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">11</p>
+        <h2 class="h3" style="margin:.3rem 0">Självhushåll</h2>
+      </div>
+    </div>
+  </div>
+  <div class="folk-col">
+    <div class="f-img fc-tall">
+      <div class="inner ph ph-2"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
         <p class="lbl">02</p>
@@ -90,47 +130,15 @@
         </p>
       </div>
     </div>
-
-    <!-- 03 · image -->
-    <div class="f-img">
-      <div class="inner ph ph-2"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">03</p>
-        <h2 class="h3" style="margin:.3rem 0">Flytt till Stockholm</h2>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── BLOCK B (speglad) ────────────────────────────────── -->
-  <div class="folk-block folk-block-flip fb-steep">
-
-    <!-- 04 · tall image -->
-    <div class="f-img-tall">
-      <div class="inner ph ph-3"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">04</p>
-        <h2 class="h2" style="margin:.35rem 0 .5rem">Nybygge</h2>
-        <p class="body" style="max-width:300px">
-          Jobbar med morbror och seriebygger en båt.
-        </p>
-      </div>
-    </div>
-
-    <!-- 05 · image -->
-    <div class="f-img">
+    <div class="f-img fc-short">
       <div class="inner ph ph-4"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
-        <p class="lbl">05</p>
-        <h2 class="h3" style="margin:.3rem 0">Egen verkstad</h2>
+        <p class="lbl">04</p>
+        <h2 class="h3" style="margin:.3rem 0">Nybygge</h2>
       </div>
     </div>
-
-    <!-- 06 · solid -->
-    <div class="f-solid f-solid-b reveal">
+    <div class="f-solid f-solid-b fc-mid reveal">
       <p class="lbl">06</p>
       <div class="rule"></div>
       <h2 class="h2">Thomas</h2>
@@ -138,37 +146,7 @@
         Harry och Thomas hoppade in för varandra och delade verkstad i många år.
       </p>
     </div>
-
-  </div>
-
-</div><!-- /folk-grid -->
-
-<!-- ── Citat ──────────────────────────────────────────────── -->
-<section class="quote-band reveal" id="harry">
-  <blockquote>
-    "En båt är aldrig färdig. Den lever så länge någon bryr sig om den."
-  </blockquote>
-  <cite>— Harry</cite>
-</section>
-
-<!-- ── Kapitel 07–12 ──────────────────────────────────────── -->
-<div class="folk-grid" id="material">
-
-  <!-- ── BLOCK C ──────────────────────────────────────────── -->
-  <div class="folk-block fb-steep">
-
-    <!-- 07 · solid -->
-    <div class="f-solid f-solid-c reveal">
-      <p class="lbl">07</p>
-      <div class="rule"></div>
-      <h2 class="h2">Alba</h2>
-      <p class="body" style="margin-top:.9rem;max-width:300px">
-        Historiken runt båten och bärgningsprojektet.
-      </p>
-    </div>
-
-    <!-- 08 · tall image -->
-    <div class="f-img-tall">
+    <div class="f-img fc-tall">
       <div class="inner ph ph-1"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
@@ -179,24 +157,7 @@
         </p>
       </div>
     </div>
-
-    <!-- 09 · image -->
-    <div class="f-img">
-      <div class="inner ph ph-2"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">09</p>
-        <h2 class="h3" style="margin:.3rem 0">Lärlingar</h2>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── BLOCK D (speglad) ────────────────────────────────── -->
-  <div class="folk-block folk-block-flip">
-
-    <!-- 10 · tall image -->
-    <div class="f-img-tall">
+    <div class="f-img fc-short">
       <div class="inner ph ph-3"></div>
       <div class="f-overlay"></div>
       <div class="f-body reveal">
@@ -207,19 +168,7 @@
         </p>
       </div>
     </div>
-
-    <!-- 11 · image -->
-    <div class="f-img">
-      <div class="inner ph ph-4"></div>
-      <div class="f-overlay"></div>
-      <div class="f-body reveal">
-        <p class="lbl">11</p>
-        <h2 class="h3" style="margin:.3rem 0">Självhushåll</h2>
-      </div>
-    </div>
-
-    <!-- 12 · solid -->
-    <div class="f-solid f-solid-accent reveal">
+    <div class="f-solid f-solid-accent fc-mid reveal">
       <p class="lbl" style="color:rgba(236,238,240,.7)">12</p>
       <div class="rule" style="background:rgba(236,238,240,.4)"></div>
       <h2 class="h2">Till sjöss</h2>
@@ -227,10 +176,17 @@
         Ombord på en av båtarna Harry arbetat med.
       </p>
     </div>
-
   </div>
-
 </div><!-- /folk-grid -->
+
+<!-- ── Citat ──────────────────────────────────────────────── -->
+<section class="quote-band reveal" id="harry">
+  <blockquote>
+    "En båt är aldrig färdig. Den lever så länge någon bryr sig om den."
+  </blockquote>
+  <cite>— Harry</cite>
+</section>
+
 
 <!-- ── Footer ─────────────────────────────────────────────── -->
 <footer id="kontakt">

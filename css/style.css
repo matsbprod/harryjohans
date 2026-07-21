@@ -237,44 +237,31 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .reveal.d2 { transition-delay: .18s; }
 .reveal.d3 { transition-delay: .3s; }
 
-/* ── Asymmetriskt grid (mer irreguljärt) ────────────────── */
-.folk-grid { max-width: var(--max-w); margin: 0 auto; }
-
-/* Bas: bruten 50/50 och större radskillnad än tidigare */
-.folk-block {
+/* ── Grid: ren 50/50 centrumdelning, två oberoende kolumner ──
+   Oregelbundenheten kommer från korthöjderna, inte kolumnbredden
+   (Folkoperan-principen). ───────────────────────────────────── */
+.folk-grid {
+  max-width: var(--max-w);
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: 5fr 7fr;
-  grid-template-rows: 280px 560px;
+  grid-template-columns: 1fr 1fr;   /* fast mittdelning */
+  align-items: start;
 }
-.folk-block-flip {
-  grid-template-columns: 7fr 5fr;
-  grid-template-rows: 560px 280px;
-}
+.folk-col { display: flex; flex-direction: column; min-width: 0; }
 
-/* Variant — lägg klassen .fb-steep på ett block för ännu
-   kraftigare obalans (smalare textkolumn, högre bild) */
-.folk-block.fb-steep {
-  grid-template-columns: 4fr 8fr;
-  grid-template-rows: 240px 600px;
-}
-.folk-block.folk-block-flip.fb-steep {
-  grid-template-columns: 8fr 4fr;
-  grid-template-rows: 600px 240px;
-}
+/* Korthöjder — variera dessa för att styra förskjutningen */
+.fc-short { height: 300px; }
+.fc-mid   { height: 420px; }
+.fc-tall  { height: 560px; }
+.fc-xtall { height: 640px; }
 
-.f-img-tall {
-  grid-row: 1 / 3;
-  position: relative; overflow: hidden;
-}
 .f-img { position: relative; overflow: hidden; }
 
-.f-img-tall .inner,
 .f-img .inner {
   position: absolute; inset: 0;
   transform: scale(1);
   transition: transform 1s ease, filter .45s ease;
 }
-.f-img-tall:hover .inner,
 .f-img:hover .inner {
   transform: scale(1.04);
   filter: saturate(.5) brightness(.8);
@@ -288,7 +275,6 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
     rgba(11,12,14,.9) 100%);
   transition: background .45s ease;
 }
-.f-img-tall:hover .f-overlay,
 .f-img:hover .f-overlay {
   background: linear-gradient(to bottom,
     rgba(11,12,14,.5) 0%,
@@ -301,7 +287,6 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
   transform: translateY(0);
   transition: transform .45s ease;
 }
-.f-img-tall:hover .f-body,
 .f-img:hover .f-body { transform: translateY(-10px); }
 
 .f-solid {
@@ -328,7 +313,7 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .f-solid:hover .lbl, .f-solid:hover .rule, .f-solid:hover .link-arr {
   transform: translateY(-6px);
 }
-.f-img-tall, .f-img { cursor: pointer; }
+.f-img { cursor: pointer; }
 
 /* Platshållare tills bilder finns */
 .ph {
@@ -411,11 +396,8 @@ footer {
 
 /* ── Mobil ──────────────────────────────────────────────── */
 @media (max-width: 720px) {
-  .folk-block, .folk-block-flip {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-  }
-  .f-img-tall { grid-row: auto; min-height: 420px; }
+  .folk-grid { grid-template-columns: 1fr; }  /* en kolumn på mobil */
+  .fc-short, .fc-mid, .fc-tall, .fc-xtall { height: auto; min-height: 300px; }
   .f-img { min-height: 300px; }
   .f-solid { padding: 2.4rem 1.8rem; min-height: 240px; }
   .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
