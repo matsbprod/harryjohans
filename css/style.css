@@ -70,7 +70,14 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* ── Logo ───────────────────────────────────────────────── */
 #logo-block {
   position: fixed; z-index: 200; pointer-events: none;
-  display: flex; flex-direction: column; align-items: center;
+  display: flex; flex-direction: column; align-items: flex-end;
+}
+.logo-kicker {
+  font-family: "Archivo", sans-serif;
+  font-weight: 300; text-transform: uppercase;
+  color: var(--grey);
+  line-height: 1; white-space: nowrap;
+  margin-bottom: .3em;
 }
 .logo-line {
   display: block;
@@ -80,6 +87,14 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
   color: var(--white);
 }
 #line2 { color: var(--blue-hover); font-weight: 500; }
+
+/* Hyvel-siluett bredvid logotypen */
+#plane-img {
+  position: fixed; z-index: 300;
+  pointer-events: none; opacity: 0;
+  /* Tonad blå för att matcha paletten */
+  filter: brightness(0) saturate(100%) invert(45%) sepia(18%) saturate(900%) hue-rotate(165deg) brightness(92%);
+}
 
 /* ── Hamburger + drawer (mobil) ─────────────────────────── */
 .hamburger {

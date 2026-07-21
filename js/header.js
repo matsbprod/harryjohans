@@ -1,8 +1,10 @@
 (function() {
   var navbar = document.getElementById("navbar");
   var block  = document.getElementById("logo-block");
+  var line0  = document.getElementById("line0");
   var line1  = document.getElementById("line1");
   var line2  = document.getElementById("line2");
+  var plane  = document.getElementById("plane-img");
 
   if (!block) return;
 
@@ -47,6 +49,7 @@
   var NAV_LARGE  = 64;
   var SMALL_PX   = isMobile ? 24 : (isTablet ? 30 : 44);
   var LARGE_PX   = 14;
+  var PLANE_AR   = 1095 / 477;  // hyvelbild bredd/höjd
 
   function clamp(v,a,b){ return Math.min(Math.max(v,a),b); }
   function lerp(a,b,t) { return a+(b-a)*clamp(t,0,1); }
@@ -68,6 +71,11 @@
     line2.style.fontSize      = curPx + "px";
     line2.style.letterSpacing = spacing + "em";
 
+    if (line0) {
+      line0.style.fontSize      = (curPx * 0.4) + "px";
+      line0.style.letterSpacing = (spacing + 0.06) + "em";
+    }
+
     block.style.left = "clamp(1.5rem, 5vw, 6rem)";
     var blockH   = block.offsetHeight || curPx * 2.3;
     var blockTop = (navH - blockH) / 2;
@@ -75,6 +83,22 @@
     document.documentElement.style.setProperty('--nav-links-top', Math.round(blockTop) + 'px');
 
     burger.style.top = Math.round((navH - 18) / 2) + "px";
+
+    // Positionera hyveln till vänster om logotypen
+    if (plane) {
+      var line2W    = line2.offsetWidth  || curPx * 8;
+      var line1W    = line1.offsetWidth  || curPx * 6;
+      var blockLeft = parseFloat(getComputedStyle(block).left) || 48;
+      var line1Left = blockLeft + (line2W - line1W) / 2;
+      // Hyveln lika hög som logo-blocket
+      var planeH    = blockH * 0.72;
+      var planeW    = Math.round(planeH * PLANE_AR);
+      plane.style.height  = planeH + "px";
+      plane.style.width   = planeW + "px";
+      plane.style.left    = clamp(line1Left - planeW - 14, 4, window.innerWidth - planeW - 4) + "px";
+      plane.style.top     = (blockTop + (blockH - planeH) / 2) + "px";
+      plane.style.opacity = "1";
+    }
   }
 
   window.addEventListener("scroll", update, { passive: true });
