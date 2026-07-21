@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projekt Varvet — 3D Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --vp: #1b1c21; --panel: #222328; --border: #36373d;
+    --ax-x: #4a9eff; --ax-y: #7ec663; --ax-z: #e05a5a;
+    --accent: #c8a96e; --text: #ddd9d0; --muted: #7a7870;
+  }
+  html, body { width:100%; height:100%; overflow:hidden; background:var(--vp); font-family:'Space Grotesk',sans-serif; color:var(--text); }
+
+  #c { display:block; width:100%; height:100%; }
+
+  /* TOPBAR */
+  .topbar {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    height:34px; background:var(--panel); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; font-size:11px; color:var(--muted); user-select:none;
+  }
+  .tb-logo { padding:0 16px; height:100%; display:flex; align-items:center; gap:8px; border-right:1px solid var(--border); font-weight:600; color:var(--accent); letter-spacing:.08em; font-size:10px; text-transform:uppercase; white-space:nowrap; }
+  .tb-logo::before { content:''; width:7px; height:7px; background:var(--accent); border-radius:1px; }
+  .tb-item { padding:0 14px; height:100%; display:flex; align-items:center; border-right:1px solid var(--border); cursor:pointer; transition:color .15s, background .15s; }
+  .tb-item:hover, .tb-item.active { color:var(--text); background:rgba(255,255,255,.04); }
+  .tb-item.active { color:var(--ax-x); }
+  .tb-right { margin-left:auto; display:flex; align-items:center; height:100%; }
+  .tb-engine { padding:0 14px; border-left:1px solid var(--border); color:var(--ax-y); font-size:10px; display:flex; align-items:center; gap:6px; }
+  .tb-engine::before { content:'●'; font-size:7px; }
+
+  /* SIDE PANEL */
+  .side {
+    position:fixed; right:0; top:34px; bottom:24px; z-index:50;
+    width:200px; background:var(--panel); border-left:1px solid var(--border);
+    overflow-y:auto; font-size:10px;
+    scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+  }
+  .sp-hdr { padding:6px 10px; background:#1d1e23; border-bottom:1px solid var(--border); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .sp-row { display:flex; justify-content:space-between; align-items:center; padding:3px 10px; }
+  .sp-lbl { color:var(--muted); font-size:9px; }
+  .sp-val { color:var(--text); font-size:10px; font-variant-numeric:tabular-nums; }
+  .sp-val.a { color:var(--accent); }
+  .sp-val.x { color:var(--ax-x); }
+  .sp-val.y { color:var(--ax-y); }
+  .sp-val.z { color:var(--ax-z); }
+  .sp-sect { border-bottom:1px solid var(--border); padding-bottom:6px; }
+  .sp-pill { background:rgba(74,158,255,.12); border:1px solid rgba(74,158,255,.28); color:var(--ax-x); padding:1px 7px; border-radius:2px; font-size:9px; }
+  .sp-btn { width:calc(100% - 20px); margin:4px 10px; padding:4px; background:rgba(255,255,255,.06); border:1px solid var(--border); color:var(--text); font-size:10px; cursor:pointer; border-radius:2px; font-family:inherit; transition:background .15s; }
+  .sp-btn:hover { background:rgba(255,255,255,.12); }
+
+  /* STATUSBAR */
+  .statusbar {
+    position:fixed; bottom:0; left:0; right:0; z-index:100;
+    height:24px; background:#17181c; border-top:1px solid var(--border);
+    display:flex; align-items:center; font-size:10px; color:var(--muted); user-select:none; font-variant-numeric:tabular-nums;
+  }
+  .sb { padding:0 12px; height:100%; display:flex; align-items:center; gap:5px; border-right:1px solid var(--border); }
+  .sb-mode { color:var(--ax-x); font-weight:500; letter-spacing:.05em; }
+  .sb-val { color:rgba(255,255,255,.5); }
+  .sb-right { margin-left:auto; padding:0 12px; font-size:9px; color:rgba(255,255,255,.18); letter-spacing:.04em; }
+
+  /* GIZMO */
+  .gizmo { position:fixed; bottom:38px; left:18px; z-index:50; width:66px; height:66px; pointer-events:none; }
+
+  /* HINT */
+  .hint {
+    position:fixed; bottom:36px; left:50%; transform:translateX(-50%); z-index:50;
+    display:flex; gap:16px; background:rgba(0,0,0,.55); border:1px solid var(--border);
+    padding:7px 18px; border-radius:2px; font-size:10px; color:var(--muted); pointer-events:none;
+  }
+  .hint span { display:flex; align-items:center; gap:5px; }
+  .hint kbd { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); padding:1px 5px; border-radius:2px; font-size:9px; color:var(--text); font-family:'Space Grotesk',sans-serif; }
+
+  /* LOADING */
+  #loading {
+    position:fixed; inset:0; z-index:500; background:var(--vp);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+  }
+  .load-bar-wrap { width:280px; height:3px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
+  .load-bar { height:100%; background:var(--accent); width:0%; transition:width .2s; border-radius:2px; }
+  .load-text { font-size:11px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+  .load-title { font-size:13px; color:var(--accent); font-weight:500; letter-spacing:.1em; text-transform:uppercase; }
+
+  /* LIGHTBOX */
+  #lightbox {
+    position:fixed; inset:0; z-index:300;
+    background:rgba(10,10,14,.92);
+    display:none; align-items:center; justify-content:center;
+    backdrop-filter:blur(6px);
+  }
+  .lb-bar {
+    position:absolute; top:0; left:0; right:0; height:32px;
+    background:var(--panel); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 14px; font-size:10px; color:var(--muted);
+  }
+  .lb-bar-right { display:flex; align-items:center; gap:10px; }
+  .lb-nav { background:rgba(255,255,255,.07); border:1px solid var(--border); color:var(--text); padding:3px 12px; cursor:pointer; border-radius:2px; font-family:inherit; font-size:10px; }
+  .lb-close { width:18px; height:18px; border-radius:50%; background:var(--ax-z); border:none; cursor:pointer; opacity:.8; }
+  #lbImg {
+    max-width:min(88vw,1200px); max-height:calc(90vh - 32px);
+    margin-top:32px; object-fit:contain;
+    border:1px solid rgba(255,255,255,.1);
+    box-shadow:0 24px 80px rgba(0,0,0,.8);
+    display:block;
+  }
+  .lb-arrow {
+    position:absolute; top:55%; transform:translateY(-50%);
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.08); border:1px solid var(--border);
+    color:var(--text); font-size:22px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s;
+  }
+  .lb-arrow:hover { background:rgba(255,255,255,.15); }
+  #lbArrowL { left:20px; }
+  #lbArrowR { right:20px; }
+  .lb-hint { position:absolute; bottom:10px; font-size:10px; color:rgba(255,255,255,.22); font-family:'Space Grotesk',sans-serif; letter-spacing:.04em; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="load-title">Projekt Varvet</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+  <div class="load-text" id="loadText">Laddar scen...</div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">Projekt Varvet</div>
+  <div class="tb-item active">3D Viewport</div>
+  <div class="tb-item">Film</div>
+  <div class="tb-item">Om projektet</div>
+  <div class="tb-item">Kontakt</div>
+  <div class="tb-right"><div class="tb-engine">THREE.JS</div></div>
+</div>
+
+<!-- SIDE PANEL -->
+<div class="side">
+  <div class="sp-sect">
+    <div class="sp-hdr">Render</div>
+    <div class="sp-row"><span class="sp-lbl">Engine</span><span class="sp-pill">WebGL2</span></div>
+    <div class="sp-row"><span class="sp-lbl">Format</span><span class="sp-val">glTF / WebP</span></div>
+    <div class="sp-row"><span class="sp-lbl">Filstorlek</span><span class="sp-val a">2.9 MB</span></div>
+    <div class="sp-row"><span class="sp-lbl">Objekt</span><span class="sp-val" id="pObjCount">—</span></div>
+  </div>
+  <div class="sp-sect">
+    <div class="sp-hdr">Kamera</div>
+    <div class="sp-row"><span class="sp-lbl">Theta</span><span class="sp-val" id="pTheta">0.000</span></div>
+    <div class="sp-row"><span class="sp-lbl">Phi</span><span class="sp-val" id="pPhi">0.000</span></div>
+    <div class="sp-row"><span class="sp-lbl">Radius</span><span class="sp-val" id="pRadius">0.000</span></div>
+  </div>
+  <div class="sp-sect">
+    <div class="sp-hdr">Target</div>
+    <div class="sp-row"><span class="sp-lbl">X</span><span class="sp-val x" id="pTx">0.000</span></div>
+    <div class="sp-row"><span class="sp-lbl">Y</span><span class="sp-val y" id="pTy">0.000</span></div>
+    <div class="sp-row"><span class="sp-lbl">Z</span><span class="sp-val z" id="pTz">0.000</span></div>
+  </div>
+  <div class="sp-sect">
+    <div class="sp-hdr">Markerat objekt</div>
+    <div class="sp-row"><span class="sp-lbl">Namn</span><span class="sp-val a" id="pSelName">—</span></div>
+    <div class="sp-row"><span class="sp-lbl">Typ</span><span class="sp-val" id="pSelType">—</span></div>
+  </div>
+  <div class="sp-sect">
+    <div class="sp-hdr">Snabbvy</div>
+    <button class="sp-btn" onclick="resetView()">↺ Återställ vy</button>
+    <button class="sp-btn" onclick="topView()">⊞ Top (Numpad 7)</button>
+    <button class="sp-btn" onclick="frontView()">□ Front (Numpad 1)</button>
+    <button class="sp-btn" onclick="sideView()">◁ Side (Numpad 3)</button>
+  </div>
+  <div class="sp-sect">
+    <div class="sp-hdr">Visning</div>
+    <button class="sp-btn" id="btnGrid" onclick="toggleGrid()">▦ Grid: På</button>
+    <button class="sp-btn" id="btnWire" onclick="toggleWireframe()">◻ Wireframe: Av</button>
+  </div>
+</div>
+
+<!-- CANVAS -->
+<canvas id="c"></canvas>
+
+<!-- GIZMO -->
+<svg class="gizmo" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <circle cx="33" cy="33" r="32" fill="rgba(0,0,0,.5)" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+  <line id="gx" x1="33" y1="33" x2="57" y2="43" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round"/>
+  <circle id="gxc" cx="60" cy="44" r="5" fill="#4a9eff"/>
+  <text id="gxt" x="60" y="47" font-size="7" fill="#1a1a1e" text-anchor="middle" font-family="Space Grotesk" font-weight="700">X</text>
+  <line id="gy" x1="33" y1="33" x2="9" y2="43" stroke="#7ec663" stroke-width="2.5" stroke-linecap="round"/>
+  <circle id="gyc" cx="6" cy="44" r="5" fill="#7ec663"/>
+  <text id="gyt" x="6" y="47" font-size="7" fill="#1a1a1e" text-anchor="middle" font-family="Space Grotesk" font-weight="700">Y</text>
+  <line id="gz" x1="33" y1="33" x2="33" y2="7" stroke="#e05a5a" stroke-width="2.5" stroke-linecap="round"/>
+  <circle id="gzc" cx="33" cy="4" r="5" fill="#e05a5a"/>
+  <text id="gzt" x="33" y="7" font-size="7" fill="#1a1a1e" text-anchor="middle" font-family="Space Grotesk" font-weight="700">Z</text>
+  <circle cx="33" cy="33" r="3.5" fill="rgba(255,255,255,.75)"/>
+</svg>
+
+<!-- STATUSBAR -->
+<div class="statusbar">
+  <div class="sb sb-mode">OBJECT MODE</div>
+  <div class="sb" id="sbOrthoWrap" style="display:none;color:var(--accent);font-weight:500;letter-spacing:.05em;font-size:10px;"><span id="sbOrtho">Ortho</span>&nbsp;<span style="color:var(--muted);font-size:9px;cursor:pointer;" onclick="window.resetView()">✕ Persp</span></div>
+  <div class="sb"><span style="color:rgba(255,255,255,.28)">X</span><span class="sb-val" id="sbx">0.000</span></div>
+  <div class="sb"><span style="color:rgba(255,255,255,.28)">Y</span><span class="sb-val" id="sby">0.000</span></div>
+  <div class="sb"><span style="color:rgba(255,255,255,.28)">Z</span><span class="sb-val" id="sbz">0.000</span></div>
+  <div class="sb-right" id="sbinfo">Hover över ett objekt för att inspektera</div>
+</div>
+
+<!-- HINT -->
+<div class="hint" id="hint">
+  <span><kbd>LMB drag</kbd> Orbit</span>
+  <span><kbd>RMB drag</kbd> Pan</span>
+  <span><kbd>Scroll</kbd> Zoom</span>
+  <span><kbd>Klick</kbd> Fokusera</span>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div class="lb-bar">
+    <span id="lbTitle" style="color:var(--accent);letter-spacing:.06em;"></span>
+    <div class="lb-bar-right">
+      <span id="lbMeta" style="color:var(--muted);"></span>
+      <button class="lb-nav" id="lbPrev">◀ Föregående</button>
+      <button class="lb-nav" id="lbNext">Nästa ▶</button>
+      <button class="lb-close" id="lbClose" aria-label="Stäng"></button>
+    </div>
+  </div>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-arrow" id="lbArrowL">&#8249;</button>
+  <button class="lb-arrow" id="lbArrowR">&#8250;</button>
+  <div class="lb-hint">ESC eller klicka utanför för att stänga &nbsp;·&nbsp; ← → för att bläddra</div>
+</div>
+
+<!-- THREE.JS -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+/* ===================== SCENE SETUP ===================== */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.sortObjects = true;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1b1c21);
+
+const camera = new THREE.PerspectiveCamera(55, 1, 0.01, 1000);
+
+/* ===================== LIGHTING ===================== */
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xfff5e0, 1.8);
+dirLight.position.set(5, 10, 5);
+dirLight.castShadow = true;
+scene.add(dirLight);
+const fillLight = new THREE.DirectionalLight(0xe0f0ff, 0.6);
+fillLight.position.set(-5, 3, -5);
+scene.add(fillLight);
+
+/* ===================== GRID ===================== */
+const gridHelper = new THREE.GridHelper(40, 40, 0xffffff, 0xffffff);
+gridHelper.material.opacity = 0.06;
+gridHelper.material.transparent = true;
+scene.add(gridHelper);
+
+/* ===================== CAMERA STATE ===================== */
+const cam = {
+  theta: 0.6, phi: 0.8, radius: 15,
+  tx: 0, ty: 1, tz: 0,
+  left: false, right: false, px: 0, py: 0
+};
+
+function updateCamera() {
+  camera.position.set(
+    cam.tx + cam.radius * Math.sin(cam.phi) * Math.cos(cam.theta),
+    cam.ty + cam.radius * Math.cos(cam.phi),
+    cam.tz + cam.radius * Math.sin(cam.phi) * Math.sin(cam.theta)
+  );
+  camera.lookAt(cam.tx, cam.ty, cam.tz);
+}
+
+/* ===================== LOAD GLB ===================== */
+const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
+
+// Collect all meshes with textures for lightbox
+const clickableMeshes = [];
+let objectCount = 0;
+
+loader.load(
+  'aland_web.glb',
+  (gltf) => {
+    const model = gltf.scene;
+
+    // Auto-center and scale
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 10 / maxDim;
+    model.scale.setScalar(scale);
+    model.position.sub(center.multiplyScalar(scale));
+    // Bring up to ground level
+    const box2 = new THREE.Box3().setFromObject(model);
+    model.position.y -= box2.min.y;
+
+    scene.add(model);
+
+    // Collect meshes
+    model.traverse(obj => {
+      objectCount++;
+      if(obj.isMesh) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        mats.forEach(m => {
+          if(!m) return;
+          m.side = THREE.DoubleSide;
+
+          // Fix transparency depth sorting
+          if(m.transparent || (m.map && m.map.format === THREE.RGBAFormat)) {
+            m.transparent = true;
+            m.alphaTest = 0.1;      // clip fully transparent pixels
+            m.depthWrite = true;    // write to depth buffer
+            m.depthTest = true;
+            // Force opaque rendering where possible
+            if(m.opacity >= 0.99) {
+              m.transparent = false;
+            }
+          } else {
+            m.transparent = false;
+            m.depthWrite = true;
+            m.depthTest = true;
+          }
+          m.needsUpdate = true;
+        });
+
+        const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
+        if(mat && mat.map) {
+          clickableMeshes.push(obj);
+        }
+      }
+    });
+
+    // Sort transparent objects back-to-front
+    scene.traverse(obj => {
+      if(obj.isMesh) obj.renderOrder = 0;
+    });
+
+    document.getElementById('pObjCount').textContent = objectCount;
+
+    // Set camera target to scene center
+    const box3 = new THREE.Box3().setFromObject(model);
+    const c3 = box3.getCenter(new THREE.Vector3());
+    cam.tx = c3.x; cam.ty = c3.y * 0.5; cam.tz = c3.z;
+    // Store initial scene center and radius for reset
+    window._sceneCenter = { tx: cam.tx, ty: cam.ty, tz: cam.tz };
+    window._sceneRadius = cam.radius;
+    cam.radius = Math.max(size.x, size.z) * scale * 1.2;
+
+    document.getElementById('loading').style.display = 'none';
+  },
+  (progress) => {
+    const pct = Math.round((progress.loaded / progress.total) * 100);
+    document.getElementById('loadBar').style.width = pct + '%';
+    document.getElementById('loadText').textContent = `Laddar scen... ${pct}%`;
+  },
+  (err) => {
+    document.getElementById('loadText').textContent = 'Fel vid laddning: ' + err.message;
+    console.error(err);
+  }
+);
+
+/* ===================== RAYCASTER / HOVER / CLICK ===================== */
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let hoveredObj = null;
+let selectedObj = null;
+const highlightColor = new THREE.Color(0xf0a030);
+const origColors = new Map();
+
+function getOrigColor(mesh) {
+  if(!origColors.has(mesh.uuid)) {
+    origColors.set(mesh.uuid, mesh.material.color ? mesh.material.color.clone() : new THREE.Color(1,1,1));
+  }
+  return origColors.get(mesh.uuid);
+}
+
+function setHighlight(mesh, on) {
+  if(!mesh || !mesh.material) return;
+  if(on) {
+    if(!origColors.has(mesh.uuid)) getOrigColor(mesh);
+    if(mesh.material.emissive !== undefined) {
+      mesh.material.emissive.set(0x332200);
+    }
+  } else {
+    if(mesh.material.emissive !== undefined) {
+      mesh.material.emissive.set(0x000000);
+    }
+  }
+}
+
+function setSelected(mesh, on) {
+  if(!mesh || !mesh.material) return;
+  if(on) {
+    if(mesh.material.emissive !== undefined) {
+      mesh.material.emissive.set(0x553300);
+    }
+  } else {
+    if(mesh.material.emissive !== undefined) {
+      mesh.material.emissive.set(0x000000);
+    }
+  }
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+  // Status bar coords
+  document.getElementById('sbx').textContent = mouse.x.toFixed(3);
+  document.getElementById('sby').textContent = mouse.y.toFixed(3);
+
+  // Raycast
+  raycaster.setFromCamera(mouse, activeCamera);
+  const hits = raycaster.intersectObjects(clickableMeshes, false);
+
+  if(hoveredObj && hoveredObj !== selectedObj) setHighlight(hoveredObj, false);
+  hoveredObj = hits.length > 0 ? hits[0].object : null;
+  if(hoveredObj && hoveredObj !== selectedObj) setHighlight(hoveredObj, true);
+
+  if(hoveredObj) {
+    canvas.style.cursor = 'pointer';
+    document.getElementById('sbinfo').textContent = hoveredObj.name || 'Mesh';
+  } else {
+    canvas.style.cursor = cam.left ? 'grabbing' : cam.right ? 'move' : 'default';
+    document.getElementById('sbinfo').textContent = 'Orbit: LMB · Pan: RMB · Zoom: scroll';
+  }
+});
+
+canvas.addEventListener('click', e => {
+  const elapsed = performance.now() - (cam.dragStartTime || 0);
+  if(cam.didDrag || elapsed > 200) return; // was a drag or long press
+
+  raycaster.setFromCamera(mouse, activeCamera);
+  const hits = raycaster.intersectObjects(clickableMeshes, false);
+
+  if(selectedObj) setSelected(selectedObj, false);
+
+  if(hits.length > 0) {
+    selectedObj = hits[0].object;
+    setSelected(selectedObj, true);
+    document.getElementById('pSelName').textContent = selectedObj.name || 'Mesh';
+    document.getElementById('pSelType').textContent = 'Mesh';
+
+    // Open lightbox with texture
+    if(selectedObj.material && selectedObj.material.map) {
+      openLightbox(selectedObj);
+    }
+  } else {
+    selectedObj = null;
+    document.getElementById('pSelName').textContent = '—';
+    document.getElementById('pSelType').textContent = '—';
+  }
+});
+
+/* ===================== LIGHTBOX ===================== */
+const lb = document.getElementById('lightbox');
+let lbMeshes = []; // ordered list for prev/next
+let lbIndex = 0;
+
+function openLightbox(mesh) {
+  // Build ordered list of textured meshes if not done
+  if(lbMeshes.length === 0) lbMeshes = [...clickableMeshes];
+  lbIndex = lbMeshes.indexOf(mesh);
+  if(lbIndex < 0) lbIndex = 0;
+  renderLightbox();
+  lb.style.display = 'flex';
+  document.getElementById('hint').style.display = 'none';
+}
+
+function closeLightbox() {
+  lb.style.display = 'none';
+  document.getElementById('hint').style.display = 'flex';
+}
+
+function renderLightbox() {
+  const mesh = lbMeshes[lbIndex];
+  if(!mesh || !mesh.material || !mesh.material.map) return;
+
+  const tex = mesh.material.map;
+  const img = tex.image;
+
+  // Draw texture to a canvas and use as img src
+  const cv = document.createElement('canvas');
+  cv.width = img.width || img.videoWidth || 512;
+  cv.height = img.height || img.videoHeight || 512;
+  const ctx = cv.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  document.getElementById('lbImg').src = cv.toDataURL('image/webp');
+
+  const name = mesh.name || `Objekt ${lbIndex + 1}`;
+  document.getElementById('lbTitle').textContent = name;
+  document.getElementById('lbMeta').textContent = `${lbIndex + 1} / ${lbMeshes.length}`;
+}
+
+function lbNavigate(dir) {
+  lbIndex = (lbIndex + dir + lbMeshes.length) % lbMeshes.length;
+  renderLightbox();
+}
+
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrev').addEventListener('click', () => lbNavigate(-1));
+document.getElementById('lbNext').addEventListener('click', () => lbNavigate(1));
+document.getElementById('lbArrowL').addEventListener('click', () => lbNavigate(-1));
+document.getElementById('lbArrowR').addEventListener('click', () => lbNavigate(1));
+lb.addEventListener('click', e => { if(e.target === lb) closeLightbox(); });
+document.addEventListener('keydown', e => {
+  if(lb.style.display === 'none') return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowLeft') lbNavigate(-1);
+  if(e.key === 'ArrowRight') lbNavigate(1);
+});
+
+/* ===================== MOUSE CONTROLS ===================== */
+canvas.addEventListener('mousedown', e => {
+  if(e.button === 0) { cam.left = true; cam.dragStartTime = performance.now(); cam.didDrag = false; }
+  if(e.button === 2) { cam.right = true; e.preventDefault(); }
+  cam.px = e.clientX; cam.py = e.clientY;
+  cam.startX = e.clientX; cam.startY = e.clientY;
+});
+window.addEventListener('mouseup', () => { cam.left = false; cam.right = false; });
+window.addEventListener('mousemove', e => {
+  const dx = e.clientX - cam.px, dy = e.clientY - cam.py;
+  cam.px = e.clientX; cam.py = e.clientY;
+  if(cam.left) {
+    const movedX = Math.abs(e.clientX - cam.startX);
+    const movedY = Math.abs(e.clientY - cam.startY);
+    if(movedX > 4 || movedY > 4) cam.didDrag = true;
+    cam.theta += dx * 0.008;
+    cam.phi = Math.max(0.05, Math.min(Math.PI/2 - 0.02, cam.phi - dy * 0.008));
+  }
+  if(cam.right) {
+    const s = cam.radius * 0.004;
+    const rr = [-Math.sin(cam.theta), 0, Math.cos(cam.theta)];
+    const ff = [Math.cos(cam.theta)*Math.cos(cam.phi), Math.sin(cam.phi), Math.sin(cam.theta)*Math.cos(cam.phi)];
+    cam.tx += dx * s * rr[0] + dy * s * ff[0];
+    cam.ty += dy * s * ff[1];
+    cam.tz += dx * s * rr[2] + dy * s * ff[2];
+  }
+});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  cam.radius = Math.max(0.5, Math.min(100, cam.radius + e.deltaY * 0.02));
+}, { passive: false });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+/* Touch */
+let pinchDist0 = 0, pinchRadius0 = 0;
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if(e.touches.length === 1) { cam.left = true; cam.px = e.touches[0].clientX; cam.py = e.touches[0].clientY; }
+  if(e.touches.length === 2) {
+    cam.left = false;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    pinchDist0 = Math.sqrt(dx*dx+dy*dy); pinchRadius0 = cam.radius;
+  }
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if(e.touches.length === 1 && cam.left) {
+    const dx = e.touches[0].clientX - cam.px, dy = e.touches[0].clientY - cam.py;
+    cam.px = e.touches[0].clientX; cam.py = e.touches[0].clientY;
+    cam.theta += dx * 0.008;
+    cam.phi = Math.max(0.05, Math.min(Math.PI/2-0.02, cam.phi - dy * 0.008));
+  }
+  if(e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const d = Math.sqrt(dx*dx+dy*dy);
+    cam.radius = Math.max(0.5, Math.min(100, pinchRadius0 * (pinchDist0/d)));
+  }
+}, { passive: false });
+canvas.addEventListener('touchend', () => { cam.left = false; });
+
+/* ===================== VIEW PRESETS — ORTHO + PERSP ===================== */
+const perspCamera = camera;
+const orthoCamera = new THREE.OrthographicCamera(-10, 10, 10, -10, -500, 500);
+let activeCamera = perspCamera;
+let orthoMode = false;
+
+function updateOrthoFrustum() {
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  const aspect = W / H;
+  const s = cam.radius * 0.5;
+  orthoCamera.left   = -s * aspect;
+  orthoCamera.right  =  s * aspect;
+  orthoCamera.top    =  s;
+  orthoCamera.bottom = -s;
+  orthoCamera.updateProjectionMatrix();
+}
+
+function setOrthoView(theta, phi, label) {
+  orthoMode = true;
+  activeCamera = orthoCamera;
+  document.getElementById('sbOrtho').textContent = label;
+  document.getElementById('sbOrthoWrap').style.display = 'flex';
+  animateTo({ theta, phi, radius: cam.radius, tx: cam.tx, ty: cam.ty, tz: cam.tz });
+}
+
+function setPerspView() {
+  orthoMode = false;
+  activeCamera = perspCamera;
+  document.getElementById('sbOrthoWrap').style.display = 'none';
+}
+
+function animateTo(target, dur=600) {
+  const start = { theta:cam.theta, phi:cam.phi, radius:cam.radius, tx:cam.tx, ty:cam.ty, tz:cam.tz };
+  const t0 = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now-t0)/dur);
+    const e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+    cam.theta = start.theta + (target.theta - start.theta)*e;
+    cam.phi   = start.phi   + (target.phi   - start.phi  )*e;
+    cam.radius= start.radius+ (target.radius- start.radius)*e;
+    cam.tx    = start.tx    + (target.tx    - start.tx   )*e;
+    cam.ty    = start.ty    + (target.ty    - start.ty   )*e;
+    cam.tz    = start.tz    + (target.tz    - start.tz   )*e;
+    if(t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+document.addEventListener('keydown', e => {
+  if(lb.style.display !== 'none') return;
+  if(e.key === '7') setOrthoView(cam.theta, 0.02, 'Top');
+  if(e.key === '1') setOrthoView(Math.PI/2, Math.PI/2-0.01, 'Front');
+  if(e.key === '3') setOrthoView(0, Math.PI/2-0.01, 'Side');
+  if(e.key === '5') { orthoMode ? setPerspView() : setOrthoView(cam.theta, cam.phi, 'Ortho'); }
+});
+
+window.resetView  = () => { const c = window._sceneCenter || {tx:0,ty:0,tz:0}; const r = window._sceneRadius || 15; setPerspView(); animateTo({ theta:0.6, phi:0.8, radius:r, tx:c.tx, ty:c.ty, tz:c.tz }); };
+window.topView    = () => setOrthoView(cam.theta,  0.02,            'Top (7)');
+window.frontView  = () => setOrthoView(Math.PI/2,  Math.PI/2-0.01, 'Front (1)');
+window.sideView   = () => setOrthoView(0,           Math.PI/2-0.01,'Side (3)');
+
+/* ===================== GRID / WIREFRAME TOGGLES ===================== */
+let gridOn = true, wireOn = false;
+window.toggleGrid = () => {
+  gridOn = !gridOn;
+  gridHelper.visible = gridOn;
+  document.getElementById('btnGrid').textContent = `▦ Grid: ${gridOn ? 'På' : 'Av'}`;
+};
+window.toggleWireframe = () => {
+  wireOn = !wireOn;
+  scene.traverse(obj => { if(obj.isMesh) obj.material.wireframe = wireOn; });
+  document.getElementById('btnWire').textContent = `◻ Wireframe: ${wireOn ? 'På' : 'Av'}`;
+};
+
+/* ===================== GIZMO UPDATE ===================== */
+function updateGizmo() {
+  const ox=33, oy=33, r=22;
+  const sinT=Math.sin(cam.theta), cosT=Math.cos(cam.theta);
+  const sinP=Math.sin(cam.phi),   cosP=Math.cos(cam.phi);
+
+  // Camera right = (-sinT, 0, cosT), up = (cosT*cosP, sinP, sinT*cosP) approx
+  const axes = [
+    { id:'x', vx: cosT,   vy: 0     },
+    { id:'y', vx:-sinT*sinP, vy: cosP },
+    { id:'z', vx:-sinT,   vy: 0     },
+  ];
+  axes.forEach(({ id, vx, vy }) => {
+    const ex = ox + vx*r, ey = oy - vy*r;
+    const el  = document.getElementById('g'+id);
+    const ec  = document.getElementById('g'+id+'c');
+    const et  = document.getElementById('g'+id+'t');
+    if(el){ el.setAttribute('x2', ex); el.setAttribute('y2', ey); }
+    if(ec){ ec.setAttribute('cx', ex + vx*5); ec.setAttribute('cy', ey - vy*5); }
+    if(et){ et.setAttribute('x',  ex + vx*5); et.setAttribute('y',  ey - vy*5 + 3); }
+  });
+}
+
+/* ===================== RESIZE ===================== */
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h, false);
+  perspCamera.aspect = w / h;
+  perspCamera.updateProjectionMatrix();
+  if(orthoMode) updateOrthoFrustum();
+}
+resize();
+window.addEventListener('resize', resize);
+
+/* ===================== RENDER LOOP ===================== */
+function render() {
+  updateCamera();
+  if(orthoMode) updateOrthoFrustum();
+  // sync ortho camera position to same spherical position
+  if(orthoMode) {
+    orthoCamera.position.copy(perspCamera.position);
+    orthoCamera.lookAt(cam.tx, cam.ty, cam.tz);
+  }
+  renderer.render(scene, activeCamera);
+
+  // Panel update
+  document.getElementById('pTheta').textContent = cam.theta.toFixed(3);
+  document.getElementById('pPhi').textContent   = cam.phi.toFixed(3);
+  document.getElementById('pRadius').textContent= cam.radius.toFixed(2);
+  document.getElementById('pTx').textContent    = cam.tx.toFixed(3);
+  document.getElementById('pTy').textContent    = cam.ty.toFixed(3);
+  document.getElementById('pTz').textContent    = cam.tz.toFixed(3);
+
+  updateGizmo();
+  requestAnimationFrame(render);
+}
+render();
+
+</script>
+</body>
+</html>
