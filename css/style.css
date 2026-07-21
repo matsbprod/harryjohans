@@ -24,7 +24,7 @@
   --white-faint:rgba(236,238,240,.3);
 
   --nav-h:      64px;   /* JS animerar */
-  --max-w:      1180px;
+  --max-w:      1480px;
   --pad:        clamp(1.5rem, 5vw, 6rem);
 }
 
@@ -260,12 +260,17 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .f-img .inner {
   position: absolute; inset: 0;
   transform: scale(1);
-  transition: transform 1s ease, filter .45s ease;
+  filter: grayscale(1);
+  transition: transform 1s ease, filter .6s ease;
 }
+.f-img .inner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Färg på hover — bilden ligger i färg, gråskalas på förstasidan */
 .f-img:hover .inner {
   transform: scale(1.04);
-  filter: saturate(.5) brightness(.8);
+  filter: grayscale(0);
 }
+/* Färgplatshållare (utan bild) ska inte gråskalas */
+.f-img .inner.ph { filter: none; }
 
 .f-overlay {
   position: absolute; inset: 0; z-index: 1;
@@ -358,6 +363,22 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
     rgba(11,12,14,.55) 100%);
 }
 
+
+/* ── Extra sektion: 1/3·1/3·1/3 + 1/2·1/2 × 2 ───────────── */
+.mix-grid {
+  max-width: var(--max-w); margin: 0 auto;
+}
+.mix-row { display: grid; }
+.mix-thirds { grid-template-columns: 1fr 1fr 1fr; }
+.mix-halves { grid-template-columns: 1fr 1fr; }
+/* Rutorna i denna sektion: hela kvadrater i tredjedelsraden,
+   liggande (2:1) i halvraderna — justera fritt. */
+.mix-thirds .f-img { aspect-ratio: 1 / 1; }
+.mix-halves .f-img { aspect-ratio: 16 / 9; }
+@media (max-width: 720px) {
+  .mix-thirds, .mix-halves { grid-template-columns: 1fr; }
+  .mix-thirds .f-img, .mix-halves .f-img { aspect-ratio: auto; min-height: 260px; }
+}
 
 /* ── Citat-sektion ──────────────────────────────────────── */
 .quote-band {
