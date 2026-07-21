@@ -124,4 +124,25 @@
   } else {
     reveals.forEach(function(el) { el.classList.add("visible"); });
   }
+
+  // ── Bildproportioner: visa hel bild om den redan matchar
+  //    rutans form, annars croppa för att fylla rutan ──────────
+  function fitImages() {
+    document.querySelectorAll('.f-img img').forEach(function(img) {
+      function check() {
+        var box = img.closest('.f-img');
+        if (!box || !img.naturalWidth) return;
+        var boxRatio = box.clientWidth / box.clientHeight;
+        var imgRatio = img.naturalWidth / img.naturalHeight;
+        // Tolerans: om bildens proportion ligger nära rutans (inom ~12%),
+        // visa den i sin helhet. Annars croppa (cover, default).
+        var diff = Math.abs(imgRatio - boxRatio) / boxRatio;
+        img.classList.toggle('fit-contain', diff < 0.12);
+      }
+      if (img.complete) check();
+      else img.addEventListener('load', check);
+      window.addEventListener('resize', check);
+    });
+  }
+  fitImages();
 })();
