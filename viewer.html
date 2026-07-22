@@ -767,6 +767,14 @@ let soundOn = false;
 let audioFormat = 'hrtf';
 const soundSources = []; // { panner|merger, gain, def, buffer, started, marker }
 
+// Avståndsdämpning — högre ROLLOFF = större skillnad nära/långt bort.
+// Justera denna för att göra ljudet mer eller mindre avståndskänsligt.
+const AUDIO_ROLLOFF = {
+  refDistance: 1.2,    // avstånd inom vilket ljudet hörs på full volym
+  maxDistance: 25,     // avstånd där ljudet i princip är tystnat
+  rolloffFactor: 3.5,  // hur snabbt det avtar däremellan (1 = svagt, 4+ = dramatiskt)
+};
+
 // Ljudkällor: 3D-position + fil + volym + loop.
 // Flytta pos[] för att matcha specifika objekt när du vet .glb-koordinaterna
 // (markera objektet i scenen — Properties-panelen visar X/Y/Z).
@@ -867,9 +875,9 @@ function buildSourceChain(def) {
   const panner = audioCtx.createPanner();
   panner.panningModel  = audioFormat === 'equalpower' ? 'equalpower' : 'HRTF';
   panner.distanceModel = 'inverse';
-  panner.refDistance   = 2;
-  panner.maxDistance   = 40;
-  panner.rolloffFactor = 1.1;
+  panner.refDistance   = AUDIO_ROLLOFF.refDistance;
+  panner.maxDistance   = AUDIO_ROLLOFF.maxDistance;
+  panner.rolloffFactor = AUDIO_ROLLOFF.rolloffFactor;
   panner.positionX.value = def.pos[0];
   panner.positionY.value = def.pos[1];
   panner.positionZ.value = def.pos[2];
@@ -933,7 +941,8 @@ function updateAudioListener() {
       const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0,1,0)).normalize();
       const azimuth = Math.atan2(toSrc.dot(right), toSrc.dot(fwd)); // -PI..PI
       const dist = Math.max(0.5, toSrc.length());
-      const atten = Math.min(1, 3 / dist);
+      const norm = AUDIO_ROLLOFF.refDistance / dist;
+      const atten = Math.min(1, Math.pow(norm, AUDIO_ROLLOFF.rolloffFactor * 0.6));
 
       const n = entry.chCount;
       entry.perChannelGain.forEach((g, c) => {
