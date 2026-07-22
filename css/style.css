@@ -146,6 +146,44 @@ img { display: block; width: 100%; height: 100%; object-fit: cover; }
   object-fit: cover; object-position: center 42%;
 }
 
+/* Textruta i nedre högra hörnet av heron, med riktad gradient */
+.hero-corner {
+  position: absolute;
+  right: 0; bottom: 0;
+  width: min(38%, 480px);
+  height: 55%;
+  z-index: 2;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 2.4rem;
+  pointer-events: none;
+}
+.hero-corner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 100% 100%,
+    rgba(11,12,14,.75) 0%,
+    rgba(11,12,14,.4) 45%,
+    rgba(11,12,14,0) 75%);
+  z-index: -1;
+}
+.hero-corner .lbl { color: var(--white); opacity: .9; }
+.hero-corner h3 {
+  color: var(--white);
+  font-family: "Archivo", sans-serif;
+  font-weight: 500; font-size: 1.3rem;
+  margin: .4rem 0 .5rem;
+}
+.hero-corner p {
+  color: var(--white);
+  font-size: .95rem; line-height: 1.55;
+  opacity: .9; max-width: 340px;
+}
+@media (max-width: 720px) {
+  .hero-corner { width: 100%; height: 45%; padding: 1.4rem; }
+}
+
 /* Titelband under bilden */
 .hero-caption {
   background: var(--bg);
