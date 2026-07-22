@@ -200,6 +200,18 @@
     <button class="sp-btn" id="btnGrid" onclick="toggleGrid()">▦ Grid: På</button>
     <button class="sp-btn" id="btnWire" onclick="toggleWireframe()">◻ Wireframe: Av</button>
   </div>
+  <div class="sp-sect">
+    <div class="sp-hdr">Ljud</div>
+    <div class="sp-row"><span class="sp-lbl">Status</span><span class="sp-val" id="pSoundStatus">Av</span></div>
+    <div class="sp-row"><span class="sp-lbl">Kanaler (system)</span><span class="sp-val" id="pChannels">—</span></div>
+    <div style="padding:6px 10px;">
+      <select id="audioFormatSelect" style="width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);color:var(--text);font-size:10px;padding:5px 6px;border-radius:2px;font-family:'Space Grotesk',sans-serif;">
+        <option value="hrtf">Binaural (HRTF) — hörlurar</option>
+        <option value="equalpower">Stereo (equalpower) — högtalare</option>
+        <option value="multichannel">Flerkanal (experimentell)</option>
+      </select>
+    </div>
+  </div>
 </div>
 
 <!-- CANVAS -->
@@ -736,46 +748,86 @@ window.addEventListener('resize', resize);
 
 /* ===================== POSITIONELLT LJUD (Web Audio) =====================
    Default: AV. Besökaren måste aktivt slå på ljudet via knappen i topbaren.
-   Varje ljudkälla har en 3D-position i scenen (PannerNode, HRTF).
-   AudioListener uppdateras varje frame till kamerans position/riktning,
-   så ljudbilden roterar och tonar med navigeringen.
+   Varje ljudkälla har en 3D-position i scenen (PannerNode eller egen
+   kanalroutare), markerad visuellt med en pulserande sfär.
+   AudioListener/routning uppdateras varje frame efter kamerans
+   position/riktning, så ljudbilden roterar och tonar med navigeringen.
+
+   Ljudformat (väljare i sidopanelen):
+     - hrtf         : binaural stereo via HRTF (bäst i hörlurar) — default
+     - equalpower   : enklare stereopanorering (ofta bättre på högtalare)
+     - multichannel : experimentell — försöker adressera diskreta kanaler
+                      om audioCtx.destination.maxChannelCount > 2. De allra
+                      flesta system nedmixar ändå till stereo oavsett vad
+                      webbläsaren skickar — detta är framtidssäkring, inte
+                      en garanti för riktig 7.1.4-output.
    =========================================================================== */
 let audioCtx = null;
 let soundOn = false;
-const soundSources = []; // { panner, gain, buffer, started }
+let audioFormat = 'hrtf';
+const soundSources = []; // { panner|merger, gain, def, buffer, started, marker }
 
-// Ljudkällor: [x, y, z, url, volym, loop]
-// Positionerna är ungefärliga scen-koordinater — flytta dem för att matcha
-// specifika objekt/kort när du vet var i .glb-scenen de ska sitta.
+// Ljudkällor: 3D-position + fil + volym + loop.
+// Flytta pos[] för att matcha specifika objekt när du vet .glb-koordinaterna
+// (markera objektet i scenen — Properties-panelen visar X/Y/Z).
 const SOUND_DEFS = [
-  { pos: [-4, 1.5, -2],  url: 'audio/verkstad_ambience.mp3', vol: 0.6, loop: true },
-  { pos: [3,  0.5,  2],  url: 'audio/vatten_ambience.mp3',   vol: 0.5, loop: true },
-  { pos: [0,  2.0, -6],  url: 'audio/verktyg_ljud.mp3',      vol: 0.7, loop: true },
+  { pos: [-4, 1.5, -2],  url: 'audio/verkstad_ambience.mp3', vol: 0.6, loop: true, label: 'Verkstad' },
+  { pos: [3,  0.5,  2],  url: 'audio/vatten_ambience.mp3',   vol: 0.5, loop: true, label: 'Vatten' },
+  { pos: [0,  2.0, -6],  url: 'audio/verktyg_ljud.mp3',      vol: 0.7, loop: true, label: 'Verktyg' },
 ];
 
+/* ── Visuella markörer i 3D-scenen ── */
+const soundMarkerGroup = new THREE.Group();
+scene.add(soundMarkerGroup);
+
+SOUND_DEFS.forEach(def => {
+  const geo = new THREE.SphereGeometry(0.12, 16, 16);
+  const mat = new THREE.MeshBasicMaterial({ color: 0x7ec663, transparent: true, opacity: 0.85 });
+  const marker = new THREE.Mesh(geo, mat);
+  marker.position.set(def.pos[0], def.pos[1], def.pos[2]);
+  soundMarkerGroup.add(marker);
+
+  // Pulserande ring runt sfären
+  const ringGeo = new THREE.RingGeometry(0.16, 0.19, 24);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0x7ec663, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.position.copy(marker.position);
+  soundMarkerGroup.add(ring);
+
+  def._marker = marker;
+  def._ring = ring;
+});
+
+function animateSoundMarkers(t) {
+  SOUND_DEFS.forEach((def, i) => {
+    if(!def._marker) return;
+    // Alltid synliga med en subtil puls; klarare/snabbare puls när ljud är på
+    const speed = soundOn ? 2.2 : 0.8;
+    const amt   = soundOn ? 0.35 : 0.12;
+    const s = 1 + Math.sin(t * speed + i * 1.7) * amt;
+    def._marker.scale.setScalar(s);
+    def._marker.material.opacity = soundOn ? 0.95 : 0.5;
+    def._marker.material.color.set(soundOn ? 0x7ec663 : 0x8a8880);
+
+    def._ring.lookAt(perspCamera.position);
+    const ringScale = 1 + ((t * speed * 0.6 + i) % 1) * 1.8;
+    def._ring.scale.setScalar(soundOn ? ringScale : 1);
+    def._ring.material.opacity = soundOn ? Math.max(0, 0.4 - (ringScale - 1) * 0.18) : 0.15;
+  });
+}
+
+/* ── Ljudmotor ── */
 function initAudio() {
   if(audioCtx) return;
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+  const maxCh = audioCtx.destination.maxChannelCount || 2;
+  document.getElementById('pChannels').textContent = maxCh + ' kanaler tillgängliga';
+
   SOUND_DEFS.forEach(def => {
-    const panner = audioCtx.createPanner();
-    panner.panningModel   = 'HRTF';
-    panner.distanceModel  = 'inverse';
-    panner.refDistance    = 2;
-    panner.maxDistance    = 40;
-    panner.rolloffFactor  = 1.1;
-    panner.positionX.value = def.pos[0];
-    panner.positionY.value = def.pos[1];
-    panner.positionZ.value = def.pos[2];
-
-    const gain = audioCtx.createGain();
-    gain.gain.value = def.vol;
-    panner.connect(gain).connect(audioCtx.destination);
-
-    const entry = { panner, gain, def, started: false, buffer: null };
+    const entry = buildSourceChain(def);
     soundSources.push(entry);
 
-    // Ladda ljudfilen i bakgrunden (spelas inte förrän soundOn = true)
     fetch(def.url)
       .then(r => { if(!r.ok) throw new Error('saknas'); return r.arrayBuffer(); })
       .then(buf => audioCtx.decodeAudioData(buf))
@@ -784,12 +836,53 @@ function initAudio() {
   });
 }
 
+// Bygger ljudkedjan för en källa enligt valt format.
+function buildSourceChain(def) {
+  const gain = audioCtx.createGain();
+  gain.gain.value = def.vol;
+
+  if(audioFormat === 'multichannel' && audioCtx.destination.maxChannelCount > 2) {
+    // Experimentell diskret kanalroutning: fördela käll-signalen över
+    // tillgängliga kanaler baserat på riktning från scenens centrum.
+    const chCount = Math.min(audioCtx.destination.maxChannelCount, 8);
+    audioCtx.destination.channelCount = chCount;
+    audioCtx.destination.channelCountMode = 'explicit';
+    audioCtx.destination.channelInterpretation = 'discrete';
+
+    const merger = audioCtx.createChannelMerger(chCount);
+    const perChannelGain = [];
+    for(let c = 0; c < chCount; c++) {
+      const g = audioCtx.createGain();
+      g.gain.value = 0;
+      g.connect(merger, 0, c);
+      perChannelGain.push(g);
+    }
+    gain.connect(merger);
+    for(const g of perChannelGain) gain.connect(g);
+    merger.connect(audioCtx.destination);
+    return { gain, merger, perChannelGain, chCount, def, started: false, buffer: null };
+  }
+
+  // Standard: PannerNode → alltid stereo-output (HRTF eller equalpower)
+  const panner = audioCtx.createPanner();
+  panner.panningModel  = audioFormat === 'equalpower' ? 'equalpower' : 'HRTF';
+  panner.distanceModel = 'inverse';
+  panner.refDistance   = 2;
+  panner.maxDistance   = 40;
+  panner.rolloffFactor = 1.1;
+  panner.positionX.value = def.pos[0];
+  panner.positionY.value = def.pos[1];
+  panner.positionZ.value = def.pos[2];
+  gain.connect(panner).connect(audioCtx.destination);
+  return { gain, panner, def, started: false, buffer: null };
+}
+
 function startSource(entry) {
   if(!entry.buffer || entry.started) return;
   const src = audioCtx.createBufferSource();
   src.buffer = entry.buffer;
   src.loop = entry.def.loop !== false;
-  src.connect(entry.panner);
+  src.connect(entry.gain);
   src.start();
   entry.source = src;
   entry.started = true;
@@ -805,17 +898,61 @@ function stopAllSources() {
   });
 }
 
+// Rebygger hela ljudgrafen (t.ex. vid formatbyte medan ljud spelar)
+function rebuildAudioGraph() {
+  if(!audioCtx) return;
+  const wasOn = soundOn;
+  stopAllSources();
+  soundSources.length = 0;
+  SOUND_DEFS.forEach(def => {
+    const entry = buildSourceChain(def);
+    // Återanvänd redan laddad buffer om den finns
+    const old = soundSources.find(e => e === entry); // no-op placeholder
+    soundSources.push(entry);
+  });
+  // Koppla in redan hämtade buffertar igen
+  SOUND_DEFS.forEach((def, i) => {
+    fetch(def.url).then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+      .then(buf => audioCtx.decodeAudioData(buf))
+      .then(ab => { soundSources[i].buffer = ab; if(wasOn) startSource(soundSources[i]); })
+      .catch(() => {});
+  });
+}
+
 function updateAudioListener() {
   if(!audioCtx || !soundOn) return;
+
+  if(audioFormat === 'multichannel') {
+    // Diskret routning: uppdatera per-kanal-gain utifrån riktning
+    // källa → lyssnare (grov azimut-baserad fördelning över kanalerna).
+    soundSources.forEach(entry => {
+      if(!entry.perChannelGain) return;
+      const p = entry.def.pos;
+      const toSrc = new THREE.Vector3(p[0], p[1], p[2]).sub(perspCamera.position);
+      const fwd = new THREE.Vector3(); perspCamera.getWorldDirection(fwd);
+      const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0,1,0)).normalize();
+      const azimuth = Math.atan2(toSrc.dot(right), toSrc.dot(fwd)); // -PI..PI
+      const dist = Math.max(0.5, toSrc.length());
+      const atten = Math.min(1, 3 / dist);
+
+      const n = entry.chCount;
+      entry.perChannelGain.forEach((g, c) => {
+        const chAngle = (c / n) * Math.PI * 2 - Math.PI;
+        const diff = Math.abs(((azimuth - chAngle + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+        const w = Math.max(0, 1 - diff / (Math.PI / 2));
+        g.gain.setTargetAtTime(w * atten, audioCtx.currentTime, 0.05);
+      });
+    });
+    return;
+  }
+
   const listener = audioCtx.listener;
   const p = perspCamera.position;
 
   if(listener.positionX) {
-    // Modern API
     listener.positionX.value = p.x;
     listener.positionY.value = p.y;
     listener.positionZ.value = p.z;
-
     const fwd = new THREE.Vector3();
     perspCamera.getWorldDirection(fwd);
     listener.forwardX.value = fwd.x;
@@ -823,7 +960,6 @@ function updateAudioListener() {
     listener.forwardZ.value = fwd.z;
     listener.upX.value = 0; listener.upY.value = 1; listener.upZ.value = 0;
   } else if(listener.setPosition) {
-    // Äldre Safari-fallback
     listener.setPosition(p.x, p.y, p.z);
     const fwd = new THREE.Vector3();
     perspCamera.getWorldDirection(fwd);
@@ -835,6 +971,8 @@ function updateAudioListener() {
 const soundBtn   = document.getElementById('soundToggle');
 const soundLabel = document.getElementById('soundLabel');
 const soundIcon  = document.getElementById('soundIcon');
+const soundStatusEl = document.getElementById('pSoundStatus');
+const formatSelect = document.getElementById('audioFormatSelect');
 
 const ICON_ON  = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
 const ICON_OFF = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
@@ -843,24 +981,38 @@ soundBtn.addEventListener('click', () => {
   soundOn = !soundOn;
 
   if(soundOn) {
-    initAudio();                 // skapar AudioContext + laddar ljud (första gången)
-    if(audioCtx.state === 'suspended') audioCtx.resume();  // krävs efter användarinteraktion
+    initAudio();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
     soundSources.forEach(startSource);
     soundBtn.classList.add('on');
     soundBtn.setAttribute('aria-pressed', 'true');
     soundLabel.textContent = 'Ljud på';
     soundIcon.innerHTML = ICON_ON;
+    soundStatusEl.textContent = 'På';
   } else {
     stopAllSources();
     soundBtn.classList.remove('on');
     soundBtn.setAttribute('aria-pressed', 'false');
     soundLabel.textContent = 'Ljud av';
     soundIcon.innerHTML = ICON_OFF;
+    soundStatusEl.textContent = 'Av';
   }
 });
 
+formatSelect.addEventListener('change', () => {
+  audioFormat = formatSelect.value;
+  if(audioFormat === 'multichannel' && audioCtx && audioCtx.destination.maxChannelCount <= 2) {
+    // Systemet har inte fler kanaler — informera och fall tillbaka till stereo
+    soundStatusEl.textContent = (soundOn ? 'På' : 'Av') + ' · endast stereo hittat';
+  }
+  rebuildAudioGraph();
+});
+
+/* ===================== RENDER LOOP ===================== */
+
 /* ===================== RENDER LOOP ===================== */
 function render() {
+  const t = performance.now() * 0.001;
   updateCamera();
   if(orthoMode) updateOrthoFrustum();
   // sync ortho camera position to same spherical position
@@ -880,6 +1032,7 @@ function render() {
 
   updateGizmo();
   updateAudioListener();
+  animateSoundMarkers(t);
   requestAnimationFrame(render);
 }
 render();
