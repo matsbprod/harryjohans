@@ -534,7 +534,29 @@ canvas.addEventListener('click', e => {
   const elapsed = performance.now() - (cam.dragStartTime || 0);
   if(cam.didDrag || elapsed > 200) return; // was a drag or long press
 
+  // Klick direkt på en storypunkts-markör (blå sfär) — öppna prompten
+  // omedelbart oavsett avstånd, istället för att vänta på närhet.
   raycaster.setFromCamera(mouse, activeCamera);
+  const markerMeshes = STORY_POINTS.map(sp => sp.pickSphere);
+  const markerHits = raycaster.intersectObjects(markerMeshes, false);
+  if(markerHits.length > 0) {
+    const hitMesh = markerHits[0].object;
+    const sp = STORY_POINTS.find(s => s.pickSphere === hitMesh);
+    if(sp) {
+      chosenStory.delete(sp.id); // tillåt att öppna igen även om redan valt tidigare
+      sp.ensureLoaded();
+      nearStory = sp;
+      storyTitleEl.textContent = sp.label;
+      const vec = sp.group.position.clone().project(activeCamera);
+      const sx = (vec.x * 0.5 + 0.5) * canvas.clientWidth;
+      const sy = (-vec.y * 0.5 + 0.5) * canvas.clientHeight;
+      storyPromptEl.style.left = sx + 'px';
+      storyPromptEl.style.top  = (sy - 20) + 'px';
+      storyPromptEl.classList.add('visible');
+      return; // hoppa över lightbox-logiken nedan
+    }
+  }
+
   const hits = raycaster.intersectObjects(clickableMeshes, false);
 
   if(selectedObj) setSelected(selectedObj, false);
@@ -1083,7 +1105,7 @@ const STORY_POINTS = [
     label: 'Kon vid ängen',
     pos: [8, 0, 4],          // plats i scenen — flytta till rätt koordinat sen
     radius: 5,               // avstånd inom vilket prompten dyker upp
-    glbUrl: 'kossa3_web.glb',
+    glbUrl: 'kossa4_web.glb',
     videoUrl: 'kossa_video.webm',
     // Namnen på bildplanen i .glb-scenen som ska få video-textur i klippläge
     videoMeshNames: ['single2_00086400', 'single2_00086400.001', 'single00086400', 'single00086400.001'],
@@ -1114,6 +1136,13 @@ STORY_POINTS.forEach(sp => {
   sp.ring = new THREE.Mesh(rGeo, rMat);
   sp.group.add(sp.ring);
 
+  // Osynlig, större klickyta — den synliga sfären är för liten att träffa
+  // exakt på avstånd, så vi raycastar mot denna istället.
+  const pGeo = new THREE.SphereGeometry(0.6, 12, 12);
+  const pMat = new THREE.MeshBasicMaterial({ visible: false });
+  sp.pickSphere = new THREE.Mesh(pGeo, pMat);
+  sp.group.add(sp.pickSphere);
+
   // Ladda själva animations-scenen lazy — först när besökaren är nära
   sp.ensureLoaded = () => {
     if(sp.loaded || sp.loading) return;
@@ -1136,10 +1165,17 @@ STORY_POINTS.forEach(sp => {
       // annars återkommer klippningsproblemet för varje ny .glb.
       // Hitta bildplan som ska få video-textur
       sp.videoMeshes = [];
+      // Ljus som ska "tändas" vid trigger — glTF kan inte bära intensitets-
+      // animation (bara position/rotation/skala), så vi styr detta själva.
+      sp.lights = {};
       gltf.scene.traverse(obj => {
         if(obj.isMesh) {
           fixMeshMaterial(obj);
           if(sp.videoMeshNames.includes(obj.name)) sp.videoMeshes.push(obj);
+        }
+        if(obj.isLight && obj.name) {
+          sp.lights[obj.name] = obj;
+          obj.intensity = 0; // säkerställ avstängt state tills triggern aktiveras
         }
       });
       sp.loaded = true;
@@ -1147,6 +1183,33 @@ STORY_POINTS.forEach(sp => {
     });
   };
 });
+
+/* ── Ljus som tänds vid trigger — riktvärden per ljusnamn.
+   Justera dessa fritt tills styrkan känns rätt i scenen. ── */
+const STORY_LIGHT_TARGETS = {
+  'Point':     1200,
+  'Point.001': 1200,
+};
+const LIGHT_RAMP_MS = 900;
+
+function rampStoryLights(sp) {
+  if(!sp.lights) return;
+  const startVals = {};
+  Object.entries(sp.lights).forEach(([name, light]) => { startVals[name] = light.intensity; });
+  const target = STORY_LIGHT_TARGETS;
+  const t0 = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - t0) / LIGHT_RAMP_MS);
+    const e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2) / 2;
+    Object.entries(sp.lights).forEach(([name, light]) => {
+      const targetVal = target[name];
+      if(targetVal === undefined) return; // ljus utan definierat riktvärde rörs inte
+      light.intensity = startVals[name] + (targetVal - startVals[name]) * e;
+    });
+    if(t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 
 /* ── Video-textur (från Blender-bildsekvens, konverterad till WebM) ── */
 function playStoryVideo(sp) {
@@ -1186,6 +1249,7 @@ function playStoryClip(sp) {
       action.reset().play();
     });
     playStoryVideo(sp);
+    rampStoryLights(sp);
   };
   if(sp.loaded) start();
   else { const iv = setInterval(() => { if(sp.loaded) { clearInterval(iv); start(); } }, 100); }
@@ -1197,6 +1261,7 @@ function enterStoryCamera(sp) {
   const start = () => {
     Object.values(sp.actions).forEach(action => action.reset().play());
     playStoryVideo(sp);
+    rampStoryLights(sp);
     if(sp.camera) {
       activeCamera = sp.camera;
       storyCameraMode = true;
