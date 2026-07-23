@@ -366,6 +366,30 @@ function updateCamera() {
 }
 
 /* ===================== LOAD GLB ===================== */
+// Delad fix för dubbelsidiga material + korrekt djupsortering av
+// transparenta bildplan. Används för både huvudscenen och storypunkter,
+// annars återkommer samma "texturer klipps fel"-problem i varje ny .glb.
+function fixMeshMaterial(obj) {
+  const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+  mats.forEach(m => {
+    if(!m) return;
+    m.side = THREE.DoubleSide;
+
+    if(m.transparent || (m.map && m.map.format === THREE.RGBAFormat)) {
+      m.transparent = true;
+      m.alphaTest = 0.1;
+      m.depthWrite = true;
+      m.depthTest = true;
+      if(m.opacity >= 0.99) m.transparent = false;
+    } else {
+      m.transparent = false;
+      m.depthWrite = true;
+      m.depthTest = true;
+    }
+    m.needsUpdate = true;
+  });
+}
+
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
 
@@ -399,28 +423,7 @@ loader.load(
         obj.castShadow = true;
         obj.receiveShadow = true;
 
-        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-        mats.forEach(m => {
-          if(!m) return;
-          m.side = THREE.DoubleSide;
-
-          // Fix transparency depth sorting
-          if(m.transparent || (m.map && m.map.format === THREE.RGBAFormat)) {
-            m.transparent = true;
-            m.alphaTest = 0.1;      // clip fully transparent pixels
-            m.depthWrite = true;    // write to depth buffer
-            m.depthTest = true;
-            // Force opaque rendering where possible
-            if(m.opacity >= 0.99) {
-              m.transparent = false;
-            }
-          } else {
-            m.transparent = false;
-            m.depthWrite = true;
-            m.depthTest = true;
-          }
-          m.needsUpdate = true;
-        });
+        fixMeshMaterial(obj);
 
         const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
         if(mat && mat.map) {
@@ -1129,10 +1132,15 @@ STORY_POINTS.forEach(sp => {
         sp.camera.aspect = perspCamera.aspect;
         sp.camera.updateProjectionMatrix();
       }
+      // Fixa material (dubbelsidigt + korrekt transparens) samma som huvudscenen,
+      // annars återkommer klippningsproblemet för varje ny .glb.
       // Hitta bildplan som ska få video-textur
       sp.videoMeshes = [];
       gltf.scene.traverse(obj => {
-        if(obj.isMesh && sp.videoMeshNames.includes(obj.name)) sp.videoMeshes.push(obj);
+        if(obj.isMesh) {
+          fixMeshMaterial(obj);
+          if(sp.videoMeshNames.includes(obj.name)) sp.videoMeshes.push(obj);
+        }
       });
       sp.loaded = true;
       sp.loading = false;
