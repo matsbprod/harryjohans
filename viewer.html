@@ -1108,7 +1108,9 @@ const STORY_POINTS = [
     glbUrl: 'kossa4_web.glb',
     videoUrl: 'kossa_video.webm',
     // Namnen på bildplanen i .glb-scenen som ska få video-textur i klippläge
-    videoMeshNames: ['single2_00086400', 'single2_00086400.001', 'single00086400', 'single00086400.001'],
+    // Rätt objekt bekräftat via textur-spårning: bilden "Ko00086400"
+    // (kon-sekvensens första bildruta) används av just denna mesh-nod.
+    videoMeshNames: ['Ko00086606'],
     cameraClipName: 'CameraAction',
   },
 ];
