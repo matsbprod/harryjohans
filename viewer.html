@@ -299,7 +299,7 @@
   <button class="story-btn" id="storyBtnCamera">🎥&nbsp; Ta kameran</button>
   <button class="story-btn" id="storyBtnClip">▶&nbsp; Spela klippet</button>
 </div>
-<button class="story-return" id="storyReturn">✕ Återgå till fri kamera</button>
+<button class="story-return" id="storyReturn">■ Stoppa animationen</button>
 
 <!-- THREE.JS -->
 <script type="importmap">
@@ -1192,27 +1192,28 @@ STORY_POINTS.forEach(sp => {
 });
 
 /* ── Ljus som tänds vid trigger — riktvärden per ljusnamn.
-   Candela-baserade point lights i Three.js kräver ofta stora tal för
-   att synas alls (jämför Sun-ljusets 68300). Justera fritt. ── */
+   OBS: 18000 var en gissning som visade sig bränna ut texturerna i
+   närheten (överexponering). Startar nu lågt — höj hellre stegvis
+   tills styrkan känns rätt, än att gissa för högt igen. ── */
 const STORY_LIGHT_TARGETS = {
-  'Point':     18000,
-  'Point.001': 18000,
+  'Point':     25,
+  'Point.001': 25,
 };
 const LIGHT_RAMP_MS = 900;
 
-function rampStoryLights(sp) {
+function rampStoryLights(sp, down) {
   if(!sp.lights) return;
   const startVals = {};
   Object.entries(sp.lights).forEach(([name, light]) => { startVals[name] = light.intensity; });
   // Om ett ljus hittades men saknar exakt namn-match i STORY_LIGHT_TARGETS,
   // ge det ändå ett rimligt riktvärde istället för att tyst hoppas över.
-  const FALLBACK_TARGET = 18000;
+  const FALLBACK_TARGET = 25;
   const t0 = performance.now();
   function step(now) {
     const t = Math.min(1, (now - t0) / LIGHT_RAMP_MS);
     const e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2) / 2;
     Object.entries(sp.lights).forEach(([name, light]) => {
-      const targetVal = STORY_LIGHT_TARGETS[name] !== undefined ? STORY_LIGHT_TARGETS[name] : FALLBACK_TARGET;
+      const targetVal = down ? 0 : (STORY_LIGHT_TARGETS[name] !== undefined ? STORY_LIGHT_TARGETS[name] : FALLBACK_TARGET);
       light.intensity = startVals[name] + (targetVal - startVals[name]) * e;
     });
     if(t < 1) requestAnimationFrame(step);
@@ -1249,7 +1250,7 @@ function playStoryVideo(sp) {
   });
 }
 function stopStoryVideo(sp) {
-  if(sp.videoEl) { sp.videoEl.pause(); }
+  if(sp.videoEl) { sp.videoEl.pause(); sp.videoEl.currentTime = 0; }
 }
 
 /* ── Spela upp klippet (rörelse + ev. video), utan att ta kameran ── */
@@ -1262,6 +1263,8 @@ function playStoryClip(sp) {
     });
     playStoryVideo(sp);
     rampStoryLights(sp);
+    activeStory = sp;
+    document.getElementById('storyReturn').classList.add('visible');
   };
   if(sp.loaded) start();
   else { const iv = setInterval(() => { if(sp.loaded) { clearInterval(iv); start(); } }, 100); }
@@ -1286,7 +1289,7 @@ function enterStoryCamera(sp) {
         sp.mixer.addEventListener('finished', function onFinish(e) {
           if(e.action === camAction) {
             sp.mixer.removeEventListener('finished', onFinish);
-            exitStoryCamera();
+            exitStoryCamera(); // kameran är slut — återgå automatiskt, men låt klippet fortsätta spela
           }
         });
       }
@@ -1296,14 +1299,32 @@ function enterStoryCamera(sp) {
   else { const iv = setInterval(() => { if(sp.loaded) { clearInterval(iv); start(); } }, 100); }
 }
 
+// Byter bara tillbaka till fri kamera — rör inte animation/video/ljus.
+// Anropas automatiskt när kameraklippet är slut, eller manuellt om man
+// vill lämna kameravyn men låta resten fortsätta i bakgrunden.
 function exitStoryCamera() {
   activeCamera = perspCamera;
   storyCameraMode = false;
-  activeStory = null;
-  document.getElementById('storyReturn').classList.remove('visible');
   document.getElementById('hint').style.display = 'flex';
 }
-document.getElementById('storyReturn').addEventListener('click', exitStoryCamera);
+
+// Stoppar HELT — animation, video och ljus (ramp ner), samt återgår
+// till fri kamera om kameraläget var aktivt. Detta är knappen som
+// faktiskt löser "går inte att stoppa".
+function stopStoryPlayback() {
+  if(!activeStory) return;
+  const sp = activeStory;
+  if(storyCameraMode) exitStoryCamera();
+
+  Object.values(sp.actions).forEach(action => action.stop());
+  stopStoryVideo(sp);
+  rampStoryLights(sp, true); // true = ramp ner mot 0 istället för upp
+
+  chosenStory.delete(sp.id);   // tillåt att trigga igen (marker-klick eller närhet)
+  activeStory = null;
+  document.getElementById('storyReturn').classList.remove('visible');
+}
+document.getElementById('storyReturn').addEventListener('click', stopStoryPlayback);
 
 /* ── Prompt-UI: visas när kameran kommer inom radie av en storypunkt ── */
 const storyPromptEl   = document.getElementById('storyPrompt');
