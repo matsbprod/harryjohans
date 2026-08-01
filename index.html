@@ -183,13 +183,13 @@
   .vgallery {
     --vg-gap: 3px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, minmax(150px, 1fr));
     grid-template-areas:
-      "a1 b c1 c1"
-      "a1 b c1 c1"
-      "a2 b c2 c2"
-      "a2 b c2 c2";
+      "a1 b1 c1"
+      "a2 b2 c1"
+      "b3 c2 c3"
+      "b4 c2 c3";
     gap: var(--vg-gap);
     background: #0a0a0a;
     padding: var(--vg-gap);
@@ -197,9 +197,13 @@
 
   .vcell-a1 { grid-area: a1; }
   .vcell-a2 { grid-area: a2; }
-  .vcell-b  { grid-area: b; }
+  .vcell-b1 { grid-area: b1; }
+  .vcell-b2 { grid-area: b2; }
+  .vcell-b3 { grid-area: b3; }
+  .vcell-b4 { grid-area: b4; }
   .vcell-c1 { grid-area: c1; }
   .vcell-c2 { grid-area: c2; }
+  .vcell-c3 { grid-area: c3; }
 
   .vcell {
     position: relative;
@@ -333,22 +337,46 @@
       <div class="vcell-label">Klipp 2</div>
     </div>
 
-    <div class="vcell vcell-b" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" data-title="Klipp 3">
+    <div class="vcell vcell-b1" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" data-title="Klipp 3">
       <div class="vthumb" style="background-color: #5c4f7a"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 3</div>
     </div>
 
-    <div class="vcell vcell-c1" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" data-title="Klipp 4">
+    <div class="vcell vcell-b2" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" data-title="Klipp 4">
       <div class="vthumb" style="background-color: #7a6f4f"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 4</div>
     </div>
 
-    <div class="vcell vcell-c2" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" data-title="Klipp 5">
+    <div class="vcell vcell-b3" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" data-title="Klipp 5">
       <div class="vthumb" style="background-color: #4f5c7a"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 5</div>
+    </div>
+
+    <div class="vcell vcell-b4" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" data-title="Klipp 6">
+      <div class="vthumb" style="background-color: #6f4f5c"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 6</div>
+    </div>
+
+    <div class="vcell vcell-c1" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" data-title="Klipp 7">
+      <div class="vthumb" style="background-color: #5c7a4f"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 7</div>
+    </div>
+
+    <div class="vcell vcell-c2" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" data-title="Klipp 8">
+      <div class="vthumb" style="background-color: #4f7a6f"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 8</div>
+    </div>
+
+    <div class="vcell vcell-c3" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4" data-title="Klipp 9">
+      <div class="vthumb" style="background-color: #7a4f5c"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 9</div>
     </div>
 
   </div>
