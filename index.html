@@ -176,13 +176,254 @@
   </div>
 </div><!-- /folk-grid -->
 
-<!-- ── Citat ──────────────────────────────────────────────── -->
-<section class="quote-band reveal" id="harry">
-  <blockquote>
-    "Varför har man båt?"
-  </blockquote>
-  <cite>— Harry Johans</cite>
+<!-- ═══════════════════════════════════════════════════════
+     VIDEOGRID — testklipp, samma mosaik-upplägg som referensen
+     ═══════════════════════════════════════════════════════ -->
+<style>
+  .vgallery {
+    --vg-gap: 3px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, minmax(200px, 1fr));
+    grid-template-areas:
+      "a b c"
+      "d e c"
+      "f g h"
+      "i i h";
+    gap: var(--vg-gap);
+    background: #0a0a0a;
+    padding: var(--vg-gap);
+  }
+
+  .vcell-a { grid-area: a; }
+  .vcell-b { grid-area: b; }
+  .vcell-c { grid-area: c; }
+  .vcell-d { grid-area: d; }
+  .vcell-e { grid-area: e; }
+  .vcell-f { grid-area: f; }
+  .vcell-g { grid-area: g; }
+  .vcell-h { grid-area: h; }
+  .vcell-i { grid-area: i; }
+
+  .vcell {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: #111;
+  }
+
+  .vcell video,
+  .vcell .vthumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.25,0,0,1);
+  }
+
+  .vcell:hover video,
+  .vcell:hover .vthumb {
+    transform: scale(1.04);
+  }
+
+  .vthumb {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .vcell-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vcell:hover .vcell-overlay {
+    background: rgba(0,0,0,0.25);
+  }
+
+  .vplay-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .vplay-icon svg { fill: white; width: 20px; height: 20px; margin-left: 3px; }
+  .vcell:hover .vplay-icon {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .vcell-label {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #f5f5f3;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+  }
+
+  /* ── LIGHTBOX ─────────────────────────────────── */
+  .vlightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.92);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .vlightbox.open { display: flex; }
+
+  .vlb-inner {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+  }
+  .vlb-inner video {
+    max-width: 90vw;
+    max-height: 85vh;
+    display: block;
+  }
+
+  .vlb-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #f5f5f3;
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+
+  .vlb-title {
+    margin-top: 16px;
+    color: #f5f5f3;
+    font-family: 'Archivo', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+</style>
+
+<section id="material">
+  <div class="vgallery">
+
+    <div class="vcell vcell-a" data-src="VIDEO_URL_1" data-title="Klipp 1">
+      <div class="vthumb" style="background-image: url('THUMB_URL_1')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 1</div>
+    </div>
+
+    <div class="vcell vcell-b" data-src="VIDEO_URL_2" data-title="Klipp 2">
+      <div class="vthumb" style="background-image: url('THUMB_URL_2')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 2</div>
+    </div>
+
+    <div class="vcell vcell-c" data-src="VIDEO_URL_3" data-title="Klipp 3">
+      <div class="vthumb" style="background-image: url('THUMB_URL_3')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 3</div>
+    </div>
+
+    <div class="vcell vcell-d" data-src="VIDEO_URL_4" data-title="Klipp 4">
+      <div class="vthumb" style="background-image: url('THUMB_URL_4')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 4</div>
+    </div>
+
+    <div class="vcell vcell-e" data-src="VIDEO_URL_5" data-title="Klipp 5">
+      <div class="vthumb" style="background-image: url('THUMB_URL_5')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 5</div>
+    </div>
+
+    <div class="vcell vcell-f" data-src="VIDEO_URL_6" data-title="Klipp 6">
+      <div class="vthumb" style="background-image: url('THUMB_URL_6')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 6</div>
+    </div>
+
+    <div class="vcell vcell-g" data-src="VIDEO_URL_7" data-title="Klipp 7">
+      <div class="vthumb" style="background-image: url('THUMB_URL_7')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 7</div>
+    </div>
+
+    <div class="vcell vcell-h" data-src="VIDEO_URL_8" data-title="Klipp 8">
+      <div class="vthumb" style="background-image: url('THUMB_URL_8')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 8</div>
+    </div>
+
+    <div class="vcell vcell-i" data-src="VIDEO_URL_9" data-title="Klipp 9">
+      <div class="vthumb" style="background-image: url('THUMB_URL_9')"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 9</div>
+    </div>
+
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="vlightbox" id="vlightbox">
+    <div class="vlb-inner">
+      <button class="vlb-close" id="vlb-close">&#x2715;</button>
+      <video id="vlb-video" controls playsinline></video>
+    </div>
+    <div class="vlb-title" id="vlb-title"></div>
+  </div>
 </section>
+
+<script>
+  (function() {
+    const lightbox = document.getElementById('vlightbox');
+    const lbVideo = document.getElementById('vlb-video');
+    const lbTitle = document.getElementById('vlb-title');
+    const lbClose = document.getElementById('vlb-close');
+
+    document.querySelectorAll('.vcell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const src = cell.dataset.src;
+        const title = cell.dataset.title;
+        lbVideo.src = src;
+        lbTitle.textContent = title;
+        lightbox.classList.add('open');
+        lbVideo.play();
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lbVideo.pause();
+      lbVideo.src = '';
+    }
+
+    lbClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  })();
+</script>
 
 <!-- ═══════════════════════════════════════════════════════
      EXTRA SEKTION — 1/3·1/3·1/3 sen 1/2·1/2 i två rader
