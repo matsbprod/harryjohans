@@ -328,37 +328,37 @@
   <div class="vgallery">
 
     <div class="vcell vcell-a1" data-src="media/stadmani.mp4" data-title="Klipp 1">
-      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 1</div>
     </div>
 
     <div class="vcell vcell-a2" data-src="media/stadmani.mp4" data-title="Klipp 2">
-      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 2</div>
     </div>
 
     <div class="vcell vcell-b1" data-src="media/stadmani.mp4" data-title="Klipp 3">
-      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 3</div>
     </div>
 
     <div class="vcell vcell-b2" data-src="media/stadmani.mp4" data-title="Klipp 4">
-      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 4</div>
     </div>
 
     <div class="vcell vcell-b3" data-src="media/stadmani.mp4" data-title="Klipp 5">
-      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 5</div>
     </div>
 
     <div class="vcell vcell-b4" data-src="media/stadmani.mp4" data-title="Klipp 6">
-      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 6</div>
     </div>
@@ -399,12 +399,6 @@
     const lbVideo = document.getElementById('vlb-video');
     const lbTitle = document.getElementById('vlb-title');
     const lbClose = document.getElementById('vlb-close');
-
-    document.querySelectorAll('.vthumb:not([autoplay])').forEach(v => {
-      v.addEventListener('loadedmetadata', () => {
-        v.currentTime = 0.1;
-      });
-    });
 
     document.querySelectorAll('.vcell').forEach(cell => {
       cell.addEventListener('click', () => {
