@@ -328,37 +328,37 @@
   <div class="vgallery">
 
     <div class="vcell vcell-a1" data-src="media/stadmani.mp4" data-title="Klipp 1">
-      <div class="vthumb" style="background-color: #7a5c4f"></div>
+      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 1</div>
     </div>
 
     <div class="vcell vcell-a2" data-src="media/stadmani.mp4" data-title="Klipp 2">
-      <div class="vthumb" style="background-color: #4f6a5c"></div>
+      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 2</div>
     </div>
 
     <div class="vcell vcell-b1" data-src="media/stadmani.mp4" data-title="Klipp 3">
-      <div class="vthumb" style="background-color: #5c4f7a"></div>
+      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 3</div>
     </div>
 
     <div class="vcell vcell-b2" data-src="media/stadmani.mp4" data-title="Klipp 4">
-      <div class="vthumb" style="background-color: #7a6f4f"></div>
+      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 4</div>
     </div>
 
     <div class="vcell vcell-b3" data-src="media/stadmani.mp4" data-title="Klipp 5">
-      <div class="vthumb" style="background-color: #4f5c7a"></div>
+      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 5</div>
     </div>
 
     <div class="vcell vcell-b4" data-src="media/stadmani.mp4" data-title="Klipp 6">
-      <div class="vthumb" style="background-color: #6f4f5c"></div>
+      <video class="vthumb" src="media/stadmani.mp4" muted playsinline preload="metadata"></video>
       <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
       <div class="vcell-label">Klipp 6</div>
     </div>
@@ -399,6 +399,12 @@
     const lbVideo = document.getElementById('vlb-video');
     const lbTitle = document.getElementById('vlb-title');
     const lbClose = document.getElementById('vlb-close');
+
+    document.querySelectorAll('.vthumb:not([autoplay])').forEach(v => {
+      v.addEventListener('loadedmetadata', () => {
+        v.currentTime = 0.1;
+      });
+    });
 
     document.querySelectorAll('.vcell').forEach(cell => {
       cell.addEventListener('click', () => {
