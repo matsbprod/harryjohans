@@ -347,9 +347,26 @@
       content.textContent = item.content || '';
 
       content.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+      content.addEventListener('focus', () => {
+        activeTextItem = item;
+        activeTextEl = content;
+      });
+
+      content.addEventListener('input', () => {
+        item.content = content.textContent;
+        clearTimeout(textSaveTimer);
+        textSaveTimer = setTimeout(() => saveText(item), 700);
+      });
+
       content.addEventListener('blur', () => {
+        clearTimeout(textSaveTimer);
         item.content = content.textContent;
         saveText(item);
+        if (activeTextEl === content) {
+          activeTextItem = null;
+          activeTextEl = null;
+        }
       });
 
       el.appendChild(dragHandle);
@@ -402,6 +419,7 @@
     fetch(API + 'moodboard-uppdatera', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
+      keepalive: true,
       body: JSON.stringify({ id: item.id, x: item.x, y: item.y, w: item.w, z: item.z })
     }).catch((err) => console.error(err));
   }
@@ -410,9 +428,38 @@
     fetch(API + 'moodboard-uppdatera', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
+      keepalive: true,
       body: JSON.stringify({ id: item.id, text: item.content })
     }).catch((err) => console.error(err));
   }
+
+  // Håller reda på textrutan som just nu redigeras, plus en
+  // debounce-timer, så vi kan tvinga fram en sista sparning om
+  // sidan stängs/lämnas mitt i skrivandet.
+  let activeTextItem = null;
+  let activeTextEl = null;
+  let textSaveTimer = null;
+
+  function flushActiveText() {
+    if (!activeTextItem || !activeTextEl) return;
+    activeTextItem.content = activeTextEl.textContent;
+    const payload = JSON.stringify({ id: activeTextItem.id, text: activeTextItem.content });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(API + 'moodboard-uppdatera', new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch(API + 'moodboard-uppdatera', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        keepalive: true,
+        body: payload
+      }).catch((err) => console.error(err));
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushActiveText();
+  });
+  window.addEventListener('pagehide', flushActiveText);
 
   // ── Dra för att flytta ─────────────────────────────────
   // handleEl: elementet man drar i (hela kortet för bilder,
