@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moodboard — Projekt Varvet</title>
+  <meta name="description" content="Moodboard för dokumentärfilmen om båtbyggaren Harry — bilder du kan placera fritt.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Navbar (samma som index.html) ─────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-links">
+    <a href="index.html">Hem</a>
+    <a href="index.html#filmen">Filmen</a>
+    <a href="index.html#harry">Harry</a>
+    <a href="viewer.html">3D-scenen</a>
+    <a href="index.html#material">Materialet</a>
+    <a href="moodboard.html">Moodboard</a>
+    <a href="index.html#kontakt">Kontakt</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     MOODBOARD — dra & släpp uppladdning, fri placering
+     ═══════════════════════════════════════════════════════ -->
+<style>
+  :root{
+    --mb-bg:#0a0a0a;
+    --mb-line:rgba(255,255,255,.12);
+    --mb-text:#efe9df;
+    --mb-muted:#8f9296;
+    --mb-accent:#4d7ea8;
+  }
+  .mb-page{
+    background:var(--mb-bg);
+    color:var(--mb-text);
+    padding:130px 24px 140px;
+    min-height:100vh;
+  }
+  .mb-head{
+    max-width:1700px;
+    margin:0 auto 40px;
+    text-align:center;
+  }
+  .mb-eyebrow{
+    font-family:'Archivo',sans-serif;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--mb-muted);
+    margin:0 0 10px;
+  }
+  .mb-title{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-weight:300;
+    font-size:clamp(2.4rem,5vw,4rem);
+    margin:0 0 14px;
+  }
+  .mb-sub{
+    font-family:'Archivo',sans-serif;
+    font-weight:300;
+    color:var(--mb-muted);
+    max-width:520px;
+    margin:0 auto 28px;
+    line-height:1.6;
+    font-size:.95rem;
+  }
+  .mb-upload-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Archivo',sans-serif;
+    font-size:.85rem;
+    letter-spacing:.04em;
+    color:var(--mb-bg);
+    background:var(--mb-accent);
+    padding:12px 24px;
+    border-radius:2px;
+    cursor:pointer;
+    transition:opacity .2s ease;
+  }
+  .mb-upload-btn:hover{ opacity:.85; }
+  .mb-status{
+    font-family:'Archivo',sans-serif;
+    font-size:.75rem;
+    color:var(--mb-muted);
+    margin-top:14px;
+    min-height:1em;
+  }
+
+  .mb-canvas{
+    position:relative;
+    max-width:1700px;
+    margin:0 auto;
+    min-height:1500px;
+    background-image:radial-gradient(var(--mb-line) 1px, transparent 1px);
+    background-size:28px 28px;
+    border:1px solid var(--mb-line);
+    overflow:hidden;
+  }
+  .mb-canvas.mb-dragover{
+    border-color:var(--mb-accent);
+    box-shadow:inset 0 0 0 1px var(--mb-accent);
+  }
+  .mb-dropcue{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Archivo',sans-serif;
+    font-size:.85rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--mb-accent);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .15s ease;
+  }
+  .mb-canvas.mb-dragover .mb-dropcue{ opacity:1; }
+  .mb-empty{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Archivo',sans-serif;
+    font-size:.8rem;
+    letter-spacing:.04em;
+    color:var(--mb-muted);
+    text-align:center;
+    padding:20px;
+  }
+
+  .mb-item{
+    position:absolute;
+    background:#111;
+    border:1px solid var(--mb-line);
+    padding:6px;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+  }
+  .mb-item.mb-dragging{ cursor:grabbing; box-shadow:0 16px 40px rgba(0,0,0,.65); }
+  .mb-item img{
+    display:block;
+    width:100%;
+    height:auto;
+    pointer-events:none;
+  }
+  .mb-delete{
+    position:absolute;
+    top:-9px; right:-9px;
+    width:22px; height:22px;
+    border-radius:50%;
+    border:1px solid var(--mb-line);
+    background:#0a0a0a;
+    color:var(--mb-text);
+    font-size:14px;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    opacity:0;
+    transition:opacity .15s ease;
+  }
+  .mb-item:hover .mb-delete,
+  .mb-item:focus-within .mb-delete{ opacity:1; }
+  .mb-resize{
+    position:absolute;
+    right:2px; bottom:2px;
+    width:14px; height:14px;
+    cursor:nwse-resize;
+    background:linear-gradient(135deg, transparent 50%, var(--mb-accent) 50%);
+    opacity:0;
+    transition:opacity .15s ease;
+  }
+  .mb-item:hover .mb-resize,
+  .mb-item:focus-within .mb-resize{ opacity:.8; }
+
+  @media (max-width:720px){
+    .mb-page{ padding-top:110px; }
+    .mb-canvas{ min-height:1000px; }
+  }
+</style>
+
+<section class="mb-page">
+  <div class="mb-head">
+    <p class="mb-eyebrow">Materialet</p>
+    <h1 class="mb-title">Moodboard</h1>
+    <p class="mb-sub">Dra och släpp bilder var du vill på tavlan. Dra i hörnet för att
+      ändra storlek. Layouten sparas automatiskt.</p>
+    <label class="mb-upload-btn">
+      + Lägg till bilder
+      <input type="file" id="mb-file-input" accept="image/*" multiple hidden>
+    </label>
+    <p class="mb-status" id="mb-status"></p>
+  </div>
+
+  <div class="mb-canvas" id="mb-canvas">
+    <div class="mb-dropcue" id="mb-dropcue">Släpp bilderna här</div>
+  </div>
+</section>
+
+<script src="js/header.js"></script>
+<script>
+(function () {
+  const canvas = document.getElementById('mb-canvas');
+  const fileInput = document.getElementById('mb-file-input');
+  const statusEl = document.getElementById('mb-status');
+  const API = '/.netlify/functions/';
+
+  let maxZ = 1;
+  let itemCount = 0;
+
+  function setStatus(msg, isError) {
+    statusEl.textContent = msg || '';
+    statusEl.style.color = isError ? '#c0664f' : '';
+  }
+
+  function showEmptyState() {
+    if (itemCount > 0) return;
+    if (canvas.querySelector('.mb-empty')) return;
+    const el = document.createElement('div');
+    el.className = 'mb-empty';
+    el.textContent = 'Inga bilder ännu — klicka på "Lägg till bilder" eller dra in filer här.';
+    canvas.appendChild(el);
+  }
+  function hideEmptyState() {
+    const el = canvas.querySelector('.mb-empty');
+    if (el) el.remove();
+  }
+
+  // ── Ladda in befintlig layout ─────────────────────────
+  async function loadBoard() {
+    try {
+      const res = await fetch(API + 'moodboard-hamta');
+      if (!res.ok) throw new Error('Kunde inte hämta moodboarden');
+      const items = await res.json();
+      items.forEach((item) => {
+        if (item.z > maxZ) maxZ = item.z;
+        renderItem(item);
+      });
+      if (items.length === 0) showEmptyState();
+    } catch (err) {
+      console.error(err);
+      setStatus('Kunde inte läsa in moodboarden. Ladda om sidan.', true);
+    }
+  }
+
+  // ── Bygg ett bildkort ──────────────────────────────────
+  function renderItem(item) {
+    hideEmptyState();
+    itemCount++;
+
+    const el = document.createElement('div');
+    el.className = 'mb-item';
+    el.style.left = item.x + 'px';
+    el.style.top = item.y + 'px';
+    el.style.width = item.w + 'px';
+    el.style.zIndex = item.z;
+
+    const img = document.createElement('img');
+    img.src = API + 'moodboard-bild?id=' + encodeURIComponent(item.id);
+    img.alt = '';
+    img.draggable = false;
+
+    const del = document.createElement('button');
+    del.className = 'mb-delete';
+    del.type = 'button';
+    del.setAttribute('aria-label', 'Ta bort bild');
+    del.textContent = '\u00D7';
+
+    const handle = document.createElement('div');
+    handle.className = 'mb-resize';
+
+    el.appendChild(img);
+    el.appendChild(del);
+    el.appendChild(handle);
+    canvas.appendChild(el);
+
+    makeDraggable(el, item);
+    makeResizable(handle, el, item);
+
+    del.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('Ta bort bilden från moodboarden?')) return;
+      el.remove();
+      itemCount--;
+      showEmptyState();
+      try {
+        await fetch(API + 'moodboard-radera', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: item.id })
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
+
+  function bringToFront(el, item) {
+    maxZ += 1;
+    item.z = maxZ;
+    el.style.zIndex = item.z;
+  }
+
+  function saveItem(item) {
+    fetch(API + 'moodboard-uppdatera', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: item.id, x: item.x, y: item.y, w: item.w, z: item.z })
+    }).catch((err) => console.error(err));
+  }
+
+  // ── Dra för att flytta ─────────────────────────────────
+  function makeDraggable(el, item) {
+    let dragging = false;
+    let startX, startY, startLeft, startTop;
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.mb-resize') || e.target.closest('.mb-delete')) return;
+      dragging = true;
+      el.setPointerCapture(e.pointerId);
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = item.x;
+      startTop = item.y;
+      bringToFront(el, item);
+      el.classList.add('mb-dragging');
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      item.x = startLeft + (e.clientX - startX);
+      item.y = startTop + (e.clientY - startY);
+      el.style.left = item.x + 'px';
+      el.style.top = item.y + 'px';
+    });
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('mb-dragging');
+      saveItem(item);
+    }
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+  }
+
+  // ── Dra i hörnet för att ändra storlek ─────────────────
+  function makeResizable(handle, el, item) {
+    let resizing = false;
+    let startX, startW;
+
+    handle.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      resizing = true;
+      handle.setPointerCapture(e.pointerId);
+      startX = e.clientX;
+      startW = item.w;
+      bringToFront(el, item);
+    });
+
+    handle.addEventListener('pointermove', (e) => {
+      if (!resizing) return;
+      item.w = Math.max(80, Math.min(900, startW + (e.clientX - startX)));
+      el.style.width = item.w + 'px';
+    });
+
+    function endResize() {
+      if (!resizing) return;
+      resizing = false;
+      saveItem(item);
+    }
+    handle.addEventListener('pointerup', endResize);
+    handle.addEventListener('pointercancel', endResize);
+  }
+
+  // ── Bildkomprimering innan uppladdning ──────────────────
+  function resizeImage(file, maxDim, quality) {
+    maxDim = maxDim || 1600;
+    quality = quality || 0.85;
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          const scale = maxDim / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const c = document.createElement('canvas');
+        c.width = width;
+        c.height = height;
+        c.getContext('2d').drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        c.toBlob((blob) => {
+          if (!blob) { reject(new Error('Kunde inte bearbeta bilden')); return; }
+          const reader = new FileReader();
+          reader.onload = () => resolve({
+            base64: reader.result.split(',')[1],
+            contentType: 'image/jpeg',
+            width: width
+          });
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  async function uploadFile(file, pos) {
+    const { base64, contentType, width } = await resizeImage(file);
+    const w = Math.max(140, Math.min(320, width));
+    const res = await fetch(API + 'moodboard-ladda-upp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ bild: base64, contentType, x: pos.x, y: pos.y, w })
+    });
+    if (!res.ok) throw new Error('Uppladdningen misslyckades');
+    return res.json();
+  }
+
+  async function handleFiles(fileList, dropPos) {
+    const files = Array.from(fileList).filter((f) => f.type.indexOf('image/') === 0);
+    if (files.length === 0) return;
+    setStatus('Laddar upp ' + files.length + ' bild' + (files.length > 1 ? 'er' : '') + ' \u2026');
+    let offset = 0;
+    let failed = 0;
+    for (const file of files) {
+      const pos = dropPos
+        ? { x: Math.max(0, dropPos.x - 100 + offset), y: Math.max(0, dropPos.y - 70 + offset) }
+        : { x: 60 + offset, y: 60 + offset };
+      offset += 26;
+      try {
+        const item = await uploadFile(file, pos);
+        if (item.z > maxZ) maxZ = item.z;
+        renderItem(item);
+      } catch (err) {
+        console.error(err);
+        failed++;
+      }
+    }
+    setStatus(failed ? failed + ' bild(er) kunde inte laddas upp.' : '', !!failed);
+  }
+
+  fileInput.addEventListener('change', (e) => {
+    handleFiles(e.target.files, null);
+    fileInput.value = '';
+  });
+
+  canvas.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    canvas.classList.add('mb-dragover');
+  });
+  canvas.addEventListener('dragleave', (e) => {
+    if (e.target === canvas) canvas.classList.remove('mb-dragover');
+  });
+  canvas.addEventListener('drop', (e) => {
+    e.preventDefault();
+    canvas.classList.remove('mb-dragover');
+    const rect = canvas.getBoundingClientRect();
+    handleFiles(e.dataTransfer.files, {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  });
+
+  loadBoard();
+})();
+</script>
+
+</body>
+</html>
