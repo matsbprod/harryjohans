@@ -21,11 +21,15 @@ export default async (req) => {
 
   const layoutStore = getStore("moodboard-layout");
   const layout = (await layoutStore.get("items", { type: "json" })) || [];
+  const item = layout.find((i) => i.id === id);
   const next = layout.filter((i) => i.id !== id);
   await layoutStore.set("items", JSON.stringify(next));
 
-  const bildStore = getStore("moodboard-bilder");
-  await bildStore.delete(id);
+  // Textkort har ingen bild-blob att städa bort.
+  if (!item || item.type !== "text") {
+    const bildStore = getStore("moodboard-bilder");
+    await bildStore.delete(id);
+  }
 
   return new Response(JSON.stringify({ ok: true }));
 };

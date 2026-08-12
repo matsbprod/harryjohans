@@ -14,7 +14,7 @@ export default async (req) => {
     return new Response("Ogiltig JSON", { status: 400 });
   }
 
-  const { id, x, y, w, z } = body;
+  const { id, x, y, w, z, text } = body;
   if (!id) {
     return new Response("Saknar id", { status: 400 });
   }
@@ -31,6 +31,7 @@ export default async (req) => {
   if (typeof y === "number") item.y = y;
   if (typeof w === "number") item.w = w;
   if (typeof z === "number") item.z = z;
+  if (typeof text === "string") item.content = text;
 
   await layoutStore.set("items", JSON.stringify(layout));
 

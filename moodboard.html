@@ -71,21 +71,38 @@
     line-height:1.6;
     font-size:.95rem;
   }
-  .mb-upload-btn{
+  .mb-btn-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .mb-upload-btn,
+  .mb-text-btn{
     display:inline-flex;
     align-items:center;
     gap:8px;
     font-family:'Archivo',sans-serif;
     font-size:.85rem;
     letter-spacing:.04em;
-    color:var(--mb-bg);
-    background:var(--mb-accent);
     padding:12px 24px;
     border-radius:2px;
     cursor:pointer;
-    transition:opacity .2s ease;
+    transition:opacity .2s ease, border-color .2s ease;
   }
-  .mb-upload-btn:hover{ opacity:.85; }
+  .mb-upload-btn{
+    color:var(--mb-bg);
+    background:var(--mb-accent);
+  }
+  .mb-text-btn{
+    color:var(--mb-text);
+    background:transparent;
+    border:1px solid var(--mb-line);
+  }
+  .mb-upload-btn:hover,
+  .mb-text-btn:hover{ opacity:.85; }
+  .mb-text-btn:hover{ border-color:var(--mb-accent); }
   .mb-status{
     font-family:'Archivo',sans-serif;
     font-size:.75rem;
@@ -186,6 +203,39 @@
   .mb-item:hover .mb-resize,
   .mb-item:focus-within .mb-resize{ opacity:.8; }
 
+  .mb-item-text{
+    background:rgba(255,255,255,.03);
+    border:1px dashed var(--mb-line);
+    padding:0;
+    min-width:120px;
+  }
+  .mb-drag-handle{
+    height:14px;
+    cursor:grab;
+    background:repeating-linear-gradient(
+      90deg, var(--mb-line) 0 3px, transparent 3px 7px
+    );
+    opacity:.5;
+  }
+  .mb-item-text.mb-dragging .mb-drag-handle{ cursor:grabbing; }
+  .mb-text-content{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-weight:400;
+    font-size:1.15rem;
+    line-height:1.5;
+    color:var(--mb-text);
+    padding:10px 14px 14px;
+    min-height:1.5em;
+    outline:none;
+    cursor:text;
+    user-select:text;
+  }
+  .mb-text-content:empty::before{
+    content:attr(data-placeholder);
+    color:var(--mb-muted);
+  }
+
   @media (max-width:720px){
     .mb-page{ padding-top:110px; }
     .mb-canvas{ min-height:1000px; }
@@ -198,10 +248,13 @@
     <h1 class="mb-title">Moodboard</h1>
     <p class="mb-sub">Dra och släpp bilder var du vill på tavlan. Dra i hörnet för att
       ändra storlek. Layouten sparas automatiskt.</p>
-    <label class="mb-upload-btn">
-      + Lägg till bilder
-      <input type="file" id="mb-file-input" accept="image/*" multiple hidden>
-    </label>
+    <div class="mb-btn-row">
+      <label class="mb-upload-btn">
+        + Lägg till bilder
+        <input type="file" id="mb-file-input" accept="image/*" multiple hidden>
+      </label>
+      <button type="button" class="mb-text-btn" id="mb-text-btn">+ Lägg till text</button>
+    </div>
     <p class="mb-status" id="mb-status"></p>
   </div>
 
@@ -215,6 +268,7 @@
 (function () {
   const canvas = document.getElementById('mb-canvas');
   const fileInput = document.getElementById('mb-file-input');
+  const textBtn = document.getElementById('mb-text-btn');
   const statusEl = document.getElementById('mb-status');
   const API = '/.netlify/functions/';
 
@@ -231,7 +285,7 @@
     if (canvas.querySelector('.mb-empty')) return;
     const el = document.createElement('div');
     el.className = 'mb-empty';
-    el.textContent = 'Inga bilder ännu — klicka på "Lägg till bilder" eller dra in filer här.';
+    el.textContent = 'Inget här ännu — lägg till bilder eller text för att börja bygga tavlan.';
     canvas.appendChild(el);
   }
   function hideEmptyState() {
@@ -256,43 +310,73 @@
     }
   }
 
-  // ── Bygg ett bildkort ──────────────────────────────────
+  // ── Bygg ett kort (bild eller text) ────────────────────
   function renderItem(item) {
     hideEmptyState();
     itemCount++;
 
+    const isText = item.type === 'text';
+
     const el = document.createElement('div');
-    el.className = 'mb-item';
+    el.className = isText ? 'mb-item mb-item-text' : 'mb-item';
     el.style.left = item.x + 'px';
     el.style.top = item.y + 'px';
     el.style.width = item.w + 'px';
     el.style.zIndex = item.z;
 
-    const img = document.createElement('img');
-    img.src = API + 'moodboard-bild?id=' + encodeURIComponent(item.id);
-    img.alt = '';
-    img.draggable = false;
-
     const del = document.createElement('button');
     del.className = 'mb-delete';
     del.type = 'button';
-    del.setAttribute('aria-label', 'Ta bort bild');
+    del.setAttribute('aria-label', isText ? 'Ta bort text' : 'Ta bort bild');
     del.textContent = '\u00D7';
 
     const handle = document.createElement('div');
     handle.className = 'mb-resize';
 
-    el.appendChild(img);
+    let dragTarget = el;
+
+    if (isText) {
+      const dragHandle = document.createElement('div');
+      dragHandle.className = 'mb-drag-handle';
+      dragTarget = dragHandle;
+
+      const content = document.createElement('div');
+      content.className = 'mb-text-content';
+      content.contentEditable = 'true';
+      content.setAttribute('data-placeholder', 'Skriv något …');
+      content.textContent = item.content || '';
+
+      content.addEventListener('pointerdown', (e) => e.stopPropagation());
+      content.addEventListener('blur', () => {
+        item.content = content.textContent;
+        saveText(item);
+      });
+
+      el.appendChild(dragHandle);
+      el.appendChild(content);
+
+      // Fokusera direkt på nyskapade, tomma textkort
+      if (!item.content) {
+        requestAnimationFrame(() => content.focus());
+      }
+    } else {
+      const img = document.createElement('img');
+      img.src = API + 'moodboard-bild?id=' + encodeURIComponent(item.id);
+      img.alt = '';
+      img.draggable = false;
+      el.appendChild(img);
+    }
+
     el.appendChild(del);
     el.appendChild(handle);
     canvas.appendChild(el);
 
-    makeDraggable(el, item);
+    makeDraggable(el, dragTarget, item);
     makeResizable(handle, el, item);
 
     del.addEventListener('click', async (e) => {
       e.stopPropagation();
-      if (!confirm('Ta bort bilden från moodboarden?')) return;
+      if (!confirm(isText ? 'Ta bort textrutan?' : 'Ta bort bilden från moodboarden?')) return;
       el.remove();
       itemCount--;
       showEmptyState();
@@ -322,15 +406,26 @@
     }).catch((err) => console.error(err));
   }
 
+  function saveText(item) {
+    fetch(API + 'moodboard-uppdatera', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: item.id, text: item.content })
+    }).catch((err) => console.error(err));
+  }
+
   // ── Dra för att flytta ─────────────────────────────────
-  function makeDraggable(el, item) {
+  // handleEl: elementet man drar i (hela kortet för bilder,
+  // ett smalt handtag längst upp för textkort så man kan
+  // klicka i texten utan att börja dra).
+  function makeDraggable(el, handleEl, item) {
     let dragging = false;
     let startX, startY, startLeft, startTop;
 
-    el.addEventListener('pointerdown', (e) => {
+    handleEl.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.mb-resize') || e.target.closest('.mb-delete')) return;
       dragging = true;
-      el.setPointerCapture(e.pointerId);
+      handleEl.setPointerCapture(e.pointerId);
       startX = e.clientX;
       startY = e.clientY;
       startLeft = item.x;
@@ -339,7 +434,7 @@
       el.classList.add('mb-dragging');
     });
 
-    el.addEventListener('pointermove', (e) => {
+    handleEl.addEventListener('pointermove', (e) => {
       if (!dragging) return;
       item.x = startLeft + (e.clientX - startX);
       item.y = startTop + (e.clientY - startY);
@@ -353,8 +448,8 @@
       el.classList.remove('mb-dragging');
       saveItem(item);
     }
-    el.addEventListener('pointerup', endDrag);
-    el.addEventListener('pointercancel', endDrag);
+    handleEl.addEventListener('pointerup', endDrag);
+    handleEl.addEventListener('pointercancel', endDrag);
   }
 
   // ── Dra i hörnet för att ändra storlek ─────────────────
@@ -456,6 +551,25 @@
     }
     setStatus(failed ? failed + ' bild(er) kunde inte laddas upp.' : '', !!failed);
   }
+
+  async function createTextItem() {
+    try {
+      const res = await fetch(API + 'moodboard-text-skapa', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: '', x: 80, y: 80, w: 220 })
+      });
+      if (!res.ok) throw new Error('Kunde inte skapa textrutan');
+      const item = await res.json();
+      if (item.z > maxZ) maxZ = item.z;
+      renderItem(item);
+    } catch (err) {
+      console.error(err);
+      setStatus('Kunde inte skapa textrutan.', true);
+    }
+  }
+
+  textBtn.addEventListener('click', createTextItem);
 
   fileInput.addEventListener('change', (e) => {
     handleFiles(e.target.files, null);
