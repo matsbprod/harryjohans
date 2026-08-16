@@ -1,4 +1,4 @@
-import { getStore } from "@netlify/blobs";
+import { updateLayout } from "./_lib/moodboard-store.mjs";
 
 // POST /.netlify/functions/moodboard-uppdatera
 // Body: { id, x, y, w, h, z, text, color }
@@ -19,23 +19,26 @@ export default async (req) => {
     return new Response("Saknar id", { status: 400 });
   }
 
-  const layoutStore = getStore("moodboard-layout");
-  const layout = (await layoutStore.get("items", { type: "json" })) || [];
-  const item = layout.find((i) => i.id === id);
+  let found = false;
+  const { result: item } = await updateLayout((layout) => {
+    const item = layout.find((i) => i.id === id);
+    if (!item) return null;
+    found = true;
 
-  if (!item) {
+    if (typeof x === "number") item.x = x;
+    if (typeof y === "number") item.y = y;
+    if (typeof w === "number") item.w = w;
+    if (typeof h === "number") item.h = h;
+    if (typeof z === "number") item.z = z;
+    if (typeof text === "string") item.content = text;
+    if (typeof color === "string") item.color = color;
+
+    return item;
+  });
+
+  if (!found) {
     return new Response("Hittades inte", { status: 404 });
   }
-
-  if (typeof x === "number") item.x = x;
-  if (typeof y === "number") item.y = y;
-  if (typeof w === "number") item.w = w;
-  if (typeof h === "number") item.h = h;
-  if (typeof z === "number") item.z = z;
-  if (typeof text === "string") item.content = text;
-  if (typeof color === "string") item.color = color;
-
-  await layoutStore.set("items", JSON.stringify(layout));
 
   return new Response(JSON.stringify(item), {
     headers: { "content-type": "application/json" }

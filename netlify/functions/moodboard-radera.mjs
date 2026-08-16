@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import { updateLayout } from "./_lib/moodboard-store.mjs";
 
 // POST /.netlify/functions/moodboard-radera
 // Body: { id }
@@ -19,14 +20,15 @@ export default async (req) => {
     return new Response("Saknar id", { status: 400 });
   }
 
-  const layoutStore = getStore("moodboard-layout");
-  const layout = (await layoutStore.get("items", { type: "json" })) || [];
-  const item = layout.find((i) => i.id === id);
-  const next = layout.filter((i) => i.id !== id);
-  await layoutStore.set("items", JSON.stringify(next));
+  const { result: removedItem } = await updateLayout((layout) => {
+    const idx = layout.findIndex((i) => i.id === id);
+    if (idx === -1) return null;
+    const [removed] = layout.splice(idx, 1);
+    return removed;
+  });
 
   // Text- och ramkort har ingen bild-blob att städa bort.
-  if (!item || (item.type !== "text" && item.type !== "box")) {
+  if (!removedItem || (removedItem.type !== "text" && removedItem.type !== "box")) {
     const bildStore = getStore("moodboard-bilder");
     await bildStore.delete(id);
   }

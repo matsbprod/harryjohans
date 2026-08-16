@@ -1,4 +1,4 @@
-import { getStore } from "@netlify/blobs";
+import { updateLayout } from "./_lib/moodboard-store.mjs";
 
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -21,22 +21,20 @@ export default async (req) => {
 
   const { text, x, y, w } = body;
 
-  const layoutStore = getStore("moodboard-layout");
-  const layout = (await layoutStore.get("items", { type: "json" })) || [];
-
-  const nextZ = layout.length ? Math.max(...layout.map((i) => i.z || 0)) + 1 : 1;
-  const item = {
-    id: genId(),
-    type: "text",
-    content: typeof text === "string" ? text : "",
-    x: typeof x === "number" ? x : 40,
-    y: typeof y === "number" ? y : 40,
-    w: typeof w === "number" ? w : 220,
-    z: nextZ
-  };
-
-  layout.push(item);
-  await layoutStore.set("items", JSON.stringify(layout));
+  const { result: item } = await updateLayout((layout) => {
+    const nextZ = layout.length ? Math.max(...layout.map((i) => i.z || 0)) + 1 : 1;
+    const newItem = {
+      id: genId(),
+      type: "text",
+      content: typeof text === "string" ? text : "",
+      x: typeof x === "number" ? x : 40,
+      y: typeof y === "number" ? y : 40,
+      w: typeof w === "number" ? w : 220,
+      z: nextZ
+    };
+    layout.push(newItem);
+    return newItem;
+  });
 
   return new Response(JSON.stringify(item), {
     headers: { "content-type": "application/json" }
