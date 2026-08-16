@@ -717,7 +717,10 @@
       startY = e.clientY;
       startLeft = item.x;
       startTop = item.y;
-      bringToFront(el, item);
+      // Ramar ska INTE hoppa fram bara för att man klickar/drar i dem —
+      // det river upp lagerordningen man byggt. Endast "skicka bakåt"
+      // ska ändra en ramns z-index.
+      if (item.type !== 'box') bringToFront(el, item);
       el.classList.add('mb-dragging');
     });
 
@@ -752,7 +755,7 @@
       startY = e.clientY;
       startW = item.w;
       startH = item.h || 0;
-      bringToFront(el, item);
+      if (item.type !== 'box') bringToFront(el, item);
     });
 
     handle.addEventListener('pointermove', (e) => {
