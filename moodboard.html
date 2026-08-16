@@ -446,6 +446,10 @@
     el.style.width = item.w + 'px';
     if (isBox) el.style.height = (item.h || 320) + 'px';
     el.style.zIndex = item.z;
+    // Ramens "hemma-position" i lagerordningen — dit den återgår
+    // efter att man dragit/ändrat den, istället för att sjunka
+    // djupare och djupare för varje interaktion.
+    if (isBox) item.baseZ = item.z;
 
     const estH = isBox ? (item.h || 320) : (isText ? 90 : Math.round(item.w * 0.72));
     if (item.y + estH > contentBottom) {
@@ -697,6 +701,10 @@
       if (!dragging) return;
       dragging = false;
       el.classList.remove('mb-dragging');
+      if (item.type === 'box' && typeof item.baseZ === 'number') {
+        item.z = item.baseZ;
+        el.style.zIndex = item.z;
+      }
       saveItem(item);
     }
     handleEl.addEventListener('pointerup', endDrag);
@@ -732,6 +740,10 @@
     function endResize() {
       if (!resizing) return;
       resizing = false;
+      if (item.type === 'box' && typeof item.baseZ === 'number') {
+        item.z = item.baseZ;
+        el.style.zIndex = item.z;
+      }
       saveItem(item);
     }
     handle.addEventListener('pointerup', endResize);
@@ -899,8 +911,14 @@
       });
       if (!res.ok) throw new Error('Kunde inte skapa ramen');
       const item = await res.json();
-      if (item.z > maxZ) maxZ = item.z;
-      renderItem(item);
+      const el = renderItem(item);
+      // Ramen skapas bakom allt annat (item.z, sparat som item.baseZ i
+      // renderItem) — men lyfts fram tillfälligt nu så den syns direkt.
+      // Sparas inte förrän du drar/ändrar den, då den lägger sig
+      // permanent bakom igen.
+      maxZ += 1;
+      item.z = maxZ;
+      el.style.zIndex = item.z;
     } catch (err) {
       console.error(err);
       setStatus('Kunde inte skapa ramen.', true);
