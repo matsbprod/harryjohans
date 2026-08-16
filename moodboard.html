@@ -884,9 +884,13 @@
     }
   }
 
+  let boxSpawnCount = 0;
+
   async function createBoxItem() {
-    const x = 60;
-    const y = contentBottom + 60;
+    const offset = (boxSpawnCount % 6) * 36;
+    boxSpawnCount++;
+    const x = 60 + offset;
+    const y = 60 + offset;
     try {
       const res = await fetch(API + 'moodboard-box-skapa', {
         method: 'POST',
@@ -895,11 +899,8 @@
       });
       if (!res.ok) throw new Error('Kunde inte skapa ramen');
       const item = await res.json();
-      if (item.z < minZ) minZ = item.z;
-      const el = renderItem(item);
-      requestAnimationFrame(() => {
-        el.scrollIntoView({ behavior: 'auto', block: 'center' });
-      });
+      if (item.z > maxZ) maxZ = item.z;
+      renderItem(item);
     } catch (err) {
       console.error(err);
       setStatus('Kunde inte skapa ramen.', true);

@@ -6,8 +6,9 @@ function genId() {
 
 // POST /.netlify/functions/moodboard-box-skapa
 // Body: { title, x, y, w, h, color }
-// En ram/bakgrundsruta för att gruppera ett kapitel — ingen bild-blob,
-// hamnar som standard längst bak (lägst z) så den inte täcker övrigt innehåll.
+// En ram/bakgrundsruta för att gruppera ett kapitel — ingen bild-blob.
+// Hamnar i normal lagerordning precis som alla andra kort (inte
+// automatiskt bakom) — enklare och garanterat synlig direkt.
 export default async (req) => {
   if (req.method !== "POST") {
     return new Response("Metod ej tillåten", { status: 405 });
@@ -23,7 +24,7 @@ export default async (req) => {
   const { title, x, y, w, h, color } = body;
 
   const { result: item } = await updateLayout((layout) => {
-    const minZ = layout.length ? Math.min(...layout.map((i) => i.z || 0)) : 1;
+    const nextZ = layout.length ? Math.max(...layout.map((i) => i.z || 0)) + 1 : 1;
     const newItem = {
       id: genId(),
       type: "box",
@@ -33,7 +34,7 @@ export default async (req) => {
       y: typeof y === "number" ? y : 40,
       w: typeof w === "number" ? w : 420,
       h: typeof h === "number" ? h : 320,
-      z: Math.min(0, minZ - 1)
+      z: nextZ
     };
     layout.push(newItem);
     return newItem;
