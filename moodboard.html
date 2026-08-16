@@ -369,8 +369,10 @@
     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
   }
   function applyBoxColor(el, swatch, hex) {
-    el.style.background = hexToRgba(hex, .22);
-    el.style.border = '2px solid ' + hexToRgba(hex, .85);
+    // TILLFÄLLIG FELSÖKNING: knallrosa och helt ogenomskinlig
+    // för att testa om ramen syns alls, oavsett kontrast.
+    el.style.background = '#ff00ff';
+    el.style.border = '4px solid #ffff00';
     if (swatch) swatch.style.background = hex;
   }
 
