@@ -369,10 +369,8 @@
     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
   }
   function applyBoxColor(el, swatch, hex) {
-    // TILLFÄLLIG FELSÖKNING: knallrosa och helt ogenomskinlig
-    // för att testa om ramen syns alls, oavsett kontrast.
-    el.style.background = '#ff00ff';
-    el.style.border = '4px solid #ffff00';
+    el.style.background = hexToRgba(hex, .22);
+    el.style.border = '2px solid ' + hexToRgba(hex, .85);
     if (swatch) swatch.style.background = hex;
   }
 
@@ -382,6 +380,16 @@
   let maxZ = 1;
   let minZ = 0;
   let contentBottom = 400;
+
+  // .mb-canvas har overflow:hidden och alla kort är position:absolute,
+  // så de bidrar INTE automatiskt till canvasens egen höjd — utan
+  // det här skulle allt under min-height (1500px) klippas bort och
+  // bli osynligt. Vi håller canvasen minst lika hög som innehållet.
+  function growCanvas() {
+    const needed = contentBottom + 200;
+    const current = parseInt(canvas.style.minHeight || '1500', 10);
+    if (needed > current) canvas.style.minHeight = needed + 'px';
+  }
   let itemCount = 0;
 
   function setStatus(msg, isError) {
@@ -440,7 +448,10 @@
     el.style.zIndex = item.z;
 
     const estH = isBox ? (item.h || 320) : (isText ? 90 : Math.round(item.w * 0.72));
-    if (item.y + estH > contentBottom) contentBottom = item.y + estH;
+    if (item.y + estH > contentBottom) {
+      contentBottom = item.y + estH;
+      growCanvas();
+    }
 
     const del = document.createElement('button');
     del.className = 'mb-delete';
