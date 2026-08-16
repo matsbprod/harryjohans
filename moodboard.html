@@ -305,6 +305,24 @@
   .mb-item-box .mb-resize{
     background:linear-gradient(135deg, transparent 50%, var(--mb-line) 50%);
   }
+  .mb-box-back{
+    position:absolute;
+    bottom:-9px; left:-9px;
+    width:22px; height:22px;
+    border-radius:50%;
+    border:1px solid var(--mb-line);
+    background:#0a0a0a;
+    color:var(--mb-text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    opacity:0;
+    transition:opacity .15s ease;
+  }
+  .mb-box-back svg{ width:12px; height:12px; }
+  .mb-item-box:hover .mb-box-back,
+  .mb-item-box:focus-within .mb-box-back{ opacity:1; }
 
   @media (max-width:720px){
     .mb-page{ padding-top:110px; }
@@ -376,6 +394,7 @@
 
   const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
   const PAUSE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';
+  const SEND_BACK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="12" height="12"/><rect x="3" y="3" width="12" height="12" fill="#0a0a0a"/></svg>';
 
   let maxZ = 1;
   let minZ = 0;
@@ -446,10 +465,6 @@
     el.style.width = item.w + 'px';
     if (isBox) el.style.height = (item.h || 320) + 'px';
     el.style.zIndex = item.z;
-    // Ramens "hemma-position" i lagerordningen — dit den återgår
-    // efter att man dragit/ändrat den, istället för att sjunka
-    // djupare och djupare för varje interaktion.
-    if (isBox) item.baseZ = item.z;
 
     const estH = isBox ? (item.h || 320) : (isText ? 90 : Math.round(item.w * 0.72));
     if (item.y + estH > contentBottom) {
@@ -563,8 +578,24 @@
         if (activeTextEl === label) { activeTextItem = null; activeTextEl = null; }
       });
 
+      const sendBack = document.createElement('button');
+      sendBack.type = 'button';
+      sendBack.className = 'mb-box-back';
+      sendBack.setAttribute('aria-label', 'Skicka bakåt');
+      sendBack.title = 'Skicka bakåt';
+      sendBack.innerHTML = SEND_BACK_SVG;
+
+      sendBack.addEventListener('click', (e) => {
+        e.stopPropagation();
+        minZ -= 1;
+        item.z = minZ;
+        el.style.zIndex = item.z;
+        saveItem(item);
+      });
+
       el.appendChild(swatch);
       el.appendChild(label);
+      el.appendChild(sendBack);
     } else {
       const img = document.createElement('img');
       img.src = API + 'moodboard-bild?id=' + encodeURIComponent(item.id);
@@ -677,7 +708,8 @@
         e.target.closest('.mb-delete') ||
         e.target.closest('.mb-play') ||
         e.target.closest('.mb-box-label') ||
-        e.target.closest('.mb-box-swatch')
+        e.target.closest('.mb-box-swatch') ||
+        e.target.closest('.mb-box-back')
       ) return;
       dragging = true;
       handleEl.setPointerCapture(e.pointerId);
@@ -701,10 +733,6 @@
       if (!dragging) return;
       dragging = false;
       el.classList.remove('mb-dragging');
-      if (item.type === 'box' && typeof item.baseZ === 'number') {
-        item.z = item.baseZ;
-        el.style.zIndex = item.z;
-      }
       saveItem(item);
     }
     handleEl.addEventListener('pointerup', endDrag);
@@ -740,10 +768,6 @@
     function endResize() {
       if (!resizing) return;
       resizing = false;
-      if (item.type === 'box' && typeof item.baseZ === 'number') {
-        item.z = item.baseZ;
-        el.style.zIndex = item.z;
-      }
       saveItem(item);
     }
     handle.addEventListener('pointerup', endResize);
@@ -912,10 +936,10 @@
       if (!res.ok) throw new Error('Kunde inte skapa ramen');
       const item = await res.json();
       const el = renderItem(item);
-      // Ramen skapas bakom allt annat (item.z, sparat som item.baseZ i
-      // renderItem) — men lyfts fram tillfälligt nu så den syns direkt.
-      // Sparas inte förrän du drar/ändrar den, då den lägger sig
-      // permanent bakom igen.
+      // Ramen skapas bakom allt annat på servern, men lyfts fram
+      // tillfälligt nu (bara i den här sessionen, sparas inte) så
+      // den syns direkt. Använd "skicka bakåt"-knappen på ramen när
+      // du vill lägga den bakom bilder/text.
       maxZ += 1;
       item.z = maxZ;
       el.style.zIndex = item.z;
