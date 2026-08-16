@@ -897,7 +897,9 @@
       const item = await res.json();
       if (item.z < minZ) minZ = item.z;
       const el = renderItem(item);
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'auto', block: 'center' });
+      });
     } catch (err) {
       console.error(err);
       setStatus('Kunde inte skapa ramen.', true);
