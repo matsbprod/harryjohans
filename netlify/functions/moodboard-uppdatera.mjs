@@ -1,7 +1,7 @@
 import { getStore } from "@netlify/blobs";
 
 // POST /.netlify/functions/moodboard-uppdatera
-// Body: { id, x, y, w, z }
+// Body: { id, x, y, w, h, z, text, color }
 export default async (req) => {
   if (req.method !== "POST") {
     return new Response("Metod ej tillåten", { status: 405 });
@@ -14,7 +14,7 @@ export default async (req) => {
     return new Response("Ogiltig JSON", { status: 400 });
   }
 
-  const { id, x, y, w, z, text } = body;
+  const { id, x, y, w, h, z, text, color } = body;
   if (!id) {
     return new Response("Saknar id", { status: 400 });
   }
@@ -30,8 +30,10 @@ export default async (req) => {
   if (typeof x === "number") item.x = x;
   if (typeof y === "number") item.y = y;
   if (typeof w === "number") item.w = w;
+  if (typeof h === "number") item.h = h;
   if (typeof z === "number") item.z = z;
   if (typeof text === "string") item.content = text;
+  if (typeof color === "string") item.color = color;
 
   await layoutStore.set("items", JSON.stringify(layout));
 

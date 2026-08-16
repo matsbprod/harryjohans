@@ -25,8 +25,8 @@ export default async (req) => {
   const next = layout.filter((i) => i.id !== id);
   await layoutStore.set("items", JSON.stringify(next));
 
-  // Textkort har ingen bild-blob att städa bort.
-  if (!item || item.type !== "text") {
+  // Text- och ramkort har ingen bild-blob att städa bort.
+  if (!item || (item.type !== "text" && item.type !== "box")) {
     const bildStore = getStore("moodboard-bilder");
     await bildStore.delete(id);
   }

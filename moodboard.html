@@ -79,7 +79,9 @@
     flex-wrap:wrap;
   }
   .mb-upload-btn,
-  .mb-text-btn{
+  .mb-text-btn,
+  .mb-video-btn,
+  .mb-box-btn{
     display:inline-flex;
     align-items:center;
     gap:8px;
@@ -95,14 +97,20 @@
     color:var(--mb-bg);
     background:var(--mb-accent);
   }
-  .mb-text-btn{
+  .mb-text-btn,
+  .mb-video-btn,
+  .mb-box-btn{
     color:var(--mb-text);
     background:transparent;
     border:1px solid var(--mb-line);
   }
   .mb-upload-btn:hover,
-  .mb-text-btn:hover{ opacity:.85; }
-  .mb-text-btn:hover{ border-color:var(--mb-accent); }
+  .mb-text-btn:hover,
+  .mb-video-btn:hover,
+  .mb-box-btn:hover{ opacity:.85; }
+  .mb-text-btn:hover,
+  .mb-video-btn:hover,
+  .mb-box-btn:hover{ border-color:var(--mb-accent); }
   .mb-status{
     font-family:'Archivo',sans-serif;
     font-size:.75rem;
@@ -236,6 +244,68 @@
     color:var(--mb-muted);
   }
 
+  .mb-item video{
+    display:block;
+    width:100%;
+    height:auto;
+    pointer-events:none;
+  }
+  .mb-play{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:46px; height:46px;
+    border-radius:50%;
+    background:rgba(10,10,10,.6);
+    border:1px solid var(--mb-line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:var(--mb-text);
+    padding:0;
+    transition:background .15s ease;
+  }
+  .mb-play:hover{ background:rgba(10,10,10,.82); }
+  .mb-play svg{ width:16px; height:16px; display:block; }
+
+  .mb-item-box{
+    padding:0;
+    box-shadow:none;
+  }
+  .mb-item-box.mb-dragging{ box-shadow:none; }
+  .mb-box-label{
+    position:absolute;
+    top:12px; left:16px;
+    right:46px;
+    font-family:'Archivo',sans-serif;
+    font-size:.72rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--mb-text);
+    outline:none;
+    cursor:text;
+  }
+  .mb-box-label:empty::before{
+    content:attr(data-placeholder);
+    color:var(--mb-muted);
+  }
+  .mb-box-swatch{
+    position:absolute;
+    top:-9px; left:-9px;
+    width:22px; height:22px;
+    border-radius:50%;
+    border:1px solid var(--mb-line);
+    cursor:pointer;
+    opacity:0;
+    transition:opacity .15s ease;
+  }
+  .mb-item-box:hover .mb-box-swatch,
+  .mb-item-box:focus-within .mb-box-swatch{ opacity:1; }
+  .mb-item-box .mb-resize{
+    background:linear-gradient(135deg, transparent 50%, var(--mb-line) 50%);
+  }
+
   @media (max-width:720px){
     .mb-page{ padding-top:110px; }
     .mb-canvas{ min-height:1000px; }
@@ -246,14 +316,19 @@
   <div class="mb-head">
     <p class="mb-eyebrow">Materialet</p>
     <h1 class="mb-title">Moodboard</h1>
-    <p class="mb-sub">Dra och släpp bilder var du vill på tavlan. Dra i hörnet för att
-      ändra storlek. Layouten sparas automatiskt.</p>
+    <p class="mb-sub">Dra och släpp bilder eller video var du vill på tavlan, eller lägg till
+      text och kapitelramar. Dra i hörnet för att ändra storlek. Layouten sparas automatiskt.</p>
     <div class="mb-btn-row">
       <label class="mb-upload-btn">
         + Lägg till bilder
         <input type="file" id="mb-file-input" accept="image/*" multiple hidden>
       </label>
+      <label class="mb-video-btn">
+        + Lägg till video
+        <input type="file" id="mb-video-input" accept="video/*" multiple hidden>
+      </label>
       <button type="button" class="mb-text-btn" id="mb-text-btn">+ Lägg till text</button>
+      <button type="button" class="mb-box-btn" id="mb-box-btn">+ Lägg till ram</button>
     </div>
     <p class="mb-status" id="mb-status"></p>
   </div>
@@ -268,11 +343,43 @@
 (function () {
   const canvas = document.getElementById('mb-canvas');
   const fileInput = document.getElementById('mb-file-input');
+  const videoInput = document.getElementById('mb-video-input');
   const textBtn = document.getElementById('mb-text-btn');
+  const boxBtn = document.getElementById('mb-box-btn');
   const statusEl = document.getElementById('mb-status');
   const API = '/.netlify/functions/';
 
+  // Håll videofiler små — JSON+base64 innebär ~33% extra storlek
+  // och funktionsanropet har ett tak, så vi stoppar för stora filer
+  // innan uppladdning istället för att låta dem misslyckas tyst.
+  const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
+
+  const BOX_PALETTE = ['#4d7ea8', '#a8664d', '#4d8a6b', '#7a5ba0', '#6b6b63'];
+  let paletteIdx = 0;
+  function nextBoxColor() {
+    const c = BOX_PALETTE[paletteIdx % BOX_PALETTE.length];
+    paletteIdx++;
+    return c;
+  }
+  function hexToRgba(hex, alpha) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+  function applyBoxColor(el, swatch, hex) {
+    el.style.background = hexToRgba(hex, .12);
+    el.style.borderColor = hexToRgba(hex, .55);
+    el.style.border = '1px solid ' + hexToRgba(hex, .55);
+    if (swatch) swatch.style.background = hex;
+  }
+
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  const PAUSE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';
+
   let maxZ = 1;
+  let minZ = 0;
   let itemCount = 0;
 
   function setStatus(msg, isError) {
@@ -285,7 +392,7 @@
     if (canvas.querySelector('.mb-empty')) return;
     const el = document.createElement('div');
     el.className = 'mb-empty';
-    el.textContent = 'Inget här ännu — lägg till bilder eller text för att börja bygga tavlan.';
+    el.textContent = 'Inget här ännu — lägg till bilder, video, text eller en ram för att börja bygga tavlan.';
     canvas.appendChild(el);
   }
   function hideEmptyState() {
@@ -301,6 +408,7 @@
       const items = await res.json();
       items.forEach((item) => {
         if (item.z > maxZ) maxZ = item.z;
+        if (item.z < minZ) minZ = item.z;
         renderItem(item);
       });
       if (items.length === 0) showEmptyState();
@@ -310,30 +418,36 @@
     }
   }
 
-  // ── Bygg ett kort (bild eller text) ────────────────────
+  // ── Bygg ett kort (bild, video, text eller ram) ────────
   function renderItem(item) {
     hideEmptyState();
     itemCount++;
 
     const isText = item.type === 'text';
+    const isVideo = item.type === 'video';
+    const isBox = item.type === 'box';
 
     const el = document.createElement('div');
-    el.className = isText ? 'mb-item mb-item-text' : 'mb-item';
+    el.className = 'mb-item' +
+      (isText ? ' mb-item-text' : '') +
+      (isBox ? ' mb-item-box' : '');
     el.style.left = item.x + 'px';
     el.style.top = item.y + 'px';
     el.style.width = item.w + 'px';
+    if (isBox) el.style.height = (item.h || 320) + 'px';
     el.style.zIndex = item.z;
 
     const del = document.createElement('button');
     del.className = 'mb-delete';
     del.type = 'button';
-    del.setAttribute('aria-label', isText ? 'Ta bort text' : 'Ta bort bild');
+    del.setAttribute('aria-label', 'Ta bort');
     del.textContent = '\u00D7';
 
     const handle = document.createElement('div');
     handle.className = 'mb-resize';
 
     let dragTarget = el;
+    let swatch = null;
 
     if (isText) {
       const dragHandle = document.createElement('div');
@@ -347,26 +461,17 @@
       content.textContent = item.content || '';
 
       content.addEventListener('pointerdown', (e) => e.stopPropagation());
-
-      content.addEventListener('focus', () => {
-        activeTextItem = item;
-        activeTextEl = content;
-      });
-
+      content.addEventListener('focus', () => { activeTextItem = item; activeTextEl = content; });
       content.addEventListener('input', () => {
         item.content = content.textContent;
         clearTimeout(textSaveTimer);
         textSaveTimer = setTimeout(() => saveText(item), 700);
       });
-
       content.addEventListener('blur', () => {
         clearTimeout(textSaveTimer);
         item.content = content.textContent;
         saveText(item);
-        if (activeTextEl === content) {
-          activeTextItem = null;
-          activeTextEl = null;
-        }
+        if (activeTextEl === content) { activeTextItem = null; activeTextEl = null; }
       });
 
       el.appendChild(dragHandle);
@@ -376,6 +481,70 @@
       if (!item.content) {
         requestAnimationFrame(() => content.focus());
       }
+    } else if (isVideo) {
+      const video = document.createElement('video');
+      video.src = API + 'moodboard-bild?id=' + encodeURIComponent(item.id);
+      video.preload = 'metadata';
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+
+      const playBtn = document.createElement('button');
+      playBtn.type = 'button';
+      playBtn.className = 'mb-play';
+      playBtn.setAttribute('aria-label', 'Spela upp video');
+      playBtn.innerHTML = PLAY_SVG;
+
+      playBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (video.paused) {
+          canvas.querySelectorAll('video').forEach((v) => { if (v !== video) v.pause(); });
+          video.play();
+        } else {
+          video.pause();
+        }
+      });
+      video.addEventListener('play', () => { playBtn.innerHTML = PAUSE_SVG; });
+      video.addEventListener('pause', () => { playBtn.innerHTML = PLAY_SVG; });
+      video.addEventListener('ended', () => { playBtn.innerHTML = PLAY_SVG; });
+
+      el.appendChild(video);
+      el.appendChild(playBtn);
+    } else if (isBox) {
+      swatch = document.createElement('button');
+      swatch.type = 'button';
+      swatch.className = 'mb-box-swatch';
+      swatch.setAttribute('aria-label', 'Byt färg');
+      applyBoxColor(el, swatch, item.color || BOX_PALETTE[0]);
+
+      swatch.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = BOX_PALETTE.indexOf(item.color);
+        item.color = BOX_PALETTE[(idx + 1 + BOX_PALETTE.length) % BOX_PALETTE.length];
+        applyBoxColor(el, swatch, item.color);
+        saveColor(item);
+      });
+
+      const label = document.createElement('div');
+      label.className = 'mb-box-label';
+      label.contentEditable = 'true';
+      label.setAttribute('data-placeholder', 'Namnge kapitlet …');
+      label.textContent = item.content || '';
+
+      label.addEventListener('focus', () => { activeTextItem = item; activeTextEl = label; });
+      label.addEventListener('input', () => {
+        item.content = label.textContent;
+        clearTimeout(textSaveTimer);
+        textSaveTimer = setTimeout(() => saveText(item), 700);
+      });
+      label.addEventListener('blur', () => {
+        clearTimeout(textSaveTimer);
+        item.content = label.textContent;
+        saveText(item);
+        if (activeTextEl === label) { activeTextItem = null; activeTextEl = null; }
+      });
+
+      el.appendChild(swatch);
+      el.appendChild(label);
     } else {
       const img = document.createElement('img');
       img.src = API + 'moodboard-bild?id=' + encodeURIComponent(item.id);
@@ -393,7 +562,7 @@
 
     del.addEventListener('click', async (e) => {
       e.stopPropagation();
-      if (!confirm(isText ? 'Ta bort textrutan?' : 'Ta bort bilden från moodboarden?')) return;
+      if (!confirm('Ta bort det här från moodboarden?')) return;
       el.remove();
       itemCount--;
       showEmptyState();
@@ -415,12 +584,32 @@
     el.style.zIndex = item.z;
   }
 
+  // Ramar ska normalt ligga bakom bilder/text. Vi lyfter dem
+  // tillfälligt överst för att kunna greppa dem (bringToFront),
+  // men sänker dem igen så fort man släpper.
+  function sinkBox(el, item) {
+    minZ -= 1;
+    item.z = minZ;
+    el.style.zIndex = item.z;
+  }
+
   function saveItem(item) {
+    const payload = { id: item.id, x: item.x, y: item.y, w: item.w, z: item.z };
+    if (typeof item.h === 'number') payload.h = item.h;
     fetch(API + 'moodboard-uppdatera', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       keepalive: true,
-      body: JSON.stringify({ id: item.id, x: item.x, y: item.y, w: item.w, z: item.z })
+      body: JSON.stringify(payload)
+    }).catch((err) => console.error(err));
+  }
+
+  function saveColor(item) {
+    fetch(API + 'moodboard-uppdatera', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({ id: item.id, color: item.color })
     }).catch((err) => console.error(err));
   }
 
@@ -470,7 +659,13 @@
     let startX, startY, startLeft, startTop;
 
     handleEl.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.mb-resize') || e.target.closest('.mb-delete')) return;
+      if (
+        e.target.closest('.mb-resize') ||
+        e.target.closest('.mb-delete') ||
+        e.target.closest('.mb-play') ||
+        e.target.closest('.mb-box-label') ||
+        e.target.closest('.mb-box-swatch')
+      ) return;
       dragging = true;
       handleEl.setPointerCapture(e.pointerId);
       startX = e.clientX;
@@ -493,6 +688,7 @@
       if (!dragging) return;
       dragging = false;
       el.classList.remove('mb-dragging');
+      if (item.type === 'box') sinkBox(el, item);
       saveItem(item);
     }
     handleEl.addEventListener('pointerup', endDrag);
@@ -502,26 +698,33 @@
   // ── Dra i hörnet för att ändra storlek ─────────────────
   function makeResizable(handle, el, item) {
     let resizing = false;
-    let startX, startW;
+    let startX, startY, startW, startH;
 
     handle.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       resizing = true;
       handle.setPointerCapture(e.pointerId);
       startX = e.clientX;
+      startY = e.clientY;
       startW = item.w;
+      startH = item.h || 0;
       bringToFront(el, item);
     });
 
     handle.addEventListener('pointermove', (e) => {
       if (!resizing) return;
-      item.w = Math.max(80, Math.min(900, startW + (e.clientX - startX)));
+      item.w = Math.max(80, Math.min(1400, startW + (e.clientX - startX)));
       el.style.width = item.w + 'px';
+      if (item.type === 'box') {
+        item.h = Math.max(80, Math.min(1400, startH + (e.clientY - startY)));
+        el.style.height = item.h + 'px';
+      }
     });
 
     function endResize() {
       if (!resizing) return;
       resizing = false;
+      if (item.type === 'box') sinkBox(el, item);
       saveItem(item);
     }
     handle.addEventListener('pointerup', endResize);
@@ -599,6 +802,64 @@
     setStatus(failed ? failed + ' bild(er) kunde inte laddas upp.' : '', !!failed);
   }
 
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadVideo(file, pos) {
+    const base64 = await fileToBase64(file);
+    const res = await fetch(API + 'moodboard-ladda-upp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ bild: base64, contentType: file.type, x: pos.x, y: pos.y, w: 280 })
+    });
+    if (!res.ok) throw new Error('Uppladdningen misslyckades');
+    return res.json();
+  }
+
+  async function handleVideoFiles(fileList, dropPos) {
+    const all = Array.from(fileList).filter((f) => f.type.indexOf('video/') === 0);
+    if (all.length === 0) return;
+    const files = all.filter((f) => f.size <= MAX_VIDEO_BYTES);
+    const tooBig = all.length - files.length;
+
+    if (files.length === 0) {
+      setStatus('Videofilen är för stor (max ' + Math.round(MAX_VIDEO_BYTES / 1024 / 1024) + ' MB). Komprimera klippet och försök igen.', true);
+      return;
+    }
+
+    setStatus('Laddar upp ' + files.length + ' video' + (files.length > 1 ? 'er' : '') + ' \u2026');
+    let offset = 0;
+    let failed = 0;
+    for (const file of files) {
+      const pos = dropPos
+        ? { x: Math.max(0, dropPos.x - 100 + offset), y: Math.max(0, dropPos.y - 70 + offset) }
+        : { x: 60 + offset, y: 60 + offset };
+      offset += 26;
+      try {
+        const item = await uploadVideo(file, pos);
+        if (item.z > maxZ) maxZ = item.z;
+        renderItem(item);
+      } catch (err) {
+        console.error(err);
+        failed++;
+      }
+    }
+    if (failed || tooBig) {
+      const parts = [];
+      if (failed) parts.push(failed + ' video(er) kunde inte laddas upp');
+      if (tooBig) parts.push(tooBig + ' video(er) var för stora (max ' + Math.round(MAX_VIDEO_BYTES / 1024 / 1024) + ' MB) och hoppades över');
+      setStatus(parts.join('. ') + '.', true);
+    } else {
+      setStatus('');
+    }
+  }
+
   async function createTextItem() {
     try {
       const res = await fetch(API + 'moodboard-text-skapa', {
@@ -616,11 +877,34 @@
     }
   }
 
+  async function createBoxItem() {
+    try {
+      const res = await fetch(API + 'moodboard-box-skapa', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ title: '', x: 60, y: 60, w: 420, h: 320, color: nextBoxColor() })
+      });
+      if (!res.ok) throw new Error('Kunde inte skapa ramen');
+      const item = await res.json();
+      if (item.z < minZ) minZ = item.z;
+      renderItem(item);
+    } catch (err) {
+      console.error(err);
+      setStatus('Kunde inte skapa ramen.', true);
+    }
+  }
+
   textBtn.addEventListener('click', createTextItem);
+  boxBtn.addEventListener('click', createBoxItem);
 
   fileInput.addEventListener('change', (e) => {
     handleFiles(e.target.files, null);
     fileInput.value = '';
+  });
+
+  videoInput.addEventListener('change', (e) => {
+    handleVideoFiles(e.target.files, null);
+    videoInput.value = '';
   });
 
   canvas.addEventListener('dragover', (e) => {
@@ -634,10 +918,9 @@
     e.preventDefault();
     canvas.classList.remove('mb-dragover');
     const rect = canvas.getBoundingClientRect();
-    handleFiles(e.dataTransfer.files, {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
+    const pos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    handleFiles(e.dataTransfer.files, pos);
+    handleVideoFiles(e.dataTransfer.files, pos);
   });
 
   loadBoard();
