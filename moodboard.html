@@ -369,9 +369,8 @@
     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
   }
   function applyBoxColor(el, swatch, hex) {
-    el.style.background = hexToRgba(hex, .12);
-    el.style.borderColor = hexToRgba(hex, .55);
-    el.style.border = '1px solid ' + hexToRgba(hex, .55);
+    el.style.background = hexToRgba(hex, .22);
+    el.style.border = '2px solid ' + hexToRgba(hex, .85);
     if (swatch) swatch.style.background = hex;
   }
 
