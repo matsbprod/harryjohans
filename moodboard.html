@@ -379,6 +379,7 @@
 
   let maxZ = 1;
   let minZ = 0;
+  let contentBottom = 400;
   let itemCount = 0;
 
   function setStatus(msg, isError) {
@@ -435,6 +436,9 @@
     el.style.width = item.w + 'px';
     if (isBox) el.style.height = (item.h || 320) + 'px';
     el.style.zIndex = item.z;
+
+    const estH = isBox ? (item.h || 320) : (isText ? 90 : Math.round(item.w * 0.72));
+    if (item.y + estH > contentBottom) contentBottom = item.y + estH;
 
     const del = document.createElement('button');
     del.className = 'mb-delete';
@@ -575,20 +579,13 @@
         console.error(err);
       }
     });
+
+    return el;
   }
 
   function bringToFront(el, item) {
     maxZ += 1;
     item.z = maxZ;
-    el.style.zIndex = item.z;
-  }
-
-  // Ramar ska normalt ligga bakom bilder/text. Vi lyfter dem
-  // tillfälligt överst för att kunna greppa dem (bringToFront),
-  // men sänker dem igen så fort man släpper.
-  function sinkBox(el, item) {
-    minZ -= 1;
-    item.z = minZ;
     el.style.zIndex = item.z;
   }
 
@@ -687,7 +684,6 @@
       if (!dragging) return;
       dragging = false;
       el.classList.remove('mb-dragging');
-      if (item.type === 'box') sinkBox(el, item);
       saveItem(item);
     }
     handleEl.addEventListener('pointerup', endDrag);
@@ -723,7 +719,6 @@
     function endResize() {
       if (!resizing) return;
       resizing = false;
-      if (item.type === 'box') sinkBox(el, item);
       saveItem(item);
     }
     handle.addEventListener('pointerup', endResize);
@@ -877,16 +872,19 @@
   }
 
   async function createBoxItem() {
+    const x = 60;
+    const y = contentBottom + 60;
     try {
       const res = await fetch(API + 'moodboard-box-skapa', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ title: '', x: 60, y: 60, w: 420, h: 320, color: nextBoxColor() })
+        body: JSON.stringify({ title: '', x, y, w: 420, h: 320, color: nextBoxColor() })
       });
       if (!res.ok) throw new Error('Kunde inte skapa ramen');
       const item = await res.json();
       if (item.z < minZ) minZ = item.z;
-      renderItem(item);
+      const el = renderItem(item);
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) {
       console.error(err);
       setStatus('Kunde inte skapa ramen.', true);
