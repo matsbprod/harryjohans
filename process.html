@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Process — HarryJohans</title>
+<style>
+  :root{
+    --bg: #14171c; --panel: #1c2029; --line: #2c313c;
+    --paper: #ede7dd; --paper-dim: #a9a49a;
+    --amber: #e0a93c; --teal: #4fa8a0;
+    --mono: 'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --sans: -apple-system, 'Inter', 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--paper); font-family:var(--sans);
+    padding:32px 20px 60px; display:flex; justify-content:center; }
+  .rig{ width:100%; max-width:780px; }
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--amber); margin:0 0 6px; }
+  h1{ font-size:20px; font-weight:600; margin:0 0 20px; color:var(--paper); }
+  .rowhead{ font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--paper-dim); margin:22px 0 8px; }
+
+  .countbtns{ display:flex; gap:6px; }
+  .countbtns button{ width:34px; height:34px; border-radius:5px; border:1px solid var(--line);
+    background:var(--panel); color:var(--paper-dim); font-family:var(--mono); font-size:13px; cursor:pointer; }
+  .countbtns button.active{ border-color:var(--amber); color:var(--amber); background:#241d10; }
+
+  .frame{ position:relative; width:100%; aspect-ratio:16/9; background:#0b0d10;
+    border:1px solid var(--line); border-radius:6px; overflow:hidden; user-select:none; margin-top:14px; }
+  .frame video{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; }
+  .caption{ position:absolute; top:0; bottom:0; pointer-events:none; display:flex;
+    flex-direction:column; justify-content:space-between; }
+  .caption .tag{ align-self:flex-start; margin:8px; font-family:var(--mono); font-size:9px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--amber); text-shadow:0 1px 3px rgba(0,0,0,.7); }
+  .caption .sub{ font-family:var(--mono); font-size:10px; padding:8px 10px; color:var(--paper-dim);
+    text-shadow:0 1px 3px rgba(0,0,0,.6); }
+
+  .handle{ position:absolute; top:0; bottom:0; width:2px; background:var(--amber); cursor:ew-resize; z-index:5; }
+  .handle::after{ content:''; position:absolute; top:50%; left:50%; width:14px; height:14px;
+    transform:translate(-50%,-50%); border:1px solid var(--amber); border-radius:50%; background:var(--bg); }
+
+  .fieldrow{ margin-bottom:12px; }
+  .fieldrow .fieldlabel{ font-family:var(--mono); font-size:10px; color:var(--paper-dim);
+    letter-spacing:.06em; margin-bottom:6px; }
+
+  .transport{ display:flex; align-items:center; gap:12px; margin-top:14px; }
+  .playbtn{ width:34px; height:34px; border-radius:50%; border:1px solid var(--line);
+    background:var(--panel); color:var(--paper); cursor:pointer; display:flex;
+    align-items:center; justify-content:center; flex:none; }
+  .playbtn:hover{ border-color:var(--amber); }
+  .tc{ font-family:var(--mono); font-size:12px; color:var(--paper-dim); flex:none; min-width:96px; }
+  .scrub{ flex:1; -webkit-appearance:none; height:3px; background:var(--line); border-radius:2px; outline:none; }
+  .scrub::-webkit-slider-thumb{ -webkit-appearance:none; width:11px; height:11px; border-radius:50%;
+    background:var(--amber); cursor:pointer; }
+
+  .choicerow{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .choicerow.three{ grid-template-columns:repeat(3,1fr); }
+  .cbtn{ background:var(--panel); border:1px solid var(--line); color:var(--paper-dim);
+    border-radius:5px; padding:10px 8px; font-family:var(--sans); font-size:12px;
+    cursor:pointer; text-align:left; line-height:1.3; }
+  .cbtn small{ display:block; font-family:var(--mono); font-size:9px; color:var(--paper-dim);
+    opacity:.7; margin-bottom:3px; }
+  .cbtn.active{ border-color:var(--teal); color:var(--paper); background:#1c2830; }
+  .cbtn.active small{ color:var(--teal); opacity:1; }
+
+  .note{ margin-top:26px; font-size:12px; color:var(--paper-dim); border-top:1px solid var(--line);
+    padding-top:14px; line-height:1.6; }
+  .note code{ color:var(--amber); font-family:var(--mono); font-size:11px; }
+  .backlink{ font-family:var(--mono); font-size:11px; color:var(--paper-dim); text-decoration:none;
+    border-bottom:1px dotted var(--line); }
+</style>
+</head>
+<body>
+<div class="rig">
+  <a class="backlink" href="/">&larr; harryjohans.se</a>
+  <p class="eyebrow" style="margin-top:16px;">Ljudläggning — process (test)</p>
+  <h1>Animatic → färdig mix</h1>
+
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+    <div>
+      <p class="rowhead" style="margin-top:22px;">Antal bildfält</p>
+      <div class="countbtns" id="countbtns">
+        <button data-n="1">1</button><button data-n="2">2</button>
+        <button data-n="3">3</button><button data-n="4" class="active">4</button>
+      </div>
+    </div>
+    <button id="resetBtn" style="height:34px; border-radius:5px; border:1px solid var(--line);
+      background:var(--panel); color:var(--paper-dim); font-family:var(--mono); font-size:10px;
+      letter-spacing:.08em; text-transform:uppercase; padding:0 12px; cursor:pointer;">↺ Återställ</button>
+  </div>
+
+  <div class="frame" id="frame"></div>
+
+  <p class="rowhead">Bildversion per fält</p>
+  <div id="pictureRows"></div>
+
+  <div class="transport">
+    <button class="playbtn" id="playBtn">▶</button>
+    <span class="tc" id="tc">00:00:00.0</span>
+    <input type="range" class="scrub" id="scrub" min="0" max="1000" value="0">
+  </div>
+
+  <p class="rowhead">Ljudversion</p>
+  <div class="choicerow" id="mixes"></div>
+
+  <p class="rowhead">Utsignal</p>
+  <div class="choicerow three" id="outputs"></div>
+
+  <p class="note">
+    Testversion — video/ljud laddas från <code>media/process-test/</code> i det här repot.
+    Byt filnamnen i <code>STAGES</code>/<code>MIXES</code>-arrayerna i koden nedan om era
+    exportfiler heter något annat. Utsignal (stereo/binaural/5.1) är förberedd i UI:t men
+    kopplar inte till separata filer ännu — lägg till en fil per format i MIXES när ni har dem.
+  </p>
+</div>
+
+<script>
+// ---- konfiguration: byt sökvägar/filnamn här när ni har de riktiga filerna ----
+const MEDIA = 'media/process-test/';
+const STAGES = [
+  {name:'Animatic', sub:'Guide-röst', file:'animatic.mp4'},
+  {name:'Rough animation', sub:'Rå blocking', file:'rough.mp4'},
+  {name:'Full animation', sub:'Färdig bild', file:'full.mp4'},
+  {name:'Final grade', sub:'Färdig grade', file:'final.mp4'}
+];
+const MIXES = [
+  {n:'Guide-röst', s:'MIX 1', file:'audio-guide.wav'},
+  {n:'Temp-dialogmix', s:'MIX 2', file:'audio-temp.wav'},
+  {n:'Predub', s:'MIX 3', file:'audio-predub.wav'},
+  {n:'Final mix', s:'MIX 4', file:'audio-final.wav'}
+];
+const OUTPUTS = [ {n:'Stereo', s:'2.0'}, {n:'Binaural', s:'HÖRLUR'}, {n:'5.1 surround', s:'MULTIKANAL'} ];
+
+const frame = document.getElementById('frame');
+let panelCount = 4;
+let assignment = [0,1,2,3];
+let positions = [];
+const videoEls = []; // one <video> per active panel, index-aligned with assignment
+
+function evenPositions(n){ const a=[]; for(let i=1;i<n;i++) a.push(i*100/n); return a; }
+positions = evenPositions(panelCount);
+
+function buildDOM(){
+  frame.innerHTML=''; videoEls.length=0;
+  for(let i=0;i<panelCount;i++){
+    const st = STAGES[assignment[i]];
+    const v = document.createElement('video');
+    v.src = MEDIA + st.file; v.muted = true; v.loop = true; v.playsInline = true; v.preload='auto';
+    frame.appendChild(v); videoEls.push(v);
+
+    const cap = document.createElement('div');
+    cap.className='caption';
+    cap.innerHTML = `<span class="tag">${st.name}</span><div class="sub">${st.sub}</div>`;
+    frame.appendChild(cap);
+    cap.dataset.idx = i;
+  }
+  for(let i=0;i<panelCount-1;i++){
+    const h=document.createElement('div'); h.className='handle'; h.dataset.i=i; frame.appendChild(h);
+  }
+  layout();
+  frame.querySelectorAll('.handle').forEach(h=>{
+    h.addEventListener('pointerdown', e=>{ dragging=parseInt(h.dataset.i); e.target.setPointerCapture(e.pointerId); });
+  });
+  renderPictureRows();
+  if(playing){ videoEls.forEach(v=>v.play().catch(()=>{})); }
+}
+
+function layout(){
+  const pts=[0, ...positions, 100];
+  const videos = frame.querySelectorAll('video');
+  const caps = frame.querySelectorAll('.caption');
+  videos.forEach((v,i)=>{
+    const left=pts[i], right=pts[i+1];
+    v.style.clipPath = `inset(0 ${100-right}% 0 ${left}%)`;
+  });
+  caps.forEach((c,i)=>{
+    const w = frame.clientWidth;
+    const left = pts[i]/100*w, right = pts[i+1]/100*w;
+    c.style.left = left+'px'; c.style.width=(right-left)+'px';
+  });
+  frame.querySelectorAll('.handle').forEach(h=>{
+    const i=parseInt(h.dataset.i); h.style.left=(positions[i]/100*frame.clientWidth - 1)+'px';
+  });
+}
+
+let dragging=null;
+frame.addEventListener('pointermove', e=>{
+  if(dragging===null) return;
+  const rect=frame.getBoundingClientRect();
+  let pct=(e.clientX-rect.left)/rect.width*100;
+  const min = dragging===0?2:positions[dragging-1]+3;
+  const max = dragging===positions.length-1?98:positions[dragging+1]-3;
+  pct=Math.max(min, Math.min(max, pct));
+  positions[dragging]=pct; layout();
+});
+window.addEventListener('pointerup', ()=>dragging=null);
+window.addEventListener('resize', layout);
+
+function resizeAssignment(n){
+  let cur=assignment.slice().sort((a,b)=>a-b);
+  if(cur.length>n) cur=cur.slice(0,n);
+  else while(cur.length<n){
+    const next=STAGES.map((_,i)=>i).find(i=>!cur.includes(i));
+    if(next===undefined) break; cur.push(next);
+  }
+  return cur.sort((a,b)=>a-b);
+}
+document.getElementById('countbtns').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const n=parseInt(b.dataset.n);
+  panelCount=n; assignment=resizeAssignment(n); positions=evenPositions(n);
+  document.querySelectorAll('#countbtns button').forEach(x=>x.classList.toggle('active', x===b));
+  buildDOM();
+});
+
+function renderPictureRows(){
+  const wrap=document.getElementById('pictureRows'); wrap.innerHTML='';
+  for(let i=0;i<panelCount;i++){
+    const row=document.createElement('div'); row.className='fieldrow';
+    const lbl=document.createElement('div'); lbl.className='fieldlabel';
+    lbl.textContent = panelCount>1 ? `Fält ${i+1}` : 'Fält';
+    row.appendChild(lbl);
+    const choices=document.createElement('div'); choices.className='choicerow';
+    STAGES.forEach((st,vi)=>{
+      const b=document.createElement('button');
+      b.className='cbtn'+(assignment[i]===vi?' active':'');
+      b.innerHTML=`<small>${String(vi+1).padStart(2,'0')}</small>${st.name}`;
+      b.addEventListener('click', ()=>{
+        const otherIdx=assignment.findIndex((v,j)=>v===vi && j!==i);
+        if(otherIdx!==-1) assignment[otherIdx]=assignment[i];
+        assignment[i]=vi; assignment.sort((a,b)=>a-b);
+        buildDOM();
+      });
+      choices.appendChild(b);
+    });
+    row.appendChild(choices); wrap.appendChild(row);
+  }
+}
+
+// ---- transport: master clock is videoEls[0], others drift-corrected against it ----
+const playBtn=document.getElementById('playBtn');
+const scrub=document.getElementById('scrub');
+const tc=document.getElementById('tc');
+let playing=false;
+const audioEl = new Audio(); audioEl.loop=true;
+function fmt(sec){
+  const h=String(Math.floor(sec/3600)).padStart(2,'0');
+  const m=String(Math.floor(sec/60)%60).padStart(2,'0');
+  const s=String(Math.floor(sec%60)).padStart(2,'0');
+  const f=String(Math.floor((sec%1)*10));
+  return `${h}:${m}:${s}.${f}`;
+}
+function tick(){
+  if(playing && videoEls[0]){
+    const master = videoEls[0].currentTime;
+    videoEls.forEach(v=>{ if(Math.abs(v.currentTime-master)>0.08) v.currentTime=master; });
+    if(Math.abs(audioEl.currentTime-master)>0.08 && !audioEl.paused) audioEl.currentTime=master;
+    const dur = videoEls[0].duration || 1;
+    scrub.value = Math.round(master/dur*1000);
+    tc.textContent = fmt(master);
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+playBtn.addEventListener('click', ()=>{
+  playing=!playing; playBtn.textContent = playing?'❚❚':'▶';
+  if(playing){ videoEls.forEach(v=>v.play().catch(()=>{})); audioEl.play().catch(()=>{}); }
+  else{ videoEls.forEach(v=>v.pause()); audioEl.pause(); }
+});
+scrub.addEventListener('input', ()=>{
+  const dur = (videoEls[0] && videoEls[0].duration) || 1;
+  const t = scrub.value/1000*dur;
+  videoEls.forEach(v=>v.currentTime=t); audioEl.currentTime=t;
+  tc.textContent=fmt(t);
+});
+
+// reset
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  panelCount=4; assignment=[0,1,2,3]; positions=evenPositions(4);
+  document.querySelectorAll('#countbtns button').forEach(x=>x.classList.toggle('active', parseInt(x.dataset.n)===4));
+  buildDOM();
+  mixesEl.querySelectorAll('.cbtn').forEach((x,i)=>x.classList.toggle('active', i===0));
+  outEl.querySelectorAll('.cbtn').forEach((x,i)=>x.classList.toggle('active', i===0));
+  audioEl.src = MEDIA + MIXES[0].file;
+  playing=false; playBtn.textContent='▶';
+  videoEls.forEach(v=>{v.pause(); v.currentTime=0;}); audioEl.pause(); audioEl.currentTime=0;
+  scrub.value=0; tc.textContent=fmt(0);
+});
+
+// ljudversion
+const mixesEl=document.getElementById('mixes');
+MIXES.forEach((m,i)=>{
+  const b=document.createElement('button');
+  b.className='cbtn'+(i===0?' active':'');
+  b.innerHTML=`<small>${m.s}</small>${m.n}`;
+  b.addEventListener('click', ()=>{
+    mixesEl.querySelectorAll('.cbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const wasPlaying = !audioEl.paused;
+    audioEl.src = MEDIA + m.file;
+    audioEl.currentTime = videoEls[0] ? videoEls[0].currentTime : 0;
+    if(wasPlaying) audioEl.play().catch(()=>{});
+  });
+  mixesEl.appendChild(b);
+});
+audioEl.src = MEDIA + MIXES[0].file;
+
+// utsignal (UI only tills ni har filer per format)
+const outEl=document.getElementById('outputs');
+OUTPUTS.forEach((o,i)=>{
+  const b=document.createElement('button');
+  b.className='cbtn'+(i===0?' active':'');
+  b.innerHTML=`<small>${o.s}</small>${o.n}`;
+  b.addEventListener('click', ()=>{
+    outEl.querySelectorAll('.cbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  });
+  outEl.appendChild(b);
+});
+
+buildDOM();
+</script>
+</body>
+</html>
