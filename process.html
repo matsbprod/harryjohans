@@ -244,7 +244,13 @@ const playBtn=document.getElementById('playBtn');
 const scrub=document.getElementById('scrub');
 const tc=document.getElementById('tc');
 let playing=false;
-const audioEl = new Audio(); audioEl.loop=true;
+// två alternerande audio-element för crossfade mellan mixval
+const CROSSFADE_MS = 700;
+const audioPair = [new Audio(), new Audio()];
+audioPair.forEach(a=>{ a.loop=true; }); audioPair[1].volume=0;
+let activeAudio = 0;
+let fading = null; // {start, from, to, raf}
+function audioEl_(){ return audioPair[activeAudio]; }
 function fmt(sec){
   const h=String(Math.floor(sec/3600)).padStart(2,'0');
   const m=String(Math.floor(sec/60)%60).padStart(2,'0');
@@ -256,7 +262,7 @@ function tick(){
   if(playing && videoEls[0]){
     const master = videoEls[0].currentTime;
     videoEls.forEach(v=>{ if(Math.abs(v.currentTime-master)>0.08) v.currentTime=master; });
-    if(Math.abs(audioEl.currentTime-master)>0.08 && !audioEl.paused) audioEl.currentTime=master;
+    audioPair.forEach(a=>{ if(!a.paused && Math.abs(a.currentTime-master)>0.08) a.currentTime=master; });
     const dur = videoEls[0].duration || 1;
     scrub.value = Math.round(master/dur*1000);
     tc.textContent = fmt(master);
@@ -267,13 +273,13 @@ requestAnimationFrame(tick);
 
 playBtn.addEventListener('click', ()=>{
   playing=!playing; playBtn.textContent = playing?'❚❚':'▶';
-  if(playing){ videoEls.forEach(v=>v.play().catch(()=>{})); audioEl.play().catch(()=>{}); }
-  else{ videoEls.forEach(v=>v.pause()); audioEl.pause(); }
+  if(playing){ videoEls.forEach(v=>v.play().catch(()=>{})); audioEl_().play().catch(()=>{}); }
+  else{ videoEls.forEach(v=>v.pause()); audioPair.forEach(a=>a.pause()); }
 });
 scrub.addEventListener('input', ()=>{
   const dur = (videoEls[0] && videoEls[0].duration) || 1;
   const t = scrub.value/1000*dur;
-  videoEls.forEach(v=>v.currentTime=t); audioEl.currentTime=t;
+  videoEls.forEach(v=>v.currentTime=t); audioPair.forEach(a=>a.currentTime=t);
   tc.textContent=fmt(t);
 });
 
@@ -284,9 +290,12 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
   buildDOM();
   mixesEl.querySelectorAll('.cbtn').forEach((x,i)=>x.classList.toggle('active', i===0));
   outEl.querySelectorAll('.cbtn').forEach((x,i)=>x.classList.toggle('active', i===0));
-  audioEl.src = MEDIA + MIXES[0].file;
+  if(fading){ cancelAnimationFrame(fading.raf); fading=null; }
+  activeAudio=0;
+  audioPair[0].src = MEDIA + MIXES[0].file; audioPair[0].volume=1; audioPair[0].currentTime=0; audioPair[0].pause();
+  audioPair[1].removeAttribute('src'); audioPair[1].volume=0;
   playing=false; playBtn.textContent='▶';
-  videoEls.forEach(v=>{v.pause(); v.currentTime=0;}); audioEl.pause(); audioEl.currentTime=0;
+  videoEls.forEach(v=>{v.pause(); v.currentTime=0;});
   scrub.value=0; tc.textContent=fmt(0);
 });
 
@@ -299,14 +308,32 @@ MIXES.forEach((m,i)=>{
   b.addEventListener('click', ()=>{
     mixesEl.querySelectorAll('.cbtn').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
-    const wasPlaying = !audioEl.paused;
-    audioEl.src = MEDIA + m.file;
-    audioEl.currentTime = videoEls[0] ? videoEls[0].currentTime : 0;
-    if(wasPlaying) audioEl.play().catch(()=>{});
+    crossfadeTo(m);
   });
   mixesEl.appendChild(b);
 });
-audioEl.src = MEDIA + MIXES[0].file;
+audioPair[0].src = MEDIA + MIXES[0].file;
+
+function crossfadeTo(mix){
+  const fromIdx = activeAudio, toIdx = 1-activeAudio;
+  const from = audioPair[fromIdx], to = audioPair[toIdx];
+  to.src = MEDIA + mix.file;
+  to.currentTime = videoEls[0] ? videoEls[0].currentTime : 0;
+  to.volume = 0;
+  if(playing) to.play().catch(()=>{});
+  activeAudio = toIdx;
+  if(fading) cancelAnimationFrame(fading.raf);
+  const start = performance.now();
+  function step(now){
+    const p = Math.min(1, (now-start)/CROSSFADE_MS);
+    // equal-power crossfade — jämnare upplevd volym genom övergången än en rak linjär fade
+    to.volume = Math.sin(p*Math.PI/2);
+    from.volume = Math.cos(p*Math.PI/2);
+    if(p<1){ fading={raf: requestAnimationFrame(step)}; }
+    else{ from.pause(); from.volume=1; fading=null; }
+  }
+  fading = {raf: requestAnimationFrame(step)};
+}
 
 // utsignal (UI only tills ni har filer per format)
 const outEl=document.getElementById('outputs');
