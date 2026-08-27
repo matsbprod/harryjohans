@@ -1,12 +1,12 @@
 // netlify/functions/artikel-spara.mjs
 import { getStore } from '@netlify/blobs';
 
-export const handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+export default async (req) => {
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
   }
   try {
-    const payload = JSON.parse(event.body || '{}');
+    const payload = await req.json();
     const id = payload.id || '1';
     const store = getStore('artikel');
     await store.setJSON('content-' + id, {
@@ -19,9 +19,14 @@ export const handler = async (event) => {
       heroWidthPct: payload.heroWidthPct || 100,
       updated:      new Date().toISOString()
     });
-    return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Kunde inte spara artikeln' }) };
+    return new Response(JSON.stringify({ error: 'Kunde inte spara artikeln' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };

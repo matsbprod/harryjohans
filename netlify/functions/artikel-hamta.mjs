@@ -1,18 +1,20 @@
 // netlify/functions/artikel-hamta.mjs
 import { getStore } from '@netlify/blobs';
 
-export const handler = async (event) => {
+export default async (req) => {
   try {
-    const id = (event.queryStringParameters && event.queryStringParameters.id) || '1';
+    const url = new URL(req.url);
+    const id = url.searchParams.get('id') || '1';
     const store = getStore('artikel');
     const data = await store.get('content-' + id, { type: 'json' });
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data || null)
-    };
+    return new Response(JSON.stringify(data || null), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Kunde inte hämta artikeln' }) };
+    return new Response(JSON.stringify({ error: 'Kunde inte hämta artikeln' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };

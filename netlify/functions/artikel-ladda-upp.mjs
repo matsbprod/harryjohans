@@ -2,13 +2,18 @@
 import { getStore } from '@netlify/blobs';
 import { randomUUID } from 'node:crypto';
 
-export const handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+export default async (req) => {
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
   }
   try {
-    const { filename, contentType, data } = JSON.parse(event.body || '{}');
-    if (!data) return { statusCode: 400, body: JSON.stringify({ error: 'Ingen bilddata mottagen' }) };
+    const { filename, contentType, data } = await req.json();
+    if (!data) {
+      return new Response(JSON.stringify({ error: 'Ingen bilddata mottagen' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     const buffer = Buffer.from(data, 'base64');
     const ext = (filename && filename.includes('.')) ? filename.split('.').pop() : 'jpg';
@@ -21,9 +26,14 @@ export const handler = async (event) => {
 
     const url = '/.netlify/functions/artikel-bild?key=' + encodeURIComponent(key);
 
-    return { statusCode: 200, body: JSON.stringify({ url }) };
+    return new Response(JSON.stringify({ url }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Uppladdningen misslyckades' }) };
+    return new Response(JSON.stringify({ error: 'Uppladdningen misslyckades' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };

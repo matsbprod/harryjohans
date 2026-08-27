@@ -1,26 +1,24 @@
 // netlify/functions/artikel-bild.mjs
 import { getStore } from '@netlify/blobs';
 
-export const handler = async (event) => {
+export default async (req) => {
   try {
-    const key = event.queryStringParameters && event.queryStringParameters.key;
-    if (!key) return { statusCode: 400, body: 'Saknar key' };
+    const url = new URL(req.url);
+    const key = url.searchParams.get('key');
+    if (!key) return new Response('Saknar key', { status: 400 });
 
     const store = getStore('artikel-bilder');
     const result = await store.getWithMetadata(key, { type: 'arrayBuffer' });
-    if (!result) return { statusCode: 404, body: 'Bilden hittades inte' };
+    if (!result) return new Response('Bilden hittades inte', { status: 404 });
 
-    return {
-      statusCode: 200,
+    return new Response(result.data, {
       headers: {
         'Content-Type': (result.metadata && result.metadata.contentType) || 'image/jpeg',
         'Cache-Control': 'public, max-age=31536000, immutable'
-      },
-      body: Buffer.from(result.data).toString('base64'),
-      isBase64Encoded: true
-    };
+      }
+    });
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: 'Kunde inte hämta bilden' };
+    return new Response('Kunde inte hämta bilden', { status: 500 });
   }
 };
