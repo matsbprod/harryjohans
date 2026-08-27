@@ -265,7 +265,7 @@
     gap: var(--vg-gap);
     background: #0a0a0a;
     padding: var(--vg-gap);
-    max-width: 1700px;
+    max-width: var(--max-w);
     margin: 0 auto;
   }
 
@@ -430,6 +430,18 @@
     });
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeLightbox();
+    });
+
+    // Grid-förhandsvisningarna (vthumb <video>) loopar bara sina första
+    // LOOP_SECONDS sekunder istället för hela klippet.
+    const LOOP_SECONDS = 10;
+    document.querySelectorAll('.vthumb').forEach(v => {
+      if (v.tagName !== 'VIDEO') return;
+      v.addEventListener('timeupdate', () => {
+        if (v.currentTime >= LOOP_SECONDS) {
+          v.currentTime = 0;
+        }
+      });
     });
   })();
 </script>
