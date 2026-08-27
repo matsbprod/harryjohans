@@ -26,6 +26,18 @@
   </div>
 </nav>
 
+<!-- ── Lösenordsgate: hela sidan dold tills korrekt lösenord ── -->
+<div class="ar-gate" id="ar-gate">
+  <div class="ar-gate-box">
+    <p class="ar-gate-label">Lösenord krävs</p>
+    <form id="ar-gate-form">
+      <input type="password" class="ar-gate-input" id="ar-gate-input" autocomplete="off" placeholder="•••••••">
+      <button type="submit" class="ar-gate-btn">Lås upp</button>
+    </form>
+    <p class="ar-gate-error" id="ar-gate-error"></p>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════
      ARTIKEL — redaktionellt tidningsuppslag, redigerbart live
      ═══════════════════════════════════════════════════════ -->
@@ -91,19 +103,10 @@
     cursor:pointer;
     transition:opacity .2s ease, border-color .2s ease;
   }
-  .ar-lock-btn{
-    color:var(--ar-muted);
-    background:transparent;
-    border:1px dashed var(--ar-line);
-  }
-  .ar-lock-btn:hover{ border-color:var(--ar-accent); color:#efe9df; }
-  body.ar-locked .ar-lock-btn{ color:var(--ar-accent); border-color:var(--ar-accent); border-style:solid; }
   .ar-save-btn{
     color:var(--ar-bg);
     background:var(--ar-accent);
-    display:none;
   }
-  body:not(.ar-locked) .ar-save-btn{ display:inline-flex; }
   .ar-status{
     font-family:'Archivo',sans-serif;
     font-size:.75rem;
@@ -112,6 +115,66 @@
     min-height:1em;
     text-align:center;
   }
+
+  /* ── Helsides-lås: hela artikeln är dold tills rätt lösenord
+     angetts. Efter det är innehållet både synligt och direkt
+     redigerbart — ingen separat redigeringsspärr. ── */
+  .ar-gate{
+    position:fixed;
+    inset:0;
+    background:var(--ar-bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+  }
+  body.ar-unlocked .ar-gate{ display:none; }
+  .ar-gate-box{
+    text-align:center;
+    padding:40px;
+  }
+  .ar-gate-label{
+    font-family:'Archivo',sans-serif;
+    font-size:.75rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ar-muted);
+    margin:0 0 20px;
+  }
+  .ar-gate-input{
+    font-family:'Archivo',sans-serif;
+    font-size:.95rem;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--ar-line);
+    color:#efe9df;
+    padding:8px 4px;
+    text-align:center;
+    outline:none;
+    width:220px;
+    margin-bottom:22px;
+  }
+  .ar-gate-btn{
+    display:block;
+    margin:0 auto;
+    font-family:'Archivo',sans-serif;
+    font-size:.85rem;
+    letter-spacing:.04em;
+    padding:12px 30px;
+    border-radius:2px;
+    cursor:pointer;
+    color:var(--ar-bg);
+    background:var(--ar-accent);
+    border:none;
+  }
+  .ar-gate-error{
+    font-family:'Archivo',sans-serif;
+    font-size:.75rem;
+    color:#c0664f;
+    margin-top:16px;
+    min-height:1em;
+  }
+  body:not(.ar-unlocked) .ar-page{ visibility:hidden; }
 
   /* ── Tidningsuppslaget ── */
   .ar-spread{
@@ -229,25 +292,23 @@
     outline:none;
   }
 
-  /* Redigeringsindikatorer (bara i upplåst läge) */
-  body.ar-locked [contenteditable]{ cursor:default; }
-  body:not(.ar-locked) [contenteditable]{
+  /* Redigeringsindikatorer — hela sidan är redigerbar direkt
+     efter lösenordet, ingen extra spärr behövs. */
+  [contenteditable]{
     cursor:text;
     transition:background .15s ease;
   }
-  body:not(.ar-locked) [contenteditable]:hover{ background:rgba(77,126,168,.08); }
-  body:not(.ar-locked) [contenteditable]:focus{ background:rgba(77,126,168,.14); }
-  body.ar-locked .ar-hero-frame{ pointer-events:none; }
+  [contenteditable]:hover{ background:rgba(77,126,168,.08); }
+  [contenteditable]:focus{ background:rgba(77,126,168,.14); }
 </style>
 
 <section class="ar-page">
   <div class="ar-head">
     <p class="ar-eyebrow">Materialet — utkast</p>
     <h1 class="ar-title">Artikel för Båtklassiker</h1>
-    <p class="ar-sub">Redaktionellt tvåsidesuppslag. Lås upp för att redigera text direkt i webbläsaren
-      eller dra en ny bild till bildrutan. Sparas automatiskt.</p>
+    <p class="ar-sub">Redaktionellt tvåsidesuppslag. Redigera text direkt i webbläsaren
+      eller dra en ny bild till bildrutan — sparas automatiskt.</p>
     <div class="ar-btn-row">
-      <button type="button" class="ar-lock-btn" id="ar-lock-btn">🔒 Lås upp för att redigera</button>
       <button type="button" class="ar-save-btn" id="ar-save-btn">Spara nu</button>
     </div>
     <p class="ar-status" id="ar-status"></p>
@@ -256,23 +317,23 @@
   <div class="ar-spread">
     <div class="ar-page-left">
       <p class="ar-kicker">Porträtt · Skärgårdshantverk</p>
-      <h2 class="ar-headline" id="ar-headline" contenteditable="false">Handens minne</h2>
-      <p class="ar-byline" id="ar-byline" contenteditable="false">Text: [Namn] · Foto: [Namn]</p>
+      <h2 class="ar-headline" id="ar-headline" contenteditable="true">Handens minne</h2>
+      <p class="ar-byline" id="ar-byline" contenteditable="true">Text: [Namn] · Foto: [Namn]</p>
 
       <div class="ar-hero-frame" id="ar-hero-frame">
         <img id="ar-hero-img" style="display:none;" alt="Harry Johans i verkstaden">
         <div class="ar-hero-empty" id="ar-hero-empty">Lås upp och dra en bild hit</div>
       </div>
-      <p class="ar-caption" id="ar-caption" contenteditable="false">[Fotografens namn]</p>
+      <p class="ar-caption" id="ar-caption" contenteditable="true">[Fotografens namn]</p>
     </div>
 
     <div class="ar-page-right">
       <p class="ar-pagenum">42–43</p>
-      <div class="ar-body" id="ar-body" contenteditable="false">
+      <div class="ar-body" id="ar-body" contenteditable="true">
         <p>I en låg verkstad vid vattnet, där doften av linolja och furuspån aldrig riktigt lägger sig, har Harry Johans tillbringat större delen av sitt liv. Här, mellan bockar och böjda plankor, formas de skärgårdsbåtar som en gång bar posten, fisket och familjerna mellan öarna – båtar som idag är lika mycket kulturarv som bruksföremål.</p>
         <p>Han minns inte längre exakt hur många skrov han byggt. "Man slutar räkna efter ett tag," säger han och stryker handen längs en nyhyvlad bordläggning. Det som däremot sitter kvar är känslan i handen: hur en planka ska bete sig när den ångas och böjs, hur mycket press ett spant tål innan det protesterar.</p>
         <p>Metoderna är desamma som hans far och farfar använde. Verktygen har bytts ut i takt med att de gamla slitits ut, men principerna – klinkbygge, naturkrökt virke, handdrivna nitar – står emot varje trend inom modern båtbyggeri. Det är långsamt arbete, och Harry menar att det måste få vara det.</p>
-        <div class="ar-pullquote" id="ar-pullquote" contenteditable="false">"Båten vet innan du gör det. Din uppgift är bara att lyssna."</div>
+        <div class="ar-pullquote" id="ar-pullquote" contenteditable="true">"Båten vet innan du gör det. Din uppgift är bara att lyssna."</div>
         <p>De senaste åren har verkstaden också blivit något annat: en plats som dokumenteras, filmas och samlas in inför eftervärlden. En yngre generation filmare har följt arbetet under lång tid, i ett försök att fånga inte bara de färdiga båtarna utan själva rörelsemönstret – handens minne, innan det går förlorat.</p>
         <p>För Harry själv är det egentligen enkelt. "Det finns inget mystiskt med det," säger han och lyfter upp ännu en planka mot ljuset för att bedöma virkets fibrer. "Man bygger en båt i taget, och man bygger den ordentligt. Resten löser sig."</p>
       </div>
@@ -286,7 +347,6 @@
   const LOCK_PASSWORD = 'johans';
   const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
-  const lockBtn   = document.getElementById('ar-lock-btn');
   const saveBtn   = document.getElementById('ar-save-btn');
   const statusEl  = document.getElementById('ar-status');
   const heroFrame = document.getElementById('ar-hero-frame');
@@ -303,26 +363,30 @@
     statusEl.style.color = isError ? '#c0664f' : '';
   }
 
-  function applyLockState() {
-    document.body.classList.toggle('ar-locked', !unlocked);
-    lockBtn.textContent = unlocked ? '🔓 Redigering upplåst' : '🔒 Lås upp för att redigera';
-    editableIds.forEach(id => {
-      document.getElementById(id).setAttribute('contenteditable', unlocked ? 'true' : 'false');
-    });
-  }
+  // ── Helsides-gate: sidan (både visning och redigering) är
+  // låst tills rätt lösenord anges. Ingen separat redigeringsspärr.
+  const gateForm  = document.getElementById('ar-gate-form');
+  const gateInput = document.getElementById('ar-gate-input');
+  const gateError = document.getElementById('ar-gate-error');
 
-  lockBtn.addEventListener('click', () => {
-    if (unlocked) return;
-    const pw = prompt('Lösenord för att redigera artikeln:');
-    if (pw === null) return;
-    if (pw === LOCK_PASSWORD) {
+  function applyGateState() {
+    document.body.classList.toggle('ar-unlocked', unlocked);
+  }
+  gateForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (gateInput.value === LOCK_PASSWORD) {
       unlocked = true;
       sessionStorage.setItem('ar-unlocked', '1');
-      applyLockState();
+      gateError.textContent = '';
+      applyGateState();
+      loadArticle();
     } else {
-      alert('Fel lösenord.');
+      gateError.textContent = 'Fel lösenord.';
+      gateInput.value = '';
+      gateInput.focus();
     }
   });
+  applyGateState();
 
   // ── Ladda in sparat innehåll ─────────────────────────
   async function loadArticle() {
@@ -430,8 +494,9 @@
     if (file && file.type.startsWith('image/')) uploadImage(file);
   });
 
-  applyLockState();
-  loadArticle();
+  // Om lösenordet redan angetts tidigare i den här sessionen,
+  // hoppa direkt över gaten och läs in innehållet.
+  if (unlocked) loadArticle();
 })();
 </script>
 
