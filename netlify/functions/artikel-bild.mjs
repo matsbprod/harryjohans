@@ -1,7 +1,7 @@
-// netlify/functions/artikel-bild.js
-const { getStore } = require('@netlify/blobs');
+// netlify/functions/artikel-bild.mjs
+import { getStore } from '@netlify/blobs';
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const key = event.queryStringParameters && event.queryStringParameters.key;
     if (!key) return { statusCode: 400, body: 'Saknar key' };

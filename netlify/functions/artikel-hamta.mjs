@@ -1,10 +1,11 @@
-// netlify/functions/artikel-hamta.js
-const { getStore } = require('@netlify/blobs');
+// netlify/functions/artikel-hamta.mjs
+import { getStore } from '@netlify/blobs';
 
-exports.handler = async () => {
+export const handler = async (event) => {
   try {
+    const id = (event.queryStringParameters && event.queryStringParameters.id) || '1';
     const store = getStore('artikel');
-    const data = await store.get('content', { type: 'json' });
+    const data = await store.get('content-' + id, { type: 'json' });
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
