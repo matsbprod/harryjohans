@@ -81,7 +81,8 @@
   .mb-upload-btn,
   .mb-text-btn,
   .mb-video-btn,
-  .mb-box-btn{
+  .mb-box-btn,
+  .mb-lock-btn{
     display:inline-flex;
     align-items:center;
     gap:8px;
@@ -104,6 +105,14 @@
     background:transparent;
     border:1px solid var(--mb-line);
   }
+  .mb-lock-btn{
+    color:var(--mb-muted);
+    background:transparent;
+    border:1px dashed var(--mb-line);
+    margin-left:auto;
+  }
+  .mb-lock-btn:hover{ border-color:var(--mb-accent); color:var(--mb-text); }
+  body.mb-locked .mb-lock-btn{ color:var(--mb-accent); border-color:var(--mb-accent); border-style:solid; }
   .mb-upload-btn:hover,
   .mb-text-btn:hover,
   .mb-video-btn:hover,
@@ -111,6 +120,19 @@
   .mb-text-btn:hover,
   .mb-video-btn:hover,
   .mb-box-btn:hover{ border-color:var(--mb-accent); }
+
+  /* Låst läge: tavlan förblir synlig och läsbar för alla, men
+     all interaktion (dra/släpp, flytta, radera, lägga till) stängs
+     av tills rätt lösenord angetts. */
+  body.mb-locked .mb-upload-btn,
+  body.mb-locked .mb-video-btn,
+  body.mb-locked #mb-text-btn,
+  body.mb-locked #mb-box-btn{
+    opacity:.35;
+    pointer-events:none;
+    cursor:not-allowed;
+  }
+  body.mb-locked #mb-canvas{ pointer-events:none; }
   .mb-status{
     font-family:'Archivo',sans-serif;
     font-size:.75rem;
@@ -347,6 +369,7 @@
       </label>
       <button type="button" class="mb-text-btn" id="mb-text-btn">+ Lägg till text</button>
       <button type="button" class="mb-box-btn" id="mb-box-btn">+ Lägg till ram</button>
+      <button type="button" class="mb-lock-btn" id="mb-lock-btn">🔒 Lås upp för att redigera</button>
     </div>
     <p class="mb-status" id="mb-status"></p>
   </div>
@@ -366,6 +389,33 @@
   const boxBtn = document.getElementById('mb-box-btn');
   const statusEl = document.getElementById('mb-status');
   const API = '/.netlify/functions/';
+
+  // ── Lösenordslås för redigering ─────────────────────────
+  // OBS: rent klientsidesskydd — lösenordet ligger läsbart i sidans
+  // källkod, det här stoppar bara vanliga besökare, inte någon som
+  // aktivt letar. Tavlans innehåll (mb-hamta) är och förblir publikt
+  // synligt oavsett låsstatus; det är bara skrivåtgärder som gates:as.
+  const LOCK_PASSWORD = 'johans';
+  const lockBtn = document.getElementById('mb-lock-btn');
+  let unlocked = sessionStorage.getItem('mb-unlocked') === '1';
+
+  function applyLockState() {
+    document.body.classList.toggle('mb-locked', !unlocked);
+    lockBtn.textContent = unlocked ? '🔓 Redigering upplåst' : '🔒 Lås upp för att redigera';
+  }
+  lockBtn.addEventListener('click', () => {
+    if (unlocked) return;
+    const pw = prompt('Lösenord för att lägga till/ändra material:');
+    if (pw === null) return;
+    if (pw === LOCK_PASSWORD) {
+      unlocked = true;
+      sessionStorage.setItem('mb-unlocked', '1');
+      applyLockState();
+    } else {
+      alert('Fel lösenord.');
+    }
+  });
+  applyLockState();
 
   // Håll videofiler små — JSON+base64 innebär ~33% extra storlek
   // och funktionsanropet har ett tak, så vi stoppar för stora filer
