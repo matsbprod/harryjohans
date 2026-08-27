@@ -22,6 +22,7 @@
     <a href="index.html#material">Materialet</a>
     <a href="moodboard.html">Moodboard</a>
     <a href="artikel.html">Artikel</a>
+    <a href="process.html">Process</a>
     <a href="index.html#kontakt">Kontakt</a>
   </div>
 </nav>
@@ -39,7 +40,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════
-     ARTIKEL — redaktionellt tidningsuppslag, redigerbart live
+     ARTIKEL — redaktionella tidningsuppslag, redigerbara live
      ═══════════════════════════════════════════════════════ -->
 <style>
   :root{
@@ -90,7 +91,6 @@
     gap:12px;
     flex-wrap:wrap;
   }
-  .ar-lock-btn,
   .ar-save-btn{
     display:inline-flex;
     align-items:center;
@@ -101,11 +101,9 @@
     padding:12px 24px;
     border-radius:2px;
     cursor:pointer;
-    transition:opacity .2s ease, border-color .2s ease;
-  }
-  .ar-save-btn{
     color:var(--ar-bg);
     background:var(--ar-accent);
+    border:none;
   }
   .ar-status{
     font-family:'Archivo',sans-serif;
@@ -116,188 +114,114 @@
     text-align:center;
   }
 
-  /* ── Helsides-lås: hela artikeln är dold tills rätt lösenord
-     angetts. Efter det är innehållet både synligt och direkt
-     redigerbart — ingen separat redigeringsspärr. ── */
+  /* ── Helsides-lås ── */
   .ar-gate{
-    position:fixed;
-    inset:0;
+    position:fixed; inset:0;
     background:var(--ar-bg);
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     z-index:50;
   }
   body.ar-unlocked .ar-gate{ display:none; }
-  .ar-gate-box{
-    text-align:center;
-    padding:40px;
-  }
+  .ar-gate-box{ text-align:center; padding:40px; }
   .ar-gate-label{
     font-family:'Archivo',sans-serif;
-    font-size:.75rem;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    color:var(--ar-muted);
-    margin:0 0 20px;
+    font-size:.75rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ar-muted); margin:0 0 20px;
   }
   .ar-gate-input{
     font-family:'Archivo',sans-serif;
     font-size:.95rem;
-    background:transparent;
-    border:none;
-    border-bottom:1px solid var(--ar-line);
-    color:#efe9df;
-    padding:8px 4px;
-    text-align:center;
-    outline:none;
-    width:220px;
-    margin-bottom:22px;
+    background:transparent; border:none; border-bottom:1px solid var(--ar-line);
+    color:#efe9df; padding:8px 4px; text-align:center; outline:none;
+    width:220px; margin-bottom:22px;
   }
   .ar-gate-btn{
-    display:block;
-    margin:0 auto;
-    font-family:'Archivo',sans-serif;
-    font-size:.85rem;
-    letter-spacing:.04em;
-    padding:12px 30px;
-    border-radius:2px;
-    cursor:pointer;
-    color:var(--ar-bg);
-    background:var(--ar-accent);
-    border:none;
+    display:block; margin:0 auto;
+    font-family:'Archivo',sans-serif; font-size:.85rem; letter-spacing:.04em;
+    padding:12px 30px; border-radius:2px; cursor:pointer;
+    color:var(--ar-bg); background:var(--ar-accent); border:none;
   }
   .ar-gate-error{
-    font-family:'Archivo',sans-serif;
-    font-size:.75rem;
-    color:#c0664f;
-    margin-top:16px;
-    min-height:1em;
+    font-family:'Archivo',sans-serif; font-size:.75rem; color:#c0664f;
+    margin-top:16px; min-height:1em;
   }
   body:not(.ar-unlocked) .ar-page{ visibility:hidden; }
 
-  /* ── Tidningsuppslaget ── */
+  /* ── Uppslagen ── */
   .ar-spread{
     max-width:1700px;
-    margin:44px auto 0;
+    margin:0 auto 64px;
     background:var(--ar-paper);
     color:var(--ar-ink);
     display:grid;
     grid-template-columns:1.15fr 1fr;
     box-shadow:0 30px 80px rgba(0,0,0,.5);
   }
+  .ar-spread:first-of-type{ margin-top:44px; }
   @media (max-width:900px){ .ar-spread{ grid-template-columns:1fr; } }
 
-  /* Vänster sida: bild + rubrik */
   .ar-page-left{
     position:relative;
     padding:56px 48px 64px;
     border-right:1px solid rgba(0,0,0,.1);
   }
   .ar-kicker{
-    font-family:'Archivo',sans-serif;
-    font-size:.72rem;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    color:var(--ar-accent);
-    margin:0 0 14px;
+    font-family:'Archivo',sans-serif; font-size:.72rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ar-accent); margin:0 0 14px; outline:none;
   }
   .ar-headline{
-    font-family:'Cormorant Garamond',serif;
-    font-weight:300;
-    font-size:clamp(2.4rem,4vw,3.6rem);
-    line-height:1.05;
-    margin:0 0 20px;
-    outline:none;
+    font-family:'Cormorant Garamond',serif; font-weight:300;
+    font-size:clamp(2.2rem,3.6vw,3.2rem); line-height:1.05; margin:0 0 20px; outline:none;
   }
   .ar-byline{
-    font-family:'Archivo',sans-serif;
-    font-size:.8rem;
-    letter-spacing:.05em;
-    color:#5a564c;
-    margin:0 0 32px;
-    outline:none;
+    font-family:'Archivo',sans-serif; font-size:.8rem; letter-spacing:.05em;
+    color:#5a564c; margin:0 0 32px; outline:none;
   }
   .ar-hero-frame{
-    position:relative;
-    width:100%;
-    aspect-ratio:4/5;
-    background:#d8d2c2;
-    overflow:hidden;
-    margin-bottom:18px;
+    position:relative; width:var(--hero-w, 100%); aspect-ratio:4/5;
+    background:#d8d2c2; overflow:hidden; margin-bottom:18px;
   }
-  .ar-hero-frame img{
-    width:100%; height:100%; object-fit:cover; display:block;
+  .ar-hero-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ar-resize-handle{
+    position:absolute; right:0; bottom:0; width:22px; height:22px;
+    cursor:nwse-resize;
+    background:linear-gradient(135deg, transparent 50%, var(--ar-accent) 50%);
+    opacity:.85; z-index:2;
   }
+  .ar-resize-handle:hover{ opacity:1; }
   .ar-hero-empty{
-    position:absolute; inset:0;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Archivo',sans-serif;
-    font-size:.8rem;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    color:#8a8471;
-    text-align:center;
-    padding:0 20px;
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Archivo',sans-serif; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase;
+    color:#8a8471; text-align:center; padding:0 20px;
   }
   .ar-hero-frame.ar-dragover{ box-shadow:inset 0 0 0 3px var(--ar-accent); }
   .ar-caption{
-    font-family:'Archivo',sans-serif;
-    font-size:.72rem;
-    letter-spacing:.02em;
-    color:#5a564c;
-    outline:none;
+    font-family:'Archivo',sans-serif; font-size:.72rem; letter-spacing:.02em;
+    color:#5a564c; outline:none;
   }
   .ar-caption::before{ content:"Foto: "; opacity:.6; }
 
-  /* Höger sida: brödtext i två spalter */
-  .ar-page-right{
-    padding:56px 48px 64px;
-  }
+  .ar-page-right{ padding:56px 48px 64px; }
   .ar-pagenum{
-    font-family:'Archivo',sans-serif;
-    font-size:.72rem;
-    color:#8a8471;
-    text-align:right;
-    margin-bottom:24px;
+    font-family:'Archivo',sans-serif; font-size:.72rem; color:#8a8471;
+    text-align:right; margin-bottom:24px;
   }
   .ar-body{
-    column-count:2;
-    column-gap:36px;
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.08rem;
-    line-height:1.65;
-    outline:none;
+    column-count:2; column-gap:36px;
+    font-family:'Cormorant Garamond',serif; font-size:1.06rem; line-height:1.65; outline:none;
   }
   .ar-body p{ margin:0 0 1.1em; }
   .ar-body p:first-of-type::first-letter{
-    font-size:3.6em;
-    line-height:.85;
-    float:left;
-    padding:.05em .08em 0 0;
-    font-weight:400;
-    color:var(--ar-accent);
+    font-size:3.4em; line-height:.85; float:left; padding:.05em .08em 0 0;
+    font-weight:400; color:var(--ar-accent);
   }
   .ar-pullquote{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    font-size:1.5rem;
-    line-height:1.3;
-    color:var(--ar-accent);
-    border-top:1px solid rgba(0,0,0,.15);
-    border-bottom:1px solid rgba(0,0,0,.15);
-    padding:20px 0;
-    margin:8px 0 28px;
-    break-inside:avoid;
-    outline:none;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.4rem; line-height:1.3;
+    color:var(--ar-accent); border-top:1px solid rgba(0,0,0,.15); border-bottom:1px solid rgba(0,0,0,.15);
+    padding:20px 0; margin:8px 0 28px; break-inside:avoid; outline:none;
   }
 
-  /* Redigeringsindikatorer — hela sidan är redigerbar direkt
-     efter lösenordet, ingen extra spärr behövs. */
-  [contenteditable]{
-    cursor:text;
-    transition:background .15s ease;
-  }
+  [contenteditable]{ cursor:text; transition:background .15s ease; }
   [contenteditable]:hover{ background:rgba(77,126,168,.08); }
   [contenteditable]:focus{ background:rgba(77,126,168,.14); }
 </style>
@@ -306,36 +230,83 @@
   <div class="ar-head">
     <p class="ar-eyebrow">Materialet — utkast</p>
     <h1 class="ar-title">Artikel för Båtklassiker</h1>
-    <p class="ar-sub">Redaktionellt tvåsidesuppslag. Redigera text direkt i webbläsaren
-      eller dra en ny bild till bildrutan — sparas automatiskt.</p>
+    <p class="ar-sub">Tre redaktionella uppslag i samma utkast. Redigera text direkt i
+      webbläsaren eller dra en ny bild till en bildruta — allt sparas tillsammans automatiskt.</p>
     <div class="ar-btn-row">
       <button type="button" class="ar-save-btn" id="ar-save-btn">Spara nu</button>
     </div>
     <p class="ar-status" id="ar-status"></p>
   </div>
 
-  <div class="ar-spread">
+  <!-- ── Uppslag 1 ── -->
+  <div class="ar-spread" data-spread="1">
     <div class="ar-page-left">
-      <p class="ar-kicker">Porträtt · Skärgårdshantverk</p>
-      <h2 class="ar-headline" id="ar-headline" contenteditable="true">Handens minne</h2>
-      <p class="ar-byline" id="ar-byline" contenteditable="true">Text: [Namn] · Foto: [Namn]</p>
-
-      <div class="ar-hero-frame" id="ar-hero-frame">
-        <img id="ar-hero-img" style="display:none;" alt="Harry Johans i verkstaden">
-        <div class="ar-hero-empty" id="ar-hero-empty">Lås upp och dra en bild hit</div>
+      <p class="ar-kicker" id="ar-kicker-1" contenteditable="true">Porträtt · Skärgårdshantverk</p>
+      <h2 class="ar-headline" id="ar-headline-1" contenteditable="true">Handens minne</h2>
+      <p class="ar-byline" id="ar-byline-1" contenteditable="true">Text: [Namn] · Foto: [Namn]</p>
+      <div class="ar-hero-frame" id="ar-hero-frame-1">
+        <img id="ar-hero-img-1" style="display:none;" alt="Harry Johans i verkstaden">
+        <div class="ar-hero-empty" id="ar-hero-empty-1">Dra en bild hit</div>
+        <div class="ar-resize-handle" id="ar-resize-handle-1" title="Dra för att ändra bildstorlek"></div>
       </div>
-      <p class="ar-caption" id="ar-caption" contenteditable="true">[Fotografens namn]</p>
+      <p class="ar-caption" id="ar-caption-1" contenteditable="true">[Fotografens namn]</p>
     </div>
-
     <div class="ar-page-right">
       <p class="ar-pagenum">42–43</p>
-      <div class="ar-body" id="ar-body" contenteditable="true">
+      <div class="ar-body" id="ar-body-1" contenteditable="true">
         <p>I en låg verkstad vid vattnet, där doften av linolja och furuspån aldrig riktigt lägger sig, har Harry Johans tillbringat större delen av sitt liv. Här, mellan bockar och böjda plankor, formas de skärgårdsbåtar som en gång bar posten, fisket och familjerna mellan öarna – båtar som idag är lika mycket kulturarv som bruksföremål.</p>
         <p>Han minns inte längre exakt hur många skrov han byggt. "Man slutar räkna efter ett tag," säger han och stryker handen längs en nyhyvlad bordläggning. Det som däremot sitter kvar är känslan i handen: hur en planka ska bete sig när den ångas och böjs, hur mycket press ett spant tål innan det protesterar.</p>
         <p>Metoderna är desamma som hans far och farfar använde. Verktygen har bytts ut i takt med att de gamla slitits ut, men principerna – klinkbygge, naturkrökt virke, handdrivna nitar – står emot varje trend inom modern båtbyggeri. Det är långsamt arbete, och Harry menar att det måste få vara det.</p>
-        <div class="ar-pullquote" id="ar-pullquote" contenteditable="true">"Båten vet innan du gör det. Din uppgift är bara att lyssna."</div>
+        <div class="ar-pullquote" id="ar-pullquote-1" contenteditable="true">"Båten vet innan du gör det. Din uppgift är bara att lyssna."</div>
         <p>De senaste åren har verkstaden också blivit något annat: en plats som dokumenteras, filmas och samlas in inför eftervärlden. En yngre generation filmare har följt arbetet under lång tid, i ett försök att fånga inte bara de färdiga båtarna utan själva rörelsemönstret – handens minne, innan det går förlorat.</p>
-        <p>För Harry själv är det egentligen enkelt. "Det finns inget mystiskt med det," säger han och lyfter upp ännu en planka mot ljuset för att bedöma virkets fibrer. "Man bygger en båt i taget, och man bygger den ordentligt. Resten löser sig."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Uppslag 2 ── -->
+  <div class="ar-spread" data-spread="2">
+    <div class="ar-page-left">
+      <p class="ar-kicker" id="ar-kicker-2" contenteditable="true">Historia · Skärgårdsbåtar</p>
+      <h2 class="ar-headline" id="ar-headline-2" contenteditable="true">Ett hantverk i arv</h2>
+      <p class="ar-byline" id="ar-byline-2" contenteditable="true">Text: [Namn] · Foto: [Namn]</p>
+      <div class="ar-hero-frame" id="ar-hero-frame-2">
+        <img id="ar-hero-img-2" style="display:none;" alt="Verkstad och verktyg">
+        <div class="ar-hero-empty" id="ar-hero-empty-2">Dra en bild hit</div>
+        <div class="ar-resize-handle" id="ar-resize-handle-2" title="Dra för att ändra bildstorlek"></div>
+      </div>
+      <p class="ar-caption" id="ar-caption-2" contenteditable="true">[Fotografens namn]</p>
+    </div>
+    <div class="ar-page-right">
+      <p class="ar-pagenum">44–45</p>
+      <div class="ar-body" id="ar-body-2" contenteditable="true">
+        <p>[Fyll i text för uppslag två här. Skriv gärna för mycket i det här utkastet — det går snabbare att redigera ner en text som redan finns än att fylla ut en för kort.]</p>
+        <p>[Ytterligare stycke.]</p>
+        <div class="ar-pullquote" id="ar-pullquote-2" contenteditable="true">"[Citat för uppslag två]"</div>
+        <p>[Ytterligare stycke.]</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Uppslag 3 ── -->
+  <div class="ar-spread" data-spread="3">
+    <div class="ar-page-left">
+      <p class="ar-kicker" id="ar-kicker-3" contenteditable="true">Dokumentär · Bakom kameran</p>
+      <h2 class="ar-headline" id="ar-headline-3" contenteditable="true">Att fånga en tid som försvinner</h2>
+      <p class="ar-byline" id="ar-byline-3" contenteditable="true">Text: [Namn] · Foto: [Namn]</p>
+      <div class="ar-hero-frame" id="ar-hero-frame-3">
+        <img id="ar-hero-img-3" style="display:none;" alt="Filmteamet i verkstaden">
+        <div class="ar-hero-empty" id="ar-hero-empty-3">Dra en bild hit</div>
+        <div class="ar-resize-handle" id="ar-resize-handle-3" title="Dra för att ändra bildstorlek"></div>
+      </div>
+      <p class="ar-caption" id="ar-caption-3" contenteditable="true">[Fotografens namn]</p>
+    </div>
+    <div class="ar-page-right">
+      <p class="ar-pagenum">46–47</p>
+      <div class="ar-body" id="ar-body-3" contenteditable="true">
+        <p>[Fyll i text för uppslag tre här.]</p>
+        <p>[Ytterligare stycke.]</p>
+        <div class="ar-pullquote" id="ar-pullquote-3" contenteditable="true">"[Citat för uppslag tre]"</div>
+        <p>[Ytterligare stycke.]</p>
       </div>
     </div>
   </div>
@@ -346,25 +317,25 @@
   const API = '/.netlify/functions/';
   const LOCK_PASSWORD = 'johans';
   const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+  const ARTICLE_ID = '1'; // ett enda utkast — tre uppslag ihopsparade
 
-  const saveBtn   = document.getElementById('ar-save-btn');
-  const statusEl  = document.getElementById('ar-status');
-  const heroFrame = document.getElementById('ar-hero-frame');
-  const heroImg   = document.getElementById('ar-hero-img');
-  const heroEmpty = document.getElementById('ar-hero-empty');
+  const SPREADS = [1, 2, 3];
+  const FIELD_KINDS = ['kicker', 'headline', 'byline', 'caption', 'body', 'pullquote'];
 
-  const editableIds = ['ar-headline', 'ar-byline', 'ar-caption', 'ar-body', 'ar-pullquote'];
+  const saveBtn  = document.getElementById('ar-save-btn');
+  const statusEl = document.getElementById('ar-status');
 
   let unlocked = sessionStorage.getItem('ar-unlocked') === '1';
-  let heroImageUrl = null;
+  // per-uppslag tillstånd
+  const state = {};
+  SPREADS.forEach(n => { state[n] = { imageUrl: null, heroWidthPct: 100 }; });
 
   function setStatus(msg, isError) {
     statusEl.textContent = msg || '';
     statusEl.style.color = isError ? '#c0664f' : '';
   }
 
-  // ── Helsides-gate: sidan (både visning och redigering) är
-  // låst tills rätt lösenord anges. Ingen separat redigeringsspärr.
+  // ── Helsides-gate ──
   const gateForm  = document.getElementById('ar-gate-form');
   const gateInput = document.getElementById('ar-gate-input');
   const gateError = document.getElementById('ar-gate-error');
@@ -388,29 +359,41 @@
   });
   applyGateState();
 
+  function setHeroImage(n, url) {
+    state[n].imageUrl = url;
+    const img = document.getElementById('ar-hero-img-' + n);
+    const empty = document.getElementById('ar-hero-empty-' + n);
+    img.src = url;
+    img.style.display = 'block';
+    empty.style.display = 'none';
+  }
+  function setHeroWidth(n, pct) {
+    state[n].heroWidthPct = Math.max(30, Math.min(100, pct));
+    document.getElementById('ar-hero-frame-' + n)
+      .style.setProperty('--hero-w', state[n].heroWidthPct + '%');
+  }
+
   // ── Ladda in sparat innehåll ─────────────────────────
   async function loadArticle() {
     try {
-      const res = await fetch(API + 'artikel-hamta');
-      if (!res.ok) return; // inget sparat än — behåll platshållartexten
+      const res = await fetch(API + 'artikel-hamta?id=' + ARTICLE_ID);
+      if (!res.ok) return;
       const data = await res.json();
-      if (!data) return;
-      if (data.headline)  document.getElementById('ar-headline').innerHTML  = data.headline;
-      if (data.byline)    document.getElementById('ar-byline').innerHTML    = data.byline;
-      if (data.body)      document.getElementById('ar-body').innerHTML      = data.body;
-      if (data.pullquote) document.getElementById('ar-pullquote').innerHTML = data.pullquote;
-      if (data.caption)   document.getElementById('ar-caption').innerHTML   = data.caption;
-      if (data.imageUrl)  setHeroImage(data.imageUrl);
+      if (!data || !data.spreads) return;
+      SPREADS.forEach(n => {
+        const s = data.spreads[n];
+        if (!s) return;
+        FIELD_KINDS.forEach(kind => {
+          if (s[kind] != null) {
+            document.getElementById('ar-' + kind + '-' + n).innerHTML = s[kind];
+          }
+        });
+        if (s.imageUrl) setHeroImage(n, s.imageUrl);
+        if (s.heroWidthPct) setHeroWidth(n, s.heroWidthPct);
+      });
     } catch (err) {
       console.error('Kunde inte läsa in artikeln:', err);
     }
-  }
-
-  function setHeroImage(url) {
-    heroImageUrl = url;
-    heroImg.src = url;
-    heroImg.style.display = 'block';
-    heroEmpty.style.display = 'none';
   }
 
   // ── Spara ─────────────────────────────────────────────
@@ -422,19 +405,19 @@
     saveTimer = setTimeout(saveArticle, 900);
   }
   async function saveArticle() {
-    const payload = {
-      headline:  document.getElementById('ar-headline').innerHTML,
-      byline:    document.getElementById('ar-byline').innerHTML,
-      body:      document.getElementById('ar-body').innerHTML,
-      pullquote: document.getElementById('ar-pullquote').innerHTML,
-      caption:   document.getElementById('ar-caption').innerHTML,
-      imageUrl:  heroImageUrl
-    };
+    const spreads = {};
+    SPREADS.forEach(n => {
+      const entry = { imageUrl: state[n].imageUrl, heroWidthPct: state[n].heroWidthPct };
+      FIELD_KINDS.forEach(kind => {
+        entry[kind] = document.getElementById('ar-' + kind + '-' + n).innerHTML;
+      });
+      spreads[n] = entry;
+    });
     try {
       const res = await fetch(API + 'artikel-spara', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ id: ARTICLE_ID, spreads })
       });
       if (!res.ok) throw new Error('Sparning misslyckades');
       setStatus('Sparat ✓');
@@ -445,12 +428,14 @@
     }
   }
   saveBtn.addEventListener('click', saveArticle);
-  editableIds.forEach(id => {
-    document.getElementById(id).addEventListener('input', scheduleSave);
+  SPREADS.forEach(n => {
+    FIELD_KINDS.forEach(kind => {
+      document.getElementById('ar-' + kind + '-' + n).addEventListener('input', scheduleSave);
+    });
   });
 
-  // ── Bilduppladdning (drag & drop på hero-rutan) ────────
-  async function uploadImage(file) {
+  // ── Bilduppladdning ────────────────────────────────────
+  async function uploadImage(n, file) {
     if (file.size > MAX_IMAGE_BYTES) {
       setStatus('Bilden är för stor (max ' + (MAX_IMAGE_BYTES / 1024 / 1024) + ' MB)', true);
       return;
@@ -470,7 +455,7 @@
       });
       if (!res.ok) throw new Error('Uppladdning misslyckades');
       const { url } = await res.json();
-      setHeroImage(url);
+      setHeroImage(n, url);
       scheduleSave();
       setStatus('Bild uppladdad ✓');
       setTimeout(() => setStatus(''), 1500);
@@ -480,22 +465,48 @@
     }
   }
 
-  heroFrame.addEventListener('dragover', (e) => {
-    if (!unlocked) return;
-    e.preventDefault();
-    heroFrame.classList.add('ar-dragover');
-  });
-  heroFrame.addEventListener('dragleave', () => heroFrame.classList.remove('ar-dragover'));
-  heroFrame.addEventListener('drop', (e) => {
-    if (!unlocked) return;
-    e.preventDefault();
-    heroFrame.classList.remove('ar-dragover');
-    const file = e.dataTransfer.files && e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) uploadImage(file);
+  SPREADS.forEach(n => {
+    const heroFrame = document.getElementById('ar-hero-frame-' + n);
+    const resizeHandle = document.getElementById('ar-resize-handle-' + n);
+
+    let resizing = false;
+    let resizeStartX = 0;
+    let resizeStartWidthPx = 0;
+
+    resizeHandle.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      resizing = true;
+      resizeStartX = e.clientX;
+      resizeStartWidthPx = heroFrame.getBoundingClientRect().width;
+      resizeHandle.setPointerCapture(e.pointerId);
+    });
+    resizeHandle.addEventListener('pointermove', (e) => {
+      if (!resizing) return;
+      const parentWidthPx = heroFrame.parentElement.getBoundingClientRect().width;
+      const deltaPx = e.clientX - resizeStartX;
+      const pct = ((resizeStartWidthPx + deltaPx) / parentWidthPx) * 100;
+      setHeroWidth(n, pct);
+    });
+    resizeHandle.addEventListener('pointerup', (e) => {
+      if (!resizing) return;
+      resizing = false;
+      resizeHandle.releasePointerCapture(e.pointerId);
+      scheduleSave();
+    });
+
+    heroFrame.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      heroFrame.classList.add('ar-dragover');
+    });
+    heroFrame.addEventListener('dragleave', () => heroFrame.classList.remove('ar-dragover'));
+    heroFrame.addEventListener('drop', (e) => {
+      e.preventDefault();
+      heroFrame.classList.remove('ar-dragover');
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) uploadImage(n, file);
+    });
   });
 
-  // Om lösenordet redan angetts tidigare i den här sessionen,
-  // hoppa direkt över gaten och läs in innehållet.
   if (unlocked) loadArticle();
 })();
 </script>

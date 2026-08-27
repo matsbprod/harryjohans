@@ -10,14 +10,8 @@ export default async (req) => {
     const id = payload.id || '1';
     const store = getStore('artikel');
     await store.setJSON('content-' + id, {
-      headline:     payload.headline     || '',
-      byline:       payload.byline       || '',
-      body:         payload.body         || '',
-      pullquote:    payload.pullquote    || '',
-      caption:      payload.caption      || '',
-      imageUrl:     payload.imageUrl     || null,
-      heroWidthPct: payload.heroWidthPct || 100,
-      updated:      new Date().toISOString()
+      spreads: payload.spreads || {},
+      updated: new Date().toISOString()
     });
     return new Response(JSON.stringify({ ok: true }), {
       headers: { 'Content-Type': 'application/json' }
