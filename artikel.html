@@ -211,10 +211,17 @@
     font-family:'Cormorant Garamond',serif; font-size:1.06rem; line-height:1.65; outline:none;
   }
   .ar-body p{ margin:0 0 1.1em; }
-  .ar-body p:first-of-type::first-letter{
+  .ar-body p.dropcap::first-letter{
     font-size:3.4em; line-height:.85; float:left; padding:.05em .08em 0 0;
     font-weight:400; color:var(--ar-accent);
   }
+  .ar-dropcap-btn{
+    font-family:'Archivo',sans-serif; font-size:.68rem; letter-spacing:.04em;
+    color:var(--ar-muted); background:transparent; border:1px dashed rgba(0,0,0,.2);
+    padding:5px 10px; border-radius:2px; cursor:pointer; margin-bottom:16px;
+    display:inline-block; float:right;
+  }
+  .ar-dropcap-btn:hover{ border-color:var(--ar-accent); color:var(--ar-accent); }
   .ar-pullquote{
     font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.4rem; line-height:1.3;
     color:var(--ar-accent); border-top:1px solid rgba(0,0,0,.15); border-bottom:1px solid rgba(0,0,0,.15);
@@ -253,8 +260,9 @@
     </div>
     <div class="ar-page-right">
       <p class="ar-pagenum">42–43</p>
+      <button type="button" class="ar-dropcap-btn" data-body="1">Stor bokstav vid markören</button>
       <div class="ar-body" id="ar-body-1" contenteditable="true">
-        <p>I en låg verkstad vid vattnet, där doften av linolja och furuspån aldrig riktigt lägger sig, har Harry Johans tillbringat större delen av sitt liv. Här, mellan bockar och böjda plankor, formas de skärgårdsbåtar som en gång bar posten, fisket och familjerna mellan öarna – båtar som idag är lika mycket kulturarv som bruksföremål.</p>
+        <p class="dropcap">I en låg verkstad vid vattnet, där doften av linolja och furuspån aldrig riktigt lägger sig, har Harry Johans tillbringat större delen av sitt liv. Här, mellan bockar och böjda plankor, formas de skärgårdsbåtar som en gång bar posten, fisket och familjerna mellan öarna – båtar som idag är lika mycket kulturarv som bruksföremål.</p>
         <p>Han minns inte längre exakt hur många skrov han byggt. "Man slutar räkna efter ett tag," säger han och stryker handen längs en nyhyvlad bordläggning. Det som däremot sitter kvar är känslan i handen: hur en planka ska bete sig när den ångas och böjs, hur mycket press ett spant tål innan det protesterar.</p>
         <p>Metoderna är desamma som hans far och farfar använde. Verktygen har bytts ut i takt med att de gamla slitits ut, men principerna – klinkbygge, naturkrökt virke, handdrivna nitar – står emot varje trend inom modern båtbyggeri. Det är långsamt arbete, och Harry menar att det måste få vara det.</p>
         <div class="ar-pullquote" id="ar-pullquote-1" contenteditable="true">"Båten vet innan du gör det. Din uppgift är bara att lyssna."</div>
@@ -278,8 +286,9 @@
     </div>
     <div class="ar-page-right">
       <p class="ar-pagenum">44–45</p>
+      <button type="button" class="ar-dropcap-btn" data-body="2">Stor bokstav vid markören</button>
       <div class="ar-body" id="ar-body-2" contenteditable="true">
-        <p>[Fyll i text för uppslag två här. Skriv gärna för mycket i det här utkastet — det går snabbare att redigera ner en text som redan finns än att fylla ut en för kort.]</p>
+        <p class="dropcap">[Fyll i text för uppslag två här. Skriv gärna för mycket i det här utkastet — det går snabbare att redigera ner en text som redan finns än att fylla ut en för kort.]</p>
         <p>[Ytterligare stycke.]</p>
         <div class="ar-pullquote" id="ar-pullquote-2" contenteditable="true">"[Citat för uppslag två]"</div>
         <p>[Ytterligare stycke.]</p>
@@ -302,8 +311,9 @@
     </div>
     <div class="ar-page-right">
       <p class="ar-pagenum">46–47</p>
+      <button type="button" class="ar-dropcap-btn" data-body="3">Stor bokstav vid markören</button>
       <div class="ar-body" id="ar-body-3" contenteditable="true">
-        <p>[Fyll i text för uppslag tre här.]</p>
+        <p class="dropcap">[Fyll i text för uppslag tre här.]</p>
         <p>[Ytterligare stycke.]</p>
         <div class="ar-pullquote" id="ar-pullquote-3" contenteditable="true">"[Citat för uppslag tre]"</div>
         <p>[Ytterligare stycke.]</p>
@@ -550,6 +560,32 @@
       heroFrame.classList.remove('ar-dragover');
       const file = e.dataTransfer.files && e.dataTransfer.files[0];
       if (file && file.type.startsWith('image/')) uploadImage(n, file);
+    });
+  });
+
+  // ── Stor bokstav vid markören: klicka i valfritt stycke i en
+  // brödtext, klicka sedan knappen för att slå på/av drop cap där.
+  document.querySelectorAll('.ar-dropcap-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const n = btn.dataset.body;
+      const bodyEl = document.getElementById('ar-body-' + n);
+      if (!bodyEl) return;
+      const sel = window.getSelection();
+      if (!sel.rangeCount) {
+        setStatus('Klicka först i det stycke du vill ändra', true);
+        setTimeout(() => setStatus(''), 2500);
+        return;
+      }
+      let node = sel.anchorNode;
+      if (node && node.nodeType === 3) node = node.parentElement;
+      const p = node ? node.closest('p') : null;
+      if (!p || !bodyEl.contains(p)) {
+        setStatus('Klicka först i ett stycke i den här brödtexten', true);
+        setTimeout(() => setStatus(''), 2500);
+        return;
+      }
+      p.classList.toggle('dropcap');
+      scheduleSave();
     });
   });
 
