@@ -369,8 +369,8 @@
   }
   function setHeroWidth(n, pct) {
     state[n].heroWidthPct = Math.max(30, Math.min(100, pct));
-    document.getElementById('ar-hero-frame-' + n)
-      .style.setProperty('--hero-w', state[n].heroWidthPct + '%');
+    const frame = document.getElementById('ar-hero-frame-' + n);
+    if (frame) frame.style.setProperty('--hero-w', state[n].heroWidthPct + '%');
   }
 
   // ── Ladda in sparat innehåll ─────────────────────────
@@ -384,9 +384,8 @@
         const s = data.spreads[n];
         if (!s) return;
         FIELD_KINDS.forEach(kind => {
-          if (s[kind] != null) {
-            document.getElementById('ar-' + kind + '-' + n).innerHTML = s[kind];
-          }
+          const el = document.getElementById('ar-' + kind + '-' + n);
+          if (el && s[kind] != null) el.innerHTML = s[kind];
         });
         if (s.imageUrl) setHeroImage(n, s.imageUrl);
         if (s.heroWidthPct) setHeroWidth(n, s.heroWidthPct);
@@ -405,14 +404,23 @@
     saveTimer = setTimeout(saveArticle, 900);
   }
   async function saveArticle() {
+    let missing = [];
     const spreads = {};
     SPREADS.forEach(n => {
       const entry = { imageUrl: state[n].imageUrl, heroWidthPct: state[n].heroWidthPct };
       FIELD_KINDS.forEach(kind => {
-        entry[kind] = document.getElementById('ar-' + kind + '-' + n).innerHTML;
+        const el = document.getElementById('ar-' + kind + '-' + n);
+        if (el) {
+          entry[kind] = el.innerHTML;
+        } else {
+          missing.push(kind + '-' + n);
+        }
       });
       spreads[n] = entry;
     });
+    if (missing.length) {
+      console.warn('Saknade fält vid sparning (hoppades över, resten sparades ändå):', missing.join(', '));
+    }
     try {
       const res = await fetch(API + 'artikel-spara', {
         method: 'POST',
@@ -420,8 +428,8 @@
         body: JSON.stringify({ id: ARTICLE_ID, spreads })
       });
       if (!res.ok) throw new Error('Sparning misslyckades');
-      setStatus('Sparat ✓');
-      setTimeout(() => setStatus(''), 1500);
+      setStatus(missing.length ? 'Sparat, men ett fält saknades — kolla sidan' : 'Sparat ✓', !!missing.length);
+      setTimeout(() => setStatus(''), missing.length ? 4000 : 1500);
     } catch (err) {
       console.error(err);
       setStatus('Kunde inte spara — försök igen', true);
@@ -430,7 +438,8 @@
   saveBtn.addEventListener('click', saveArticle);
   SPREADS.forEach(n => {
     FIELD_KINDS.forEach(kind => {
-      document.getElementById('ar-' + kind + '-' + n).addEventListener('input', scheduleSave);
+      const el = document.getElementById('ar-' + kind + '-' + n);
+      if (el) el.addEventListener('input', scheduleSave);
     });
   });
 
