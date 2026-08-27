@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artikel — Båtklassiker | Projekt Varvet</title>
+  <meta name="description" content="Utkast till artikel om Harry Johans för tidskriften Båtklassiker.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Navbar (samma som index.html) ─────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-links">
+    <a href="index.html">Hem</a>
+    <a href="index.html#filmen">Filmen</a>
+    <a href="index.html#harry">Harry</a>
+    <a href="viewer.html">3D-scenen</a>
+    <a href="index.html#material">Materialet</a>
+    <a href="moodboard.html">Moodboard</a>
+    <a href="artikel.html">Artikel</a>
+    <a href="index.html#kontakt">Kontakt</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     ARTIKEL — redaktionellt tidningsuppslag, redigerbart live
+     ═══════════════════════════════════════════════════════ -->
+<style>
+  :root{
+    --ar-bg:#0a0a0a;
+    --ar-paper:#f3efe6;
+    --ar-ink:#1c1a16;
+    --ar-muted:#8f9296;
+    --ar-line:rgba(255,255,255,.12);
+    --ar-accent:#4d7ea8;
+  }
+  .ar-page{
+    background:var(--ar-bg);
+    padding:96px 24px 120px;
+  }
+  .ar-head{
+    max-width:1700px;
+    margin:0 auto 40px;
+    text-align:center;
+  }
+  .ar-eyebrow{
+    font-family:'Archivo',sans-serif;
+    font-size:.75rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--ar-accent);
+    margin:0 0 10px;
+  }
+  .ar-title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;
+    font-size:clamp(1.8rem,3vw,2.6rem);
+    color:#efe9df;
+    margin:0 0 18px;
+  }
+  .ar-sub{
+    font-family:'Archivo',sans-serif;
+    font-weight:200;
+    font-size:.92rem;
+    color:var(--ar-muted);
+    max-width:640px;
+    margin:0 auto 28px;
+    line-height:1.6;
+  }
+  .ar-btn-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .ar-lock-btn,
+  .ar-save-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Archivo',sans-serif;
+    font-size:.85rem;
+    letter-spacing:.04em;
+    padding:12px 24px;
+    border-radius:2px;
+    cursor:pointer;
+    transition:opacity .2s ease, border-color .2s ease;
+  }
+  .ar-lock-btn{
+    color:var(--ar-muted);
+    background:transparent;
+    border:1px dashed var(--ar-line);
+  }
+  .ar-lock-btn:hover{ border-color:var(--ar-accent); color:#efe9df; }
+  body.ar-locked .ar-lock-btn{ color:var(--ar-accent); border-color:var(--ar-accent); border-style:solid; }
+  .ar-save-btn{
+    color:var(--ar-bg);
+    background:var(--ar-accent);
+    display:none;
+  }
+  body:not(.ar-locked) .ar-save-btn{ display:inline-flex; }
+  .ar-status{
+    font-family:'Archivo',sans-serif;
+    font-size:.75rem;
+    color:var(--ar-muted);
+    margin-top:14px;
+    min-height:1em;
+    text-align:center;
+  }
+
+  /* ── Tidningsuppslaget ── */
+  .ar-spread{
+    max-width:1700px;
+    margin:44px auto 0;
+    background:var(--ar-paper);
+    color:var(--ar-ink);
+    display:grid;
+    grid-template-columns:1.15fr 1fr;
+    box-shadow:0 30px 80px rgba(0,0,0,.5);
+  }
+  @media (max-width:900px){ .ar-spread{ grid-template-columns:1fr; } }
+
+  /* Vänster sida: bild + rubrik */
+  .ar-page-left{
+    position:relative;
+    padding:56px 48px 64px;
+    border-right:1px solid rgba(0,0,0,.1);
+  }
+  .ar-kicker{
+    font-family:'Archivo',sans-serif;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ar-accent);
+    margin:0 0 14px;
+  }
+  .ar-headline{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;
+    font-size:clamp(2.4rem,4vw,3.6rem);
+    line-height:1.05;
+    margin:0 0 20px;
+    outline:none;
+  }
+  .ar-byline{
+    font-family:'Archivo',sans-serif;
+    font-size:.8rem;
+    letter-spacing:.05em;
+    color:#5a564c;
+    margin:0 0 32px;
+    outline:none;
+  }
+  .ar-hero-frame{
+    position:relative;
+    width:100%;
+    aspect-ratio:4/5;
+    background:#d8d2c2;
+    overflow:hidden;
+    margin-bottom:18px;
+  }
+  .ar-hero-frame img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .ar-hero-empty{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Archivo',sans-serif;
+    font-size:.8rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#8a8471;
+    text-align:center;
+    padding:0 20px;
+  }
+  .ar-hero-frame.ar-dragover{ box-shadow:inset 0 0 0 3px var(--ar-accent); }
+  .ar-caption{
+    font-family:'Archivo',sans-serif;
+    font-size:.72rem;
+    letter-spacing:.02em;
+    color:#5a564c;
+    outline:none;
+  }
+  .ar-caption::before{ content:"Foto: "; opacity:.6; }
+
+  /* Höger sida: brödtext i två spalter */
+  .ar-page-right{
+    padding:56px 48px 64px;
+  }
+  .ar-pagenum{
+    font-family:'Archivo',sans-serif;
+    font-size:.72rem;
+    color:#8a8471;
+    text-align:right;
+    margin-bottom:24px;
+  }
+  .ar-body{
+    column-count:2;
+    column-gap:36px;
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.08rem;
+    line-height:1.65;
+    outline:none;
+  }
+  .ar-body p{ margin:0 0 1.1em; }
+  .ar-body p:first-of-type::first-letter{
+    font-size:3.6em;
+    line-height:.85;
+    float:left;
+    padding:.05em .08em 0 0;
+    font-weight:400;
+    color:var(--ar-accent);
+  }
+  .ar-pullquote{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:1.5rem;
+    line-height:1.3;
+    color:var(--ar-accent);
+    border-top:1px solid rgba(0,0,0,.15);
+    border-bottom:1px solid rgba(0,0,0,.15);
+    padding:20px 0;
+    margin:8px 0 28px;
+    break-inside:avoid;
+    outline:none;
+  }
+
+  /* Redigeringsindikatorer (bara i upplåst läge) */
+  body.ar-locked [contenteditable]{ cursor:default; }
+  body:not(.ar-locked) [contenteditable]{
+    cursor:text;
+    transition:background .15s ease;
+  }
+  body:not(.ar-locked) [contenteditable]:hover{ background:rgba(77,126,168,.08); }
+  body:not(.ar-locked) [contenteditable]:focus{ background:rgba(77,126,168,.14); }
+  body.ar-locked .ar-hero-frame{ pointer-events:none; }
+</style>
+
+<section class="ar-page">
+  <div class="ar-head">
+    <p class="ar-eyebrow">Materialet — utkast</p>
+    <h1 class="ar-title">Artikel för Båtklassiker</h1>
+    <p class="ar-sub">Redaktionellt tvåsidesuppslag. Lås upp för att redigera text direkt i webbläsaren
+      eller dra en ny bild till bildrutan. Sparas automatiskt.</p>
+    <div class="ar-btn-row">
+      <button type="button" class="ar-lock-btn" id="ar-lock-btn">🔒 Lås upp för att redigera</button>
+      <button type="button" class="ar-save-btn" id="ar-save-btn">Spara nu</button>
+    </div>
+    <p class="ar-status" id="ar-status"></p>
+  </div>
+
+  <div class="ar-spread">
+    <div class="ar-page-left">
+      <p class="ar-kicker">Porträtt · Skärgårdshantverk</p>
+      <h2 class="ar-headline" id="ar-headline" contenteditable="false">Handens minne</h2>
+      <p class="ar-byline" id="ar-byline" contenteditable="false">Text: [Namn] · Foto: [Namn]</p>
+
+      <div class="ar-hero-frame" id="ar-hero-frame">
+        <img id="ar-hero-img" style="display:none;" alt="Harry Johans i verkstaden">
+        <div class="ar-hero-empty" id="ar-hero-empty">Lås upp och dra en bild hit</div>
+      </div>
+      <p class="ar-caption" id="ar-caption" contenteditable="false">[Fotografens namn]</p>
+    </div>
+
+    <div class="ar-page-right">
+      <p class="ar-pagenum">42–43</p>
+      <div class="ar-body" id="ar-body" contenteditable="false">
+        <p>I en låg verkstad vid vattnet, där doften av linolja och furuspån aldrig riktigt lägger sig, har Harry Johans tillbringat större delen av sitt liv. Här, mellan bockar och böjda plankor, formas de skärgårdsbåtar som en gång bar posten, fisket och familjerna mellan öarna – båtar som idag är lika mycket kulturarv som bruksföremål.</p>
+        <p>Han minns inte längre exakt hur många skrov han byggt. "Man slutar räkna efter ett tag," säger han och stryker handen längs en nyhyvlad bordläggning. Det som däremot sitter kvar är känslan i handen: hur en planka ska bete sig när den ångas och böjs, hur mycket press ett spant tål innan det protesterar.</p>
+        <p>Metoderna är desamma som hans far och farfar använde. Verktygen har bytts ut i takt med att de gamla slitits ut, men principerna – klinkbygge, naturkrökt virke, handdrivna nitar – står emot varje trend inom modern båtbyggeri. Det är långsamt arbete, och Harry menar att det måste få vara det.</p>
+        <div class="ar-pullquote" id="ar-pullquote" contenteditable="false">"Båten vet innan du gör det. Din uppgift är bara att lyssna."</div>
+        <p>De senaste åren har verkstaden också blivit något annat: en plats som dokumenteras, filmas och samlas in inför eftervärlden. En yngre generation filmare har följt arbetet under lång tid, i ett försök att fånga inte bara de färdiga båtarna utan själva rörelsemönstret – handens minne, innan det går förlorat.</p>
+        <p>För Harry själv är det egentligen enkelt. "Det finns inget mystiskt med det," säger han och lyfter upp ännu en planka mot ljuset för att bedöma virkets fibrer. "Man bygger en båt i taget, och man bygger den ordentligt. Resten löser sig."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  const API = '/.netlify/functions/';
+  const LOCK_PASSWORD = 'johans';
+  const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+
+  const lockBtn   = document.getElementById('ar-lock-btn');
+  const saveBtn   = document.getElementById('ar-save-btn');
+  const statusEl  = document.getElementById('ar-status');
+  const heroFrame = document.getElementById('ar-hero-frame');
+  const heroImg   = document.getElementById('ar-hero-img');
+  const heroEmpty = document.getElementById('ar-hero-empty');
+
+  const editableIds = ['ar-headline', 'ar-byline', 'ar-caption', 'ar-body', 'ar-pullquote'];
+
+  let unlocked = sessionStorage.getItem('ar-unlocked') === '1';
+  let heroImageUrl = null;
+
+  function setStatus(msg, isError) {
+    statusEl.textContent = msg || '';
+    statusEl.style.color = isError ? '#c0664f' : '';
+  }
+
+  function applyLockState() {
+    document.body.classList.toggle('ar-locked', !unlocked);
+    lockBtn.textContent = unlocked ? '🔓 Redigering upplåst' : '🔒 Lås upp för att redigera';
+    editableIds.forEach(id => {
+      document.getElementById(id).setAttribute('contenteditable', unlocked ? 'true' : 'false');
+    });
+  }
+
+  lockBtn.addEventListener('click', () => {
+    if (unlocked) return;
+    const pw = prompt('Lösenord för att redigera artikeln:');
+    if (pw === null) return;
+    if (pw === LOCK_PASSWORD) {
+      unlocked = true;
+      sessionStorage.setItem('ar-unlocked', '1');
+      applyLockState();
+    } else {
+      alert('Fel lösenord.');
+    }
+  });
+
+  // ── Ladda in sparat innehåll ─────────────────────────
+  async function loadArticle() {
+    try {
+      const res = await fetch(API + 'artikel-hamta');
+      if (!res.ok) return; // inget sparat än — behåll platshållartexten
+      const data = await res.json();
+      if (!data) return;
+      if (data.headline)  document.getElementById('ar-headline').innerHTML  = data.headline;
+      if (data.byline)    document.getElementById('ar-byline').innerHTML    = data.byline;
+      if (data.body)      document.getElementById('ar-body').innerHTML      = data.body;
+      if (data.pullquote) document.getElementById('ar-pullquote').innerHTML = data.pullquote;
+      if (data.caption)   document.getElementById('ar-caption').innerHTML   = data.caption;
+      if (data.imageUrl)  setHeroImage(data.imageUrl);
+    } catch (err) {
+      console.error('Kunde inte läsa in artikeln:', err);
+    }
+  }
+
+  function setHeroImage(url) {
+    heroImageUrl = url;
+    heroImg.src = url;
+    heroImg.style.display = 'block';
+    heroEmpty.style.display = 'none';
+  }
+
+  // ── Spara ─────────────────────────────────────────────
+  let saveTimer = null;
+  function scheduleSave() {
+    if (!unlocked) return;
+    setStatus('Sparar …');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveArticle, 900);
+  }
+  async function saveArticle() {
+    const payload = {
+      headline:  document.getElementById('ar-headline').innerHTML,
+      byline:    document.getElementById('ar-byline').innerHTML,
+      body:      document.getElementById('ar-body').innerHTML,
+      pullquote: document.getElementById('ar-pullquote').innerHTML,
+      caption:   document.getElementById('ar-caption').innerHTML,
+      imageUrl:  heroImageUrl
+    };
+    try {
+      const res = await fetch(API + 'artikel-spara', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Sparning misslyckades');
+      setStatus('Sparat ✓');
+      setTimeout(() => setStatus(''), 1500);
+    } catch (err) {
+      console.error(err);
+      setStatus('Kunde inte spara — försök igen', true);
+    }
+  }
+  saveBtn.addEventListener('click', saveArticle);
+  editableIds.forEach(id => {
+    document.getElementById(id).addEventListener('input', scheduleSave);
+  });
+
+  // ── Bilduppladdning (drag & drop på hero-rutan) ────────
+  async function uploadImage(file) {
+    if (file.size > MAX_IMAGE_BYTES) {
+      setStatus('Bilden är för stor (max ' + (MAX_IMAGE_BYTES / 1024 / 1024) + ' MB)', true);
+      return;
+    }
+    setStatus('Laddar upp bild …');
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    try {
+      const res = await fetch(API + 'artikel-ladda-upp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type, data: base64 })
+      });
+      if (!res.ok) throw new Error('Uppladdning misslyckades');
+      const { url } = await res.json();
+      setHeroImage(url);
+      scheduleSave();
+      setStatus('Bild uppladdad ✓');
+      setTimeout(() => setStatus(''), 1500);
+    } catch (err) {
+      console.error(err);
+      setStatus('Kunde inte ladda upp bilden', true);
+    }
+  }
+
+  heroFrame.addEventListener('dragover', (e) => {
+    if (!unlocked) return;
+    e.preventDefault();
+    heroFrame.classList.add('ar-dragover');
+  });
+  heroFrame.addEventListener('dragleave', () => heroFrame.classList.remove('ar-dragover'));
+  heroFrame.addEventListener('drop', (e) => {
+    if (!unlocked) return;
+    e.preventDefault();
+    heroFrame.classList.remove('ar-dragover');
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) uploadImage(file);
+  });
+
+  applyLockState();
+  loadArticle();
+})();
+</script>
+
+</body>
+</html>
