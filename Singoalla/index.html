@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Singoalla — Skärgårdskryssaren 1918–1922</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+<style>
+  :root{
+    --ink-black:   #0b0e12;
+    --deep-navy:   #10202f;
+    --brass:       #b28a4c;
+    --brass-dim:   #6f5a37;
+    --fog:         #aab3bd;
+    --fog-dim:     #5c6570;
+    --paper-edge:  #dfd7c2;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:
+      radial-gradient(ellipse at 50% -10%, #182a3a 0%, var(--ink-black) 55%),
+      var(--ink-black);
+    color:var(--fog);
+    font-family:'Jost', sans-serif;
+    overflow:hidden;
+  }
+
+  /* faint compass-rose watermark, signature element */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image: radial-gradient(circle at 50% 50%, transparent 0 38%, rgba(178,138,76,0.05) 38.3% 38.6%, transparent 38.9%),
+                       radial-gradient(circle at 50% 50%, transparent 0 46%, rgba(178,138,76,0.04) 46.3% 46.5%, transparent 46.8%);
+    background-size: min(70vw,70vh) min(70vw,70vh);
+    background-repeat:no-repeat;
+    background-position:center;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .stage{
+    position:relative;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding: clamp(10px,2.5vh,28px) clamp(10px,3vw,40px);
+    z-index:1;
+  }
+
+  header{
+    text-align:center;
+    flex:0 0 auto;
+    width:100%;
+  }
+  header a.home{
+    position:absolute;
+    left:clamp(10px,3vw,40px);
+    top:clamp(10px,2.5vh,28px);
+    color:var(--fog-dim);
+    text-decoration:none;
+    font-size:0.78rem;
+    letter-spacing:.04em;
+    border-bottom:1px solid transparent;
+    transition:color .2s, border-color .2s;
+  }
+  header a.home:hover{ color:var(--brass); border-color:var(--brass-dim); }
+
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:clamp(1.6rem, 4vw, 2.6rem);
+    letter-spacing:.03em;
+    color:#eae4d6;
+    margin:0 0 2px;
+  }
+  .subtitle{
+    font-size:0.72rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin:0;
+  }
+
+  .book-wrap{
+    flex:1 1 auto;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:0;
+    position:relative;
+    padding: 0 clamp(30px,6vw,80px);
+  }
+
+  #book{
+    box-shadow: 0 30px 70px -20px rgba(0,0,0,0.75);
+  }
+
+  .nav-btn{
+    position:absolute;
+    top:50%; transform:translateY(-50%);
+    width:clamp(34px,4vw,52px);
+    height:clamp(34px,4vw,52px);
+    border-radius:50%;
+    border:1px solid rgba(178,138,76,0.35);
+    background:rgba(16,32,47,0.55);
+    backdrop-filter:blur(3px);
+    color:var(--brass);
+    font-size:1.2rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:background .2s, border-color .2s, transform .2s;
+    user-select:none;
+    z-index:2;
+  }
+  .nav-btn:hover{ background:rgba(178,138,76,0.18); border-color:var(--brass); }
+  .nav-btn:active{ transform:translateY(-50%) scale(0.92); }
+  .nav-btn.prev{ left:0; }
+  .nav-btn.next{ right:0; }
+  .nav-btn.disabled{ opacity:0.25; pointer-events:none; }
+
+  footer{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding-top:clamp(8px,1.6vh,16px);
+  }
+
+  .page-indicator{
+    font-size:0.8rem;
+    letter-spacing:.08em;
+    color:var(--fog-dim);
+    min-width:80px;
+    text-align:center;
+    font-variant-numeric: tabular-nums;
+  }
+  .page-indicator b{ color:var(--fog); font-weight:500; }
+
+  .slider{
+    -webkit-appearance:none;
+    appearance:none;
+    width:clamp(140px,22vw,320px);
+    height:2px;
+    background:linear-gradient(to right, var(--brass) 0%, var(--brass) var(--pct,0%), rgba(255,255,255,0.15) var(--pct,0%));
+    border-radius:2px;
+    outline:none;
+    cursor:pointer;
+  }
+  .slider::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--brass);
+    border:2px solid var(--ink-black);
+    box-shadow:0 0 0 1px var(--brass);
+    margin-top:-5px;
+  }
+  .slider::-moz-range-thumb{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--brass); border:2px solid var(--ink-black);
+  }
+  .slider::-moz-range-track{ height:2px; background:rgba(255,255,255,0.15); border-radius:2px; }
+
+  .icon-btn{
+    background:none;
+    border:1px solid rgba(178,138,76,0.3);
+    color:var(--fog-dim);
+    width:32px; height:32px;
+    border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:0.85rem;
+    transition:color .2s, border-color .2s;
+  }
+  .icon-btn:hover{ color:var(--brass); border-color:var(--brass); }
+
+  /* hint on first load */
+  .hint{
+    position:absolute;
+    bottom: clamp(70px,12vh,110px);
+    left:50%; transform:translateX(-50%);
+    font-size:0.7rem;
+    letter-spacing:.1em;
+    color:var(--fog-dim);
+    text-transform:uppercase;
+    opacity:0.85;
+    animation: fade-hint 4.5s ease forwards;
+    pointer-events:none;
+    z-index:2;
+    white-space:nowrap;
+  }
+  @keyframes fade-hint{
+    0%{opacity:0;} 12%{opacity:0.85;} 78%{opacity:0.85;} 100%{opacity:0;}
+  }
+
+  @media (max-width: 640px){
+    .nav-btn{ display:none; }
+    .book-wrap{ padding:0; }
+    footer{ gap:10px; }
+    .slider{ width: 40vw; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <header>
+    <a class="home" href="https://harryjohans.se">&larr; harryjohans.se</a>
+    <h1>Singoalla</h1>
+    <p class="subtitle">150 kvm skärgårdskryssare · 1918–1922</p>
+  </header>
+
+  <div class="book-wrap">
+    <div class="nav-btn prev" id="prevBtn" aria-label="Föregående sida">&#10094;</div>
+    <div id="book"></div>
+    <div class="nav-btn next" id="nextBtn" aria-label="Nästa sida">&#10095;</div>
+    <div class="hint" id="hint">Klicka eller svep för att bläddra</div>
+  </div>
+
+  <footer>
+    <button class="icon-btn" id="fsBtn" title="Helskärm">&#9974;</button>
+    <div class="page-indicator"><b id="curPage">1</b> / <span id="totalPages">18</span></div>
+    <input type="range" class="slider" id="slider" min="1" max="18" value="1">
+  </footer>
+</div>
+
+<script>
+  const TOTAL_PAGES = 18;
+  const pages = [];
+  for(let i=1;i<=TOTAL_PAGES;i++){
+    pages.push('images/page-' + String(i).padStart(2,'0') + '.jpg');
+  }
+
+  const bookEl = document.getElementById('book');
+
+  const pageFlip = new St.PageFlip(bookEl, {
+    width: 620,
+    height: 876,
+    size: "stretch",
+    minWidth: 260,
+    maxWidth: 1100,
+    minHeight: 370,
+    maxHeight: 1550,
+    showCover: true,
+    usePortrait: true,
+    maxShadowOpacity: 0.55,
+    mobileScrollSupport: false,
+    flippingTime: 700,
+    swipeDistance: 20
+  });
+
+  pageFlip.loadFromImages(pages);
+
+  const curPageEl = document.getElementById('curPage');
+  const totalPagesEl = document.getElementById('totalPages');
+  const sliderEl = document.getElementById('slider');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  totalPagesEl.textContent = TOTAL_PAGES;
+  sliderEl.max = TOTAL_PAGES;
+
+  function updateUI(pageIndex){
+    const shown = pageIndex + 1;
+    curPageEl.textContent = shown;
+    sliderEl.value = shown;
+    const pct = ((shown-1)/(TOTAL_PAGES-1))*100;
+    sliderEl.style.setProperty('--pct', pct + '%');
+    prevBtn.classList.toggle('disabled', pageIndex <= 0);
+    nextBtn.classList.toggle('disabled', pageIndex >= TOTAL_PAGES-1);
+  }
+
+  pageFlip.on('flip', (e) => updateUI(e.data));
+  pageFlip.on('init', () => updateUI(0));
+
+  prevBtn.addEventListener('click', () => pageFlip.flipPrev());
+  nextBtn.addEventListener('click', () => pageFlip.flipNext());
+
+  sliderEl.addEventListener('input', () => {
+    pageFlip.flip(parseInt(sliderEl.value,10) - 1);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight') pageFlip.flipNext();
+    if(e.key === 'ArrowLeft') pageFlip.flipPrev();
+  });
+
+  const fsBtn = document.getElementById('fsBtn');
+  fsBtn.addEventListener('click', () => {
+    if(!document.fullscreenElement){
+      document.documentElement.requestFullscreen().catch(()=>{});
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // remove hint on first interaction
+  const hint = document.getElementById('hint');
+  bookEl.addEventListener('click', () => hint.remove(), {once:true});
+</script>
+
+</body>
+</html>
