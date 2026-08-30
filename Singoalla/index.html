@@ -100,7 +100,7 @@
     justify-content:center;
     min-height:0;
     position:relative;
-    padding: 0 clamp(30px,6vw,80px);
+    padding: clamp(20px,4vh,56px) clamp(30px,6vw,80px);
   }
 
   #book{
@@ -206,7 +206,7 @@
 
   @media (max-width: 640px){
     .nav-btn{ display:none; }
-    .book-wrap{ padding:0; }
+    .book-wrap{ padding: clamp(14px,3vh,28px) 0; }
     footer{ gap:10px; }
     .slider{ width: 40vw; }
   }
@@ -216,7 +216,7 @@
 
 <div class="stage">
   <header>
-    <a class="home" href="https://harryjohans.se">&larr; harryjohans.se</a>
+    <a class="home" href="../index.html">&larr; harryjohans.se</a>
     <h1>Singoalla</h1>
     <p class="subtitle">150 kvm skärgårdskryssare · 1918–1922</p>
   </header>
@@ -251,7 +251,7 @@
     minWidth: 260,
     maxWidth: 1100,
     minHeight: 370,
-    maxHeight: 1550,
+    maxHeight: 1300,
     showCover: true,
     usePortrait: true,
     maxShadowOpacity: 0.55,
