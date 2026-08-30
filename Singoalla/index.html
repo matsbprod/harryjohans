@@ -336,7 +336,32 @@
 
     pageFlip.loadFromImages(pages);
     pageFlip.on('flip', (e) => { updateUI(e.data); resetZoom(); });
-    pageFlip.on('init', () => updateUI(pageFlip.getCurrentPageIndex()));
+    pageFlip.on('init', () => {
+      updateUI(pageFlip.getCurrentPageIndex());
+      sharpenCanvas(bookEl);
+    });
+  }
+
+  // StPageFlip sizes its internal <canvas> backing store to match its CSS
+  // size 1:1, then the browser stretches that to fill the same box on
+  // screen. On a Retina/HiDPI display (devicePixelRatio > 1) that means
+  // it's always rendered at half (or less) of the screen's real
+  // resolution and then blown up — soft text regardless of how sharp the
+  // source images are. This re-sizes the actual pixel buffer to match the
+  // screen and scales the drawing context to compensate, so the library's
+  // existing draw calls (which work in CSS-like page units) land at full
+  // device resolution.
+  function sharpenCanvas(container){
+    const canvas = container.querySelector('canvas.stf__canvas');
+    if(!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth;
+    const cssH = canvas.clientHeight;
+    if(!cssW || !cssH) return;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
   }
 
   function rebuildBook(){
