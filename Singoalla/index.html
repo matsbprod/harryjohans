@@ -286,6 +286,7 @@
   const PAGE_RATIO = 620 / 876; // single-page width/height, matches our scanned pages
 
   let pageFlip = null;
+  let currentBookEl = null;
 
   // StPageFlip's "stretch" mode derives the book's HEIGHT purely from its
   // WIDTH (height = width / ratio) — it never looks at how much vertical
@@ -335,10 +336,11 @@
     });
 
     pageFlip.loadFromImages(pages);
+    currentBookEl = bookEl;
     pageFlip.on('flip', (e) => { updateUI(e.data); resetZoom(); });
     pageFlip.on('init', () => {
       updateUI(pageFlip.getCurrentPageIndex());
-      sharpenCanvas(bookEl);
+      sharpenCanvas(bookEl, 1);
     });
   }
 
@@ -351,17 +353,21 @@
   // screen and scales the drawing context to compensate, so the library's
   // existing draw calls (which work in CSS-like page units) land at full
   // device resolution.
-  function sharpenCanvas(container){
+  function sharpenCanvas(container, extraScale){
     const canvas = container.querySelector('canvas.stf__canvas');
     if(!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.devicePixelRatio || 1) * (extraScale || 1);
     const cssW = canvas.clientWidth;
     const cssH = canvas.clientHeight;
     if(!cssW || !cssH) return;
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
+    // cap the backing store so we don't hand the GPU an absurd canvas size
+    const targetW = Math.min(Math.round(cssW * dpr), 4500);
+    const targetH = Math.min(Math.round(cssH * dpr), 4500);
+    if(canvas.width === targetW && canvas.height === targetH) return;
+    canvas.width = targetW;
+    canvas.height = targetH;
     const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
+    ctx.scale(targetW / cssW, targetH / cssH);
   }
 
   function rebuildBook(){
@@ -447,12 +453,22 @@
     return [Math.max(-maxX, Math.min(maxX, x)), Math.max(-maxY, Math.min(maxY, y))];
   }
 
+  let sharpenTimer;
   function applyTransform(){
     zoomLayer.style.transform = `scale(${scale}) translate(${tx/scale}px, ${ty/scale}px)`;
     zoomLayer.classList.toggle('zoomed', scale > 1.001);
     zoomLevelEl.textContent = Math.round(scale * 100) + '%';
     zoomOutBtn.classList.toggle('disabled', scale <= MIN_SCALE + 0.001);
     zoomInBtn.classList.toggle('disabled', scale >= MAX_SCALE - 0.001);
+
+    // The CSS transform above gives instant visual feedback, but it's just
+    // stretching the existing canvas pixels — still soft at anything above
+    // 100%. Shortly after the zoom level settles, re-render the canvas at
+    // that resolution so the magnified view is actually sharp, not just big.
+    clearTimeout(sharpenTimer);
+    sharpenTimer = setTimeout(() => {
+      if(currentBookEl) sharpenCanvas(currentBookEl, scale);
+    }, 120);
   }
 
   function setZoom(newScale, anchorX, anchorY){
