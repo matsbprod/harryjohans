@@ -258,9 +258,7 @@
   <div class="book-wrap">
     <div class="nav-btn prev" id="prevBtn" aria-label="Föregående sida">&#10094;</div>
     <div class="book-frame">
-      <div id="zoomLayer">
-        <div id="book"></div>
-      </div>
+      <div id="zoomLayer"></div>
     </div>
     <div class="nav-btn next" id="nextBtn" aria-label="Nästa sida">&#10095;</div>
     <div class="hint" id="hint">Klicka eller svep för att bläddra</div>
@@ -283,37 +281,85 @@
     pages.push('images/page-' + String(i).padStart(2,'0') + '.jpg');
   }
 
-  const bookEl = document.getElementById('book');
+  const bookFrame = document.querySelector('.book-frame');
+  const zoomLayer = document.getElementById('zoomLayer');
+  const PAGE_RATIO = 620 / 876; // single-page width/height, matches our scanned pages
 
-  const pageFlip = new St.PageFlip(bookEl, {
-    width: 620,
-    height: 876,
-    size: "stretch",
-    minWidth: 260,
-    maxWidth: 1100,
-    minHeight: 370,
-    maxHeight: 1300,
-    showCover: true,
-    usePortrait: true,
-    maxShadowOpacity: 0.55,
-    mobileScrollSupport: false,
-    flippingTime: 700,
-    swipeDistance: 20
-  });
+  let pageFlip = null;
 
-  pageFlip.loadFromImages(pages);
-
-  // The frame's real size can shift slightly once the web font finishes
-  // loading (it reflows the header/footer). PageFlip only re-measures on
-  // a real 'resize' event, so nudge it after layout settles to avoid the
-  // book being clipped by book-frame's overflow:hidden.
-  function nudgeResize(){ window.dispatchEvent(new Event('resize')); }
-  if(document.fonts && document.fonts.ready){
-    document.fonts.ready.then(() => setTimeout(nudgeResize, 50));
+  // StPageFlip's "stretch" mode derives the book's HEIGHT purely from its
+  // WIDTH (height = width / ratio) — it never looks at how much vertical
+  // space is actually available. So instead of trusting it to fit our
+  // frame, we work out the right width ourselves (from the frame's real
+  // height) and pass that in as a hard maxWidth. Because that number can
+  // only be set at construction time, we rebuild the book whenever the
+  // frame's size changes.
+  function computeSize(){
+    const rect = bookFrame.getBoundingClientRect();
+    const availW = Math.max(rect.width, 100);
+    const availH = Math.max(rect.height, 100);
+    const isPortraitMode = window.innerWidth < 640; // matches our own CSS breakpoint
+    const shapeRatio = isPortraitMode ? PAGE_RATIO : (2 * PAGE_RATIO); // single vs. two-page spread
+    const widthFromHeight = availH * shapeRatio;
+    const totalW = Math.max(240, Math.min(availW, widthFromHeight));
+    const perPage = isPortraitMode ? totalW : totalW / 2;
+    return {
+      width: Math.round(perPage),
+      height: Math.round(perPage / PAGE_RATIO)
+    };
   }
-  window.addEventListener('load', () => setTimeout(nudgeResize, 50));
-  window.addEventListener('orientationchange', () => setTimeout(nudgeResize, 150));
-  setTimeout(nudgeResize, 400); // safety net for slow connections
+
+  function buildBook(startPage){
+    zoomLayer.innerHTML = '';
+    const bookEl = document.createElement('div');
+    bookEl.id = 'book';
+    zoomLayer.appendChild(bookEl);
+
+    const size = computeSize();
+
+    pageFlip = new St.PageFlip(bookEl, {
+      width: size.width,
+      height: size.height,
+      size: "stretch",
+      minWidth: Math.min(180, size.width),
+      maxWidth: size.width,
+      minHeight: Math.min(240, size.height),
+      maxHeight: size.height,
+      showCover: true,
+      usePortrait: true,
+      maxShadowOpacity: 0.55,
+      mobileScrollSupport: false,
+      flippingTime: 700,
+      swipeDistance: 20,
+      startPage: startPage || 0
+    });
+
+    pageFlip.loadFromImages(pages);
+    pageFlip.on('flip', (e) => { updateUI(e.data); resetZoom(); });
+    pageFlip.on('init', () => updateUI(pageFlip.getCurrentPageIndex()));
+  }
+
+  function rebuildBook(){
+    const savedPage = pageFlip ? pageFlip.getCurrentPageIndex() : 0;
+    // don't call pageFlip.destroy() — it removes the #book element itself,
+    // which we're about to recreate anyway; just drop the old DOM/listeners
+    // by clearing zoomLayer (buildBook() does this) and building fresh.
+    buildBook(savedPage);
+  }
+
+  buildBook(0);
+
+  let resizeTimer;
+  function scheduleRebuild(delay){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(rebuildBook, delay);
+  }
+  window.addEventListener('resize', () => scheduleRebuild(200));
+  window.addEventListener('orientationchange', () => scheduleRebuild(250));
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() => scheduleRebuild(50));
+  }
+  window.addEventListener('load', () => scheduleRebuild(50));
 
   const curPageEl = document.getElementById('curPage');
   const totalPagesEl = document.getElementById('totalPages');
@@ -333,9 +379,6 @@
     prevBtn.classList.toggle('disabled', pageIndex <= 0);
     nextBtn.classList.toggle('disabled', pageIndex >= TOTAL_PAGES-1);
   }
-
-  pageFlip.on('flip', (e) => updateUI(e.data));
-  pageFlip.on('init', () => updateUI(0));
 
   prevBtn.addEventListener('click', () => pageFlip.flipPrev());
   nextBtn.addEventListener('click', () => pageFlip.flipNext());
@@ -360,11 +403,9 @@
 
   // remove hint on first interaction
   const hint = document.getElementById('hint');
-  bookEl.addEventListener('click', () => hint.remove(), {once:true});
+  zoomLayer.addEventListener('click', () => hint.remove(), {once:true});
 
   // ── Zoom & pan ──────────────────────────────────────────
-  const bookFrame = document.querySelector('.book-frame');
-  const zoomLayer = document.getElementById('zoomLayer');
   const zoomLevelEl = document.getElementById('zoomLevel');
   const zoomInBtn = document.getElementById('zoomInBtn');
   const zoomOutBtn = document.getElementById('zoomOutBtn');
@@ -413,8 +454,8 @@
   zoomInBtn.addEventListener('click', () => setZoom(scale * 1.6));
   zoomOutBtn.addEventListener('click', () => setZoom(scale / 1.6));
 
-  // reset zoom whenever a page turn happens
-  pageFlip.on('flip', () => resetZoom());
+  // (zoom reset on page flip is wired inside buildBook(), since pageFlip
+  // itself gets recreated on resize)
 
   // double-click / double-tap toggles zoom at that point
   let lastTap = 0;
