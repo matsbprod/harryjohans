@@ -304,6 +304,18 @@
 
   pageFlip.loadFromImages(pages);
 
+  // The frame's real size can shift slightly once the web font finishes
+  // loading (it reflows the header/footer). PageFlip only re-measures on
+  // a real 'resize' event, so nudge it after layout settles to avoid the
+  // book being clipped by book-frame's overflow:hidden.
+  function nudgeResize(){ window.dispatchEvent(new Event('resize')); }
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() => setTimeout(nudgeResize, 50));
+  }
+  window.addEventListener('load', () => setTimeout(nudgeResize, 50));
+  window.addEventListener('orientationchange', () => setTimeout(nudgeResize, 150));
+  setTimeout(nudgeResize, 400); // safety net for slow connections
+
   const curPageEl = document.getElementById('curPage');
   const totalPagesEl = document.getElementById('totalPages');
   const sliderEl = document.getElementById('slider');
