@@ -305,7 +305,8 @@
     const perPage = isPortraitMode ? totalW : totalW / 2;
     return {
       width: Math.round(perPage),
-      height: Math.round(perPage / PAGE_RATIO)
+      height: Math.round(perPage / PAGE_RATIO),
+      isPortraitMode
     };
   }
 
@@ -316,12 +317,20 @@
     zoomLayer.appendChild(bookEl);
 
     const size = computeSize();
+    // PageFlip decides single-page vs. two-page-spread itself, based on
+    // comparing its rendered width against 2*minWidth — so minWidth has to
+    // be pinned to what WE already decided (via isPortraitMode), or the two
+    // can disagree on some screen sizes. In portrait mode, setting minWidth
+    // to the full page width guarantees width < 2*minWidth (single page);
+    // in landscape mode, a low minWidth keeps it comfortably above that
+    // threshold (two-page spread).
+    const minWidth = size.isPortraitMode ? size.width : Math.min(180, size.width);
 
     pageFlip = new St.PageFlip(bookEl, {
       width: size.width,
       height: size.height,
       size: "stretch",
-      minWidth: Math.min(180, size.width),
+      minWidth: minWidth,
       maxWidth: size.width,
       minHeight: Math.min(240, size.height),
       maxHeight: size.height,
