@@ -2,7 +2,7 @@
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Singoalla — Skärgårdskryssaren 1918–1922</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,6 +32,10 @@
     color:var(--fog);
     font-family:'Jost', sans-serif;
     overflow:hidden;
+    touch-action:none;
+    overscroll-behavior:none;
+    -webkit-user-select:none;
+    user-select:none;
   }
 
   /* faint compass-rose watermark, signature element */
@@ -97,6 +101,7 @@
   }
 
   .side-nav{
+    touch-action:manipulation;
     position:absolute;
     top:50%; transform:translateY(-50%);
     width:clamp(34px,3.2vw,48px);
@@ -135,6 +140,7 @@
     flex-wrap:wrap;
     gap:18px;
     padding-top:clamp(8px,1.6vh,16px);
+    touch-action:manipulation;
   }
 
   .page-indicator{
@@ -332,8 +338,8 @@
     const cssH = canvas.clientHeight;
     if(!cssW || !cssH) return;
     // cap the backing store so we don't hand the GPU an absurd canvas size
-    const targetW = Math.min(Math.round(cssW * dpr), 4500);
-    const targetH = Math.min(Math.round(cssH * dpr), 4500);
+    const targetW = Math.min(Math.round(cssW * dpr), 4096);
+    const targetH = Math.min(Math.round(cssH * dpr), 4096);
     if(canvas.width === targetW && canvas.height === targetH) return;
     canvas.width = targetW;
     canvas.height = targetH;
@@ -570,6 +576,13 @@
     if(e.key === '+' || e.key === '=') setZoom(scale * 1.3);
     if(e.key === '-' || e.key === '_') setZoom(scale / 1.3);
     if(e.key === '0') resetZoom();
+  });
+
+  // Safari (iOS/macOS) fires its own non-standard gesture events for pinch,
+  // independent of touch events — block them outright so the browser never
+  // tries to zoom the whole page while we're handling the pinch ourselves.
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach((type) => {
+    document.addEventListener(type, (e) => e.preventDefault());
   });
 
   applyTransform();
