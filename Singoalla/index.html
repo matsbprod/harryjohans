@@ -130,29 +130,6 @@
     box-shadow: 0 30px 70px -20px rgba(0,0,0,0.75);
   }
 
-  .nav-btn{
-    position:absolute;
-    top:50%; transform:translateY(-50%);
-    width:clamp(34px,4vw,52px);
-    height:clamp(34px,4vw,52px);
-    border-radius:50%;
-    border:1px solid rgba(178,138,76,0.35);
-    background:rgba(16,32,47,0.55);
-    backdrop-filter:blur(3px);
-    color:var(--brass);
-    font-size:1.2rem;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
-    transition:background .2s, border-color .2s, transform .2s;
-    user-select:none;
-    z-index:2;
-  }
-  .nav-btn:hover{ background:rgba(178,138,76,0.18); border-color:var(--brass); }
-  .nav-btn:active{ transform:translateY(-50%) scale(0.92); }
-  .nav-btn.prev{ left:0; }
-  .nav-btn.next{ right:0; }
-  .nav-btn.disabled{ opacity:0.25; pointer-events:none; }
-
   footer{
     flex:0 0 auto;
     display:flex;
@@ -239,7 +216,6 @@
   }
 
   @media (max-width: 640px){
-    .nav-btn{ display:none; }
     .book-wrap{ --gap-y: clamp(14px,3vh,28px); --gap-x: 0px; }
     footer{ gap:10px; }
     .slider{ width: 40vw; }
@@ -256,12 +232,10 @@
   </header>
 
   <div class="book-wrap">
-    <div class="nav-btn prev" id="prevBtn" aria-label="Föregående sida">&#10094;</div>
     <div class="book-frame">
       <div id="zoomLayer"></div>
     </div>
-    <div class="nav-btn next" id="nextBtn" aria-label="Nästa sida">&#10095;</div>
-    <div class="hint" id="hint">Bläddra med pilarna · nyp/scrolla för att zooma</div>
+    <div class="hint" id="hint">Svep eller använd pilarna · nyp/scrolla för att zooma</div>
   </div>
 
   <footer>
@@ -269,7 +243,9 @@
     <button class="icon-btn" id="zoomOutBtn" title="Zooma ut">&#8722;</button>
     <span class="zoom-level" id="zoomLevel">100%</span>
     <button class="icon-btn" id="zoomInBtn" title="Zooma in">&#43;</button>
+    <button class="icon-btn" id="prevBtn" title="Föregående sida">&#10094;</button>
     <div class="page-indicator"><b id="curPage">1</b> / <span id="totalPages">18</span></div>
+    <button class="icon-btn" id="nextBtn" title="Nästa sida">&#10095;</button>
     <input type="range" class="slider" id="slider" min="1" max="18" value="1">
   </footer>
 </div>
@@ -332,7 +308,7 @@
       mobileScrollSupport: false,
       flippingTime: 700,
       swipeDistance: 20,
-      useMouseEvents: false,
+      useMouseEvents: true,
       startPage: startPage || 0
     });
 
@@ -499,14 +475,6 @@
   // (zoom reset on page flip is wired inside buildBook(), since pageFlip
   // itself gets recreated on resize)
 
-  // double-click / double-tap toggles zoom at that point
-  let lastTap = 0;
-  bookFrame.addEventListener('dblclick', (e) => {
-    e.preventDefault();
-    if(scale > 1.01) resetZoom();
-    else setZoom(2.4, e.clientX, e.clientY);
-  });
-
   // desktop: wheel to zoom (also covers trackpad pinch, reported as ctrl+wheel)
   bookFrame.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -514,7 +482,11 @@
     setZoom(scale * factor, e.clientX, e.clientY);
   }, { passive:false });
 
-  // touch: pinch to zoom, one-finger drag to pan (only while zoomed)
+  // touch: pinch to zoom, one-finger drag to pan (only while zoomed).
+  // These listeners run in the CAPTURE phase — i.e. before PageFlip's own
+  // swipe-to-flip handlers ever see the event — so we can decide, per
+  // gesture, whether to steal it (pinch, or a drag while already zoomed)
+  // or let it fall through untouched so normal page-swiping keeps working.
   let pinchStartDist = 0, pinchStartScale = 1;
   let dragging = false, dragStartX = 0, dragStartY = 0, dragStartTx = 0, dragStartTy = 0;
 
@@ -527,26 +499,31 @@
 
   bookFrame.addEventListener('touchstart', (e) => {
     if(e.touches.length === 2){
+      e.stopPropagation();
       pinchStartDist = touchDist(e.touches[0], e.touches[1]);
       pinchStartScale = scale;
       dragging = false;
     } else if(e.touches.length === 1 && scale > 1.01){
+      e.stopPropagation();
       dragging = true;
       zoomLayer.classList.add('dragging');
       dragStartX = e.touches[0].clientX;
       dragStartY = e.touches[0].clientY;
       dragStartTx = tx; dragStartTy = ty;
     }
-  }, { passive:true });
+    // else: single touch at 100% zoom — leave untouched, let PageFlip swipe-flip it
+  }, { capture:true, passive:true });
 
   bookFrame.addEventListener('touchmove', (e) => {
     if(e.touches.length === 2){
+      e.stopPropagation();
       e.preventDefault();
       const dist = touchDist(e.touches[0], e.touches[1]);
       const mid = touchMid(e.touches[0], e.touches[1]);
       const ratio = dist / (pinchStartDist || dist);
       setZoom(pinchStartScale * ratio, mid.x, mid.y);
     } else if(dragging && e.touches.length === 1){
+      e.stopPropagation();
       e.preventDefault();
       const dx = e.touches[0].clientX - dragStartX;
       const dy = e.touches[0].clientY - dragStartY;
@@ -554,23 +531,27 @@
       tx = nx; ty = ny;
       applyTransform();
     }
-  }, { passive:false });
+    // else: not ours — let it bubble through to PageFlip's swipe handling
+  }, { capture:true, passive:false });
 
-  bookFrame.addEventListener('touchend', () => {
+  bookFrame.addEventListener('touchend', (e) => {
+    if(dragging) e.stopPropagation();
     dragging = false;
     zoomLayer.classList.remove('dragging');
-  });
+  }, { capture:true });
 
-  // desktop: click-drag to pan while zoomed (mouse)
+  // desktop: click-drag to pan, but only once already zoomed in — a plain
+  // drag at 100% is left alone so PageFlip's own drag-to-flip still works.
   let mouseDown = false;
-  zoomLayer.addEventListener('mousedown', (e) => {
-    if(scale <= 1.01) return;
+  bookFrame.addEventListener('mousedown', (e) => {
+    if(scale <= 1.01) return; // not zoomed — let PageFlip handle the drag
+    e.stopPropagation();
+    e.preventDefault();
     mouseDown = true;
     zoomLayer.classList.add('dragging');
     dragStartX = e.clientX; dragStartY = e.clientY;
     dragStartTx = tx; dragStartTy = ty;
-    e.preventDefault();
-  });
+  }, { capture:true });
   window.addEventListener('mousemove', (e) => {
     if(!mouseDown) return;
     const dx = e.clientX - dragStartX;
