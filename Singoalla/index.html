@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Singoalla — Skärgårdskryssaren 1918–1922</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -218,6 +221,26 @@
     0%{opacity:0;} 12%{opacity:0.85;} 78%{opacity:0.85;} 100%{opacity:0;}
   }
 
+  .tip{
+    position:absolute;
+    bottom: clamp(70px,12vh,110px);
+    left:50%; transform:translateX(-50%);
+    max-width:min(88vw, 380px);
+    text-align:center;
+    background:rgba(16,32,47,0.92);
+    border:1px solid rgba(178,138,76,0.4);
+    color:var(--fog);
+    font-size:0.78rem;
+    line-height:1.4;
+    padding:10px 16px;
+    border-radius:8px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:3;
+  }
+  .tip.show{ opacity:1; }
+
   @media (max-width: 640px){
     .book-wrap{ --gap-y: clamp(14px,3vh,28px); --gap-x: 0px; }
     footer{ gap:10px; }
@@ -407,13 +430,33 @@
   });
 
   const fsBtn = document.getElementById('fsBtn');
+  const fsSupported = !!(document.documentElement.requestFullscreen && document.fullscreenEnabled !== false);
   fsBtn.addEventListener('click', () => {
+    if(!fsSupported){
+      showTip('Helskärm på iPhone kräver att sidan läggs till på hemskärmen (dela-ikonen → "Lägg till på hemskärmen")');
+      return;
+    }
     if(!document.fullscreenElement){
       document.documentElement.requestFullscreen().catch(()=>{});
     } else {
       document.exitFullscreen();
     }
   });
+
+  let tipTimer;
+  function showTip(text){
+    let tip = document.getElementById('tip');
+    if(!tip){
+      tip = document.createElement('div');
+      tip.id = 'tip';
+      tip.className = 'tip';
+      document.querySelector('.stage').appendChild(tip);
+    }
+    tip.textContent = text;
+    tip.classList.add('show');
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(() => tip.classList.remove('show'), 4500);
+  }
 
   // remove hint on first interaction
   const hint = document.getElementById('hint');
