@@ -261,7 +261,7 @@
       <div id="zoomLayer"></div>
     </div>
     <div class="nav-btn next" id="nextBtn" aria-label="Nästa sida">&#10095;</div>
-    <div class="hint" id="hint">Klicka eller svep för att bläddra</div>
+    <div class="hint" id="hint">Bläddra med pilarna · nyp/scrolla för att zooma</div>
   </div>
 
   <footer>
@@ -332,6 +332,7 @@
       mobileScrollSupport: false,
       flippingTime: 700,
       swipeDistance: 20,
+      useMouseEvents: false,
       startPage: startPage || 0
     });
 
