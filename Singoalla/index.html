@@ -58,24 +58,6 @@
     z-index:1;
   }
 
-  header{
-    text-align:center;
-    flex:0 0 auto;
-    width:100%;
-  }
-  header a.home{
-    position:absolute;
-    left:clamp(10px,3vw,40px);
-    top:clamp(10px,2.5vh,28px);
-    color:var(--fog-dim);
-    text-decoration:none;
-    font-size:0.78rem;
-    letter-spacing:.04em;
-    border-bottom:1px solid transparent;
-    transition:color .2s, border-color .2s;
-  }
-  header a.home:hover{ color:var(--brass); border-color:var(--brass-dim); }
-
   .book-wrap{
     --gap-y: clamp(20px,4vh,56px);
     --gap-x: clamp(30px,6vw,80px);
@@ -112,6 +94,37 @@
 
   #book{
     box-shadow: 0 30px 70px -20px rgba(0,0,0,0.75);
+  }
+
+  .side-nav{
+    position:absolute;
+    top:50%; transform:translateY(-50%);
+    width:clamp(34px,3.2vw,48px);
+    height:clamp(34px,3.2vw,48px);
+    border-radius:50%;
+    border:1px solid rgba(178,138,76,0.35);
+    background:rgba(16,32,47,0.55);
+    backdrop-filter:blur(3px);
+    color:var(--brass);
+    font-size:1.15rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:background .2s, border-color .2s, transform .2s;
+    user-select:none;
+    z-index:2;
+  }
+  .side-nav:hover{ background:rgba(178,138,76,0.18); border-color:var(--brass); }
+  .side-nav:active{ transform:translateY(-50%) scale(0.92); }
+  .side-nav.prev{ left:0; }
+  .side-nav.next{ right:0; }
+  .side-nav.disabled{ opacity:0.25; pointer-events:none; }
+  /* only shown once there's real room beside the book to hold them without
+     crowding the page content */
+  @media (max-width: 900px){
+    .side-nav{ display:none; }
+  }
+  @media (min-width: 901px){
+    #prevBtn, #nextBtn{ display:none; }
   }
 
   footer{
@@ -209,14 +222,13 @@
 <body>
 
 <div class="stage">
-  <header>
-    <a class="home" href="../index.html">&larr; harryjohans.se</a>
-  </header>
 
   <div class="book-wrap">
+    <div class="side-nav prev" id="prevBtnSide" aria-label="Föregående sida">&#10094;</div>
     <div class="book-frame">
       <div id="zoomLayer"></div>
     </div>
+    <div class="side-nav next" id="nextBtnSide" aria-label="Nästa sida">&#10095;</div>
     <div class="hint" id="hint">Svep eller använd pilarna · nyp/scrolla för att zooma</div>
   </div>
 
@@ -356,6 +368,8 @@
   const sliderEl = document.getElementById('slider');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
+  const prevBtnSide = document.getElementById('prevBtnSide');
+  const nextBtnSide = document.getElementById('nextBtnSide');
 
   totalPagesEl.textContent = TOTAL_PAGES;
   sliderEl.max = TOTAL_PAGES;
@@ -368,10 +382,14 @@
     sliderEl.style.setProperty('--pct', pct + '%');
     prevBtn.classList.toggle('disabled', pageIndex <= 0);
     nextBtn.classList.toggle('disabled', pageIndex >= TOTAL_PAGES-1);
+    prevBtnSide.classList.toggle('disabled', pageIndex <= 0);
+    nextBtnSide.classList.toggle('disabled', pageIndex >= TOTAL_PAGES-1);
   }
 
   prevBtn.addEventListener('click', () => pageFlip.flipPrev());
   nextBtn.addEventListener('click', () => pageFlip.flipNext());
+  prevBtnSide.addEventListener('click', () => pageFlip.flipPrev());
+  nextBtnSide.addEventListener('click', () => pageFlip.flipNext());
 
   sliderEl.addEventListener('input', () => {
     pageFlip.flip(parseInt(sliderEl.value,10) - 1);
