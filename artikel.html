@@ -179,23 +179,26 @@
   [contenteditable]:focus{ background:rgba(77,126,168,.14); }
 
   /* ───────── Uppslag 1: "Hero + duo" — bilder på båda sidor ───────── */
-  .ar-hero-frame{ width:var(--hero-w, 100%); aspect-ratio:4/5; margin-bottom:6px; }
-  .ar-imgrow-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0 24px; }
-  .ar-imgrow-2 .ar-imgbox{ aspect-ratio:1/1; }
-  .ar-wide-frame{ width:100%; aspect-ratio:16/9; margin-bottom:8px; }
+  /* Tva "stora" bilder per uppslag (hero + wide), tva "sma" (img2+img3) */
+  .ar-hero-frame{ width:var(--hero-w, 75%); max-width:360px; aspect-ratio:4/5; margin:0 0 6px; }
+  .ar-imgrow-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0 20px; max-width:320px; }
+  .ar-imgrow-2 .ar-imgbox{ aspect-ratio:4/3; }
+  .ar-wide-frame{ width:100%; max-width:520px; aspect-ratio:16/7; margin-bottom:8px; }
 
   /* ───────── Uppslag 2: bildmosaik vänster, ren text höger ───────── */
+  /* Stora: mA + mD, sma: mB + mC */
   .ar-mosaic{
     display:grid; grid-template-columns:1.3fr 1fr; grid-template-rows:1fr 1fr;
-    gap:12px; height:520px; margin-bottom:8px;
+    gap:10px; height:360px; max-width:480px; margin-bottom:8px;
   }
   .ar-mosaic .ar-m-big{ grid-row:1 / 3; }
   .ar-mosaic .ar-m-small{ aspect-ratio:auto; }
 
-  /* ───────── Uppslag 3: text vänster, panorama + filmremsa höger ───────── */
-  .ar-pano-frame{ width:100%; aspect-ratio:16/9; margin-bottom:12px; }
-  .ar-filmstrip{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:8px; }
-  .ar-filmstrip .ar-imgbox{ aspect-ratio:1/1; }
+  /* ───────── Uppslag 3: text vänster, tva stora + tva sma höger ───────── */
+  .ar-duo-lg{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; max-width:520px; }
+  .ar-duo-lg .ar-imgbox{ aspect-ratio:4/3; }
+  .ar-duo-sm{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px; max-width:320px; }
+  .ar-duo-sm .ar-imgbox{ aspect-ratio:4/3; }
 </style>
 
 <section class="ar-page">
@@ -215,10 +218,10 @@
   <div class="ar-spread" data-spread="1">
     <div class="ar-page-left">
       <p class="ar-runhead">
-        <span data-field="pagenumL">42</span><span>|</span><span data-field="runtitle">VALKYRIAN</span>
+        <span data-field="pagenumL">42</span><span>|</span><span data-field="runtitle">HARRY JOHANS</span>
       </p>
-      <p class="ar-kicker" data-field="kicker">Porträtt · Skärgårdshantverk</p>
-      <h2 class="ar-headline" data-field="headline">Handens minne</h2>
+      <p class="ar-kicker" data-field="kicker">Porträtt · Barndom på Sottunga</p>
+      <h2 class="ar-headline" data-field="headline">Ön utan el</h2>
       <p class="ar-byline" data-field="byline">Text: [Namn] · Foto: [Namn]</p>
 
       <div class="ar-imgbox ar-hero-frame" data-imgkey="hero" data-resizable="1">
@@ -237,7 +240,7 @@
 
     <div class="ar-page-right">
       <p class="ar-runhead" data-align="right">
-        <span data-field="runtitleR">VALKYRIAN</span><span>|</span><span data-field="pagenumR">43</span>
+        <span data-field="runtitleR">HARRY JOHANS</span><span>|</span><span data-field="pagenumR">43</span>
       </p>
 
       <div class="ar-imgbox ar-wide-frame" data-imgkey="wide">
@@ -248,10 +251,18 @@
 
       <button type="button" class="ar-dropcap-btn" data-body="1">Stor bokstav vid markören</button>
       <div class="ar-body ar-body-2col" data-field="body">
-        <p class="dropcap">Här, mellan bockar och böjda plankor, formas de skärgårdsbåtar som en gång bar posten, fisket och familjerna mellan öarna – båtar som idag är lika mycket kulturarv som bruksföremål.</p>
-        <p>Han minns inte längre exakt hur många skrov han byggt. "Man slutar räkna efter ett tag," säger han och stryker handen längs en nyhyvlad bordläggning.</p>
-        <div class="ar-pullquote" data-field="pullquote">"Båten vet innan du gör det. Din uppgift är bara att lyssna."</div>
-        <p>Metoderna är desamma som hans far och farfar använde. Verktygen har bytts ut i takt med att de gamla slitits ut, men principerna – klinkbygge, naturkrökt virke, handdrivna nitar – står emot varje trend inom modern båtbyggeri.</p>
+        <p class="dropcap">Harry Johans är båtsnickare, född och uppvuxen på den lilla ön Sottunga på Åland och har renoverat träbåtar i Stockholm sen början av 60-talet. Han är välkänd inom en relativt liten krets träbåtsintresserade i Stockholmsområdet. Vi, Truls Persson och textförfattaren, har tillsammans med många andra jobbat med att dokumentera Harry.</p>
+        <p>De som känner Harry vet att han har många berättelser och det kändes viktigt att fler skulle få ta del av dem. Dels för att Harry, både på egen hand men även med sin morbror Elis Gustavsson och senare med Thomas Larsson, har renoverat ett stort antal segel- och motorbåtar i trä, många med stort kulturhistoriskt värde. Dels för att de fört hantverket vidare till senare generationer. Harrys uppväxt med självhushåll i skärgården är också en viktig del av dokumentationen.</p>
+        <p>Under hösten presenteras materialet på harryjohans.se. På nätet delas avsnitten upp i kortare kapitel men det går även att beställa en DVD.</p>
+        <p>Sottunga är Finlands minsta kommun, med idag ca 100 invånare. På 40-talet bodde här ca <em>[antal – kolla med Harry]</em>. Där levde de med självhushåll, jordbruk, fiske och jakt. De hade några kor, grisar, höns och häst. Familjen bestod av mamma, pappa och fem barn plus morbror Elis. El kom inte till ön förrän i mitten av 50-talet. När elen kom betalade man per ljuspunkt. De flesta skaffade ljus i köket och i ladugården. Farbron som bodde granne med Harrys familj tyckte det räckte med en lampa <em>[kolla upp om det var i köket]</em>.</p>
+        <p>Åland och Finland drabbades hårt ekonomiskt av andra världskriget, först med ransoneringar och sen med det krigsskadestånd som skulle betalas. Hade man två grisar tog staten en. Smuggling av olika varor pågick redan tidigare i skärgården och det gömdes säkert en hel del för skattefogden. I det här fallet handlade det inte om att berika sej utan att överleva.</p>
+        <p>När man pratar med Harry om den här tiden så förstår man att livet var hårt om man jämför med vår moderna livsstil men de hade det egentligen rätt bra och det gick ingen nöd på familjen. När han blev lite äldre förstod han att det fanns en modernare och större värld utanför ön. Jämnåriga killar som varit i Stockholm hade plötsligt nya glänsande cyklar jämfört med Harrys rostiga.</p>
+        <p>Harrys morbror Elis bodde tillsammans med familjen. Elis var självlärd båtbyggare. I äldre tider var det vanligt att man byggde bruksbåtar hemma på gården, först senare blev det ett mer specialiserat yrke. Båtarna som byggdes var främst allmogebåtar, mindre 7–8 meter långa båtar för fiske och transport av människor och varor. Elis byggde även mindre nöjesbåtar. Båtarna var klinkbyggda och de roddes eller seglades och senare fick de motorer. Precis som överallt annars i Norden hade båtarna sin egen utformning beroende på var de byggdes och vilken sjö och väderlek de skulle klara av. Båtarna var antingen spetsgattade snipor eller plattgattade skötbåtar.</p>
+        <p>Boningshuset på Sottunga var stort och Elis hade sin verkstad i själva huset. Han slog ihop två rum till ett och ordnade en stor lucka i timmerväggen som kunde fällas ner vid behov för att få ut de färdiga båtarna. Harry hade tre bröder och en syster men Harry var den som blev godkänd av Elis. Harry hade både intresse och talang för hantverket och från 7–8 års ålder hjälpte han Elis i båtbyggeriet efter skolan. Senare byggde Elis en större verkstad på en annan del av Sottunga.</p>
+        <div class="ar-pullquote" data-field="pullquote">"Bra, kan bli bättre."</div>
+        <p>Elis var en hård läromästare med ett varierande humör. Elis båtar höll en hög kvalitet och han var kunnig inom många områden och delade med sej av detta till Harry. Men som barn vill man gärna ha lite uppmuntran då och då, det bästa berömmet man kunde få var "bra, kan bli bättre". Om något blev galet fick man rätta till det och göra om. De som tagit del av Harrys träbåtskunnande vet att han har en mer pedagogisk sida än Elis och gärna kommer med uppmuntrande ord.</p>
+        <p>Under denna tid var Harry även med när Elis tillsammans med en kompanjon byggde en större klinkbyggd, enepinnad lastbåt som lastade 50 ton. Båten använde de själva sedan för transporter runt Åland och till Finland. Bygget gjordes utomhus i en skogsbacke och vid sjösättning fick de flytta en sjöbod som stod i vägen med hjälp av tre hästar. Sjöbodsägaren var inte helt nöjd med upplägget men fick en ny dörr till boden som plåster på såren.</p>
+        <p>När Harry var i 15-årsåldern var det dags att försörja sej själv. Valen som fanns på Åland var att fortsätta med jordbruk och fiske som sina föräldrar eller utbilda sej till sjöbefäl eller lots och gå till sjöss. De flesta av Harrys jämnåriga som stannade kvar på ön hamnade till sjöss. Av en yrkeskonsult i Mariehamn fick han rådet att åka västerut, till Stockholm. Harrys plan var dock att ta sej längre bort och österut, till Australien, där han hade en släkting som jobbade med stora lastfartyg. Släktingen skulle hjälpa Harry med jobb som timmerman ombord på en båt. Denna plan gick i stöpet och Harry kom inte längre än till Stockholm.</p>
       </div>
     </div>
   </div>
@@ -260,10 +271,10 @@
   <div class="ar-spread" data-spread="2">
     <div class="ar-page-left">
       <p class="ar-runhead">
-        <span data-field="pagenumL">44</span><span>|</span><span data-field="runtitle">[BÅTNAMN]</span>
+        <span data-field="pagenumL">44</span><span>|</span><span data-field="runtitle">HARRY JOHANS</span>
       </p>
-      <p class="ar-kicker" data-field="kicker">Historia · Skärgårdsbåtar</p>
-      <h2 class="ar-headline" data-field="headline">Ett hantverk i arv</h2>
+      <p class="ar-kicker" data-field="kicker">Historia · Stockholm tar vid</p>
+      <h2 class="ar-headline" data-field="headline">Lugnet och Vauxhallen</h2>
       <p class="ar-byline" data-field="byline">Text: [Namn] · Foto: [Namn]</p>
 
       <div class="ar-mosaic">
@@ -276,7 +287,7 @@
 
     <div class="ar-page-right">
       <p class="ar-runhead" data-align="right">
-        <span data-field="runtitleR">[BÅTNAMN]</span><span>|</span><span data-field="pagenumR">45</span>
+        <span data-field="runtitleR">HARRY JOHANS</span><span>|</span><span data-field="pagenumR">45</span>
       </p>
 
       <div class="ar-imgbox" data-imgkey="mD" style="aspect-ratio:16/7; margin-bottom:24px;">
@@ -286,9 +297,18 @@
 
       <button type="button" class="ar-dropcap-btn" data-body="2">Stor bokstav vid markören</button>
       <div class="ar-body" data-field="body">
-        <p class="dropcap">[Fyll i text för uppslag två här. Skriv gärna för mycket i det här utkastet — det går snabbare att redigera ner en text som redan finns än att fylla ut en för kort.]</p>
-        <div class="ar-pullquote ar-pullquote-lg" data-field="pullquote">"[Citat för uppslag två]"</div>
-        <p>[Ytterligare stycke.]</p>
+        <p class="dropcap">Harry anlände med båt till Stockholm och Skeppsbron. Av sina föräldrar hade han fått en liten startkassa. Han bodde de två första veckorna på Frälsningsarmens hotell vid Skeppsbron medan han letade boende och jobb. Han var ovan vid pengar och allt kostade i Stockholm. Han lärde sej snabbt att han måste hushålla med kassan han fått med sej hemifrån.</p>
+        <p>Han sökte jobb som timmerman på Finnboda varv där de just då byggde stora trålare, men det enda de hade att erbjuda var att rengöra motorer innan leverans, ett hårt och smutsigt jobb.</p>
+        <p>Det första jobbet han fick var som lärling på LM Ericssons monteringshall i Gröndal. Lönen för lärlingarna var låg och baserad på att de bodde hemma hos sina föräldrar. Det gick inte ihop för Harry som behövde betala själv för både mat och husrum. Ett tag bodde han inackorderad hos en döv dam på Södermalm. När han påpekade sitt ekonomiska bekymmer för sin förman så slutade det med att han fick ett extra lönekuvert varje vecka med instruktioner att inte berätta för någon av de andra lärlingarna. Damerna som jobbade i företagsrestaurangen hade också koll på situationen och gav honom ett extra matpaket till helgen.</p>
+        <p>Han jobbade på detta sätt ett antal år, två omgångar på LM Ericsson, en vinter som byggnadssnickare på Garnisonssjukhuset och Ågesta kärnkraftverk. På somrarna var han tillbaka på Åland och jobbade på gården.</p>
+        <p>Även Elis var i Sverige som båtbyggare, både i Stockholm och Göteborg. De byggde även en serie med sju båtar i Elis verkstad på Sottunga. Elis ritade och den första båten användes som mall för de övriga sju. Detta projekt bar sej inte ekonomiskt. Plasten var det nya båtmaterialet som det inte gick att konkurrera mot.</p>
+        <p>Harry började göra mindre reparationsjobb på båtklubbar runt om i Stockholm. Det var mycket aktivitet på klubbvarven och Harry blev på så sätt snabbt känd som duktig båtsnickare och fick mer och mer jobb. Även försäkringsbolagen började anlita Harry för träbåtsreparationer. I början var han relativt ensam som ambulerande träbåtsrenoverare. Det krävs såklart att man trivs med att jobba ute under en presenning oavsett årstid och väderlek.</p>
+        <div class="ar-pullquote ar-pullquote-lg" data-field="pullquote">"Harry är bättre på att snickra än att bokföra."</div>
+        <p>Under sin första tid som båtsnickare i Stockholm hade han tillgång till en liten verkstad med snickerimaskiner på Vikingarnas segelsällskap längst ut på Djurgården. I början hade han ingen bil utan blev antingen hämtad av kunderna som körde honom till båtklubben där jobbet skulle göras, eller åkte själv med blåställ och verktygslåda på bussen.</p>
+        <p>Harrys första egna verkstad låg vid Hammarbykanalen inte långt från Danvikstull intill det som då var Lugnets industriområde, idag Hammarby Sjöstad. Lugnet var byggt på gammal sjöbotten sen man sänkt Hammarby sjö på 20-talet och där växte ett småindustriområde fram. Kontrakten var ettåriga och marken inte helt stabil att bygga på så det mesta var temporärt och fasaderna var av korrugerad plåt. När planerna på först en OS-by och sen Hammarby Sjöstad tog form i början av 90-talet togs området allt mer över av ljusskygg verksamhet. Harry befann sej dock inom inhägnat område hos Södermalms Trä. Det finns många berättelser om Lugnet som inte lämpar sej för tryck. Harry stannade på området fram tills det revs 2007 <em>[dubbelkolla årtalet]</em>. Där hade han en liten maskinpark och möjlighet att ta emot båtar i sjön och även ställa upp dem på land. Senare fick han en större lokal med möjlighet att ställa in ett par båtar.</p>
+        <p>Att åka kommunalt med oljigt och mönjigt blåställ och verktygslåda var inte alltid populärt bland de snorkiga Östermalmsdamerna. När en dam "stod" i hans verktygslåda en dag, bestämde han sej för att skaffa bil.</p>
+        <p>Bilen som införskaffades var en Vauxhall Victor. Harry har fortfarande kvar ratten. Bilen, som var av kombimodell, fick direkt ett rejält takräcke med kryssförstärkning fram och bak monterat på stötfångarna för att kunna köra virke. Första veckan åkte Harry till Skandinaviska trä i Värtahamnen och köpte ett antal åtta meter långa mahognyplankor. Vägen tillbaka gick via Strandvägen där han blev stoppad av polisen för det utstickande lasset. När de fick reda på vad han jobbade med och vart han skulle fick Harry poliseskort tillbaka till Hammarbyhamnen istället för böter.</p>
+        <p>Ett annat myndighetsmöte skedde när Sverige införde oms, föregångaren till moms, 1960. Oms:en var på fyra procent och första året tog inte Harry ut någon oms av kunderna. Han fick ett brunt kuvert från skattemyndigheten om detta. Harry jobbade just då i en fiskebåt och han tog på sej sitt skitigaste blåställ och åkte upp till skattekontoret på Södermalm. Tjänstemannen la en tidning på stolen där Harry skulle sitta och han fick förklara läget. Även i detta fall hade myndighetspersonen förståelse. Kravbreven revs med tillsägelsen att i fortsättningen lägga på oms på fakturorna. Som tillägg till detta kan vi nämna att det är Harrys fru Kerstin som har skött pappersarbetet i den lilla firman. Harry är bättre på att snickra än att bokföra.</p>
       </div>
     </div>
   </div>
@@ -297,35 +317,40 @@
   <div class="ar-spread" data-spread="3">
     <div class="ar-page-left">
       <p class="ar-runhead">
-        <span data-field="pagenumL">46</span><span>|</span><span data-field="runtitle">[BÅTNAMN]</span>
+        <span data-field="pagenumL">46</span><span>|</span><span data-field="runtitle">HARRY JOHANS</span>
       </p>
-      <p class="ar-kicker" data-field="kicker">Dokumentär · Bakom kameran</p>
-      <h2 class="ar-headline" data-field="headline">Att fånga en tid som försvinner</h2>
+      <p class="ar-kicker" data-field="kicker">Renoveringar · Ett livsverk</p>
+      <h2 class="ar-headline" data-field="headline">De två veckorna blev 29 år</h2>
       <p class="ar-byline" data-field="byline">Text: [Namn] · Foto: [Namn]</p>
 
       <button type="button" class="ar-dropcap-btn" data-body="3">Stor bokstav vid markören</button>
       <div class="ar-body" data-field="body">
-        <p class="dropcap">[Fyll i text för uppslag tre här.]</p>
-        <div class="ar-pullquote" data-field="pullquote">"[Citat för uppslag tre]"</div>
-        <p>[Ytterligare stycke.]</p>
+        <p class="dropcap">När Elis och Harry jobbade ihop var det Elis som räknade på jobben men Harry var nu så pass duktig att han ofta gjorde dessa snabbare än vad Elis hade räknat med. Elis var som sagt en väldigt duktig hantverkare men inte lika snabb som Harry. Han var mer bohem och jobbade gärna udda tider. Det, tillsammans med hans humör – Harry säger att han ibland kunde vara sur i en vecka över någon detalj – fick Harry att bestämma sig för att jobba själv framöver. Särskilt när Harry och hans fru Kerstin gift sej och skaffat barn behövdes det stadigare rutiner än vad Elis hade.</p>
+        <p>Harry har berättat att Elis även efter det höll koll på honom. Han kunde se stora fotspår i snön (Elis hade 46 i skostorlek) runt presenningsskjulen till båtar Harry jobbade med. När Harry frågade om han varit där och inspekterat hans jobb nekade han till detta.</p>
+        <p>Harry utgick från sin verkstadslokal i Hammarbyhamnen och jobbade själv ute på båtklubbarna. Han behövde inte sakna sällskap. Båtklubbarna under denna tid myllrade av folk, oavsett årstid, även dagtid. Behövdes ett par extra händer fanns det många villiga och Harry fick samtidigt många "råd" av farbröder i olika åldrar om hur man renoverar på bästa sätt.</p>
+        <div class="ar-pullquote" data-field="pullquote">"De två veckorna blev 29 år."</div>
+        <p>Våren 1975 hade han extra mycket att göra och även hösten var fulltecknad med arbete på två stora skärgårdskryssare, 95:orna Kerma och Britt-Marie. Thomas Larsson jobbade på Bergviksvarvet i Bromma och Harry skulle låna honom i två veckor. De två veckorna blev 29 år. Från -75 och fram till strax innan verkstaden revs i Hammarbyhamnen delade de verkstad och samarbetade med många renoveringar. De hade även under denna tid ett stort antal lärlingar som fått ta del av deras kunskap.</p>
+        <p>Hösten 1987 skedde en olycka vid torrsättning när kranen välte över skärgårdskryssaren Beatrice Aurore. Båten gick rakt av strax för om masten. Bea är en 150 kvm skärgårdskryssare och den största nu seglande skärgårdskryssaren. Harry och Thomas hade tidigare gjort en hel del jobb på Bea men när ägaren, Björn Widström, bestämde sej för att rädda båten blev det startskottet för en fyra år lång totalrenovering. Tillsammans med två lärlingar, Rickard Söderström och Mats Kallin, återställde de båten till nyskick och 1991 sjösattes båten på nytt.</p>
+        <p>En annan uppmärksammad renovering som Harry deltog i var Schubertkryssaren Alba II. Båten, en 17 meter lång salongsbåt med stålskrov, var byggd 1912 som representationsbåt vid de olympiska seglingarna i Stockholm. Alba II hade sänkts på Kanholmsfjärden av sin sista ägare 1964 efter att han ägt båten i 35 år. På 90-talet lokaliserades vraket och en sjuårig totalrenovering genomfördes. Vissa delar av skrovet kunde bevaras, men allt trä hade bytts ut. Projektledare och ansvarig för inredningssnickerierna var Per Norberg och Harry var ansvarig för de exteriöra delarna. Även här deltog ett antal lärlingar. Båten visades upp på båtmässan "Allt för Sjön" i Stockholm vid två tillfällen och i maj år 2000 sjösattes hon på nytt.</p>
+        <p>Verkstaden revs som sagt 2007 och efter det har Harry fortsatt jobba på båtar till några av de kunder han haft i många år.</p>
+        <p>Filmmaterialet består av allt från intervjuer hemma hos Harry och på Åland inklusive en hel del dubbel8-filmer filmade av Harry under 70-talet. Vi har besökt ett antal båtar som Harry jobbat på genom åren inklusive Beatrice Aurore (som vi även har fått segla med). Vi har filmat där verkstaden låg i Hammarbyhamnen och besökt Thomas Larsson som numera har verkstad vid Skurusundet. Vi har även besökt Sjöhistoriska museet och gått igenom deras samlingar av fritidsbåtar i trä. Vi besöker Tomas Johnsson som Harry hjälper renovera motorbåten Seasong på Älgö. Vi träffar Andreas Millde som driver Stockholms Båtsnickeri i Fisksätra. Andreas var lärling hos Thomas och Harry i början av 90-talet och jobbade sedan tillsammans med dem <em>[text fortsätter – ofullständig i originalet]</em>.</p>
       </div>
     </div>
 
     <div class="ar-page-right">
       <p class="ar-runhead" data-align="right">
-        <span data-field="runtitleR">[BÅTNAMN]</span><span>|</span><span data-field="pagenumR">47</span>
+        <span data-field="runtitleR">HARRY JOHANS</span><span>|</span><span data-field="pagenumR">47</span>
       </p>
 
-      <div class="ar-imgbox ar-pano-frame" data-imgkey="pano">
-        <img style="display:none;" alt="Panorama">
-        <div class="ar-imgbox-empty">Dra eller klicka</div>
+      <div class="ar-duo-lg">
+        <div class="ar-imgbox" data-imgkey="pano"><img style="display:none;" alt="Bild ett"><div class="ar-imgbox-empty">Dra eller klicka</div></div>
+        <div class="ar-imgbox" data-imgkey="f1"><img style="display:none;" alt="Bild två"><div class="ar-imgbox-empty">Dra eller klicka</div></div>
       </div>
       <p class="ar-caption" data-field="cap_pano">[Fotografens namn]</p>
 
-      <div class="ar-filmstrip">
-        <div class="ar-imgbox" data-imgkey="f1"><img style="display:none;" alt="Film 1"><div class="ar-imgbox-empty">Dra eller klicka</div></div>
-        <div class="ar-imgbox" data-imgkey="f2"><img style="display:none;" alt="Film 2"><div class="ar-imgbox-empty">Dra eller klicka</div></div>
-        <div class="ar-imgbox" data-imgkey="f3"><img style="display:none;" alt="Film 3"><div class="ar-imgbox-empty">Dra eller klicka</div></div>
+      <div class="ar-duo-sm">
+        <div class="ar-imgbox" data-imgkey="f2"><img style="display:none;" alt="Bild tre"><div class="ar-imgbox-empty">Dra eller klicka</div></div>
+        <div class="ar-imgbox" data-imgkey="f3"><img style="display:none;" alt="Bild fyra"><div class="ar-imgbox-empty">Dra eller klicka</div></div>
       </div>
       <p class="ar-caption" data-field="cap_film">[Fotografens namn]</p>
     </div>
