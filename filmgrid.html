@@ -25,6 +25,8 @@
   .ticks span{cursor:pointer}.ticks span.on{color:var(--acc)}
   select,input[type=search]{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font:inherit}
   .count{margin-left:auto;color:var(--mut);font-size:13px;align-self:center}
+  #shuffle{background:var(--acc);border:1px solid var(--acc);color:#111;border-radius:6px;padding:7px 14px;cursor:pointer;font:inherit;font-weight:600}
+  #shuffle:hover{filter:brightness(1.1)}
   #reset{background:none;border:1px solid var(--line);color:var(--mut);border-radius:6px;padding:7px 12px;cursor:pointer;font:inherit}
   #reset:hover{color:var(--txt);border-color:var(--mut)}
   main{padding:16px 20px 60px;max-width:1900px;margin:0 auto}
@@ -72,12 +74,14 @@
         <option value="ya">År, äldst först</option>
         <option value="t">Titel A–Ö</option>
         <option value="o">Ursprunglig ordning</option>
+        <option value="r">Slumpad</option>
       </select>
     </div>
     <div class="ctl" style="min-width:160px">
       <label>Sök</label>
       <input type="search" id="q" placeholder="Titel eller text…">
     </div>
+    <button id="shuffle" title="Blanda om alla filmer">🎲 Slumpa</button>
     <button id="reset">Nollställ</button>
     <div class="count" id="count"></div>
   </div>
@@ -145,6 +149,10 @@ grid.addEventListener('mouseout',e=>{
 });
 
 // ---------- filter/sortering ----------
+let rank = DATA.map((_,i)=>i);
+function reshuffle(){
+  for(let i=rank.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rank[i],rank[j]]=[rank[j],rank[i]]}
+}
 const collator=new Intl.Collator('sv');
 function apply(){
   let a=+yMin.value, b=+yMax.value;
@@ -171,6 +179,7 @@ function apply(){
     if(s==='yd') return (B.y||0)-(A.y||0) || A.o-B.o;
     if(s==='ya') return (A.y||9999)-(B.y||9999) || A.o-B.o;
     if(s==='t') return collator.compare(A.t,B.t);
+    if(s==='r') return rank[i]-rank[j];
     return A.o-B.o;
   });
   idx.forEach(i=>grid.appendChild(cards[i]));
@@ -180,6 +189,7 @@ function apply(){
 [yMin,yMax,cat].forEach(e=>e.addEventListener('input',apply));
 $('sort').addEventListener('change',apply);
 $('q').addEventListener('input',apply);
+$('shuffle').onclick=()=>{reshuffle();$('sort').value='r';apply();window.scrollTo({top:0,behavior:'smooth'})};
 $('reset').onclick=()=>{yMin.value=Y0;yMax.value=Y1;cat.value=0;$('q').value='';apply()};
 
 // ---------- lightbox ----------
