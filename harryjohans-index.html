@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projekt Varvet — en dokumentärfilm</title>
+  <meta name="description" content="Projekt Varvet — en dokumentärfilm om båtbyggaren Harry och ett levande hantverk">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-links">
+    <a href="#" onclick="window.scrollTo(0,0);return false">Hem</a>
+    <a href="#filmen">Filmen</a>
+    <a href="#harry">Harry</a>
+    <a href="viewer.html">3D-scenen</a>
+    <a href="#material">Materialet</a>
+    <a href="moodboard.html">Moodboard</a>
+    <a href="artikel.html">Artikel</a>
+    <a href="Singoalla/index.html">Singoalla</a>
+    <a href="process.html">Process</a>
+    <a href="marga-rapport.html">Rapport</a>
+    <a href="marga/">Marga</a>
+    <a href="#kontakt">Kontakt</a>
+  </div>
+</nav>
+
+<!-- ── Logo (två rader, scroll-animerad) ──────────────────── -->
+<div id="logo-block">
+  <span class="logo-kicker" id="line0">Båtsnickare</span>
+  <span class="logo-line" id="line1">Harry</span>
+  <span class="logo-line" id="line2">Johans</span>
+</div>
+
+<!-- ── Hero — Harry (ren bild) ────────────────────────────── -->
+<section class="hero-clean">
+  <div class="hero-clean-img">
+    <img src="img/harry_hero.png" alt="Harry, båtbyggare"
+         onerror="this.parentElement.classList.add('ph','ph-1');this.remove()">
+  </div>
+  <div class="hero-corner reveal d2">
+    <p class="lbl">Om projektet</p>
+    <h3>En dokumentärfilm om ett hantverk i tiden</h3>
+    <p>Kort text om filmprojektet — vad det handlar om, varför det
+      görs och vad tittaren kan vänta sig. Byt ut mot din egen text.</p>
+  </div>
+</section>
+
+<!-- ── Titelband under bilden ─────────────────────────────── -->
+<section class="hero-caption">
+  <div class="hero-caption-inner">
+    <p class="hero-label reveal d1">Dokumentärfilm · Under produktion</p>
+    <h1 class="hero-h1 reveal d1">Harry Johans</h1>
+    <p class="hero-sub reveal d2">
+      Ett båtsnickarporträtt i promenadtempo om träbåtar, hantverk och skärgårdsliv.
+    </p>
+    <div class="hero-btns reveal d3">
+      <a href="#filmen" class="btn btn-fill">Om filmen</a>
+      <a href="viewer.html" class="btn">Utforska 3D-scenen</a>
+    </div>
+  </div>
+</section>
+
+<section id="material">
+  <div class="vgallery">
+
+    <div class="vcell vcell-a1" data-src="https://pub-d4bf81c67c0343cdb0bcf1e1737e0afe.r2.dev/Kerma_dubbel8_lufs23.mp4" data-poster="img/Kerma.png" data-title="Klipp 1">
+      <div class="vthumb" style="background-image: url('img/Kerma.png'); background-size: cover; background-position: center;"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 1</div>
+    </div>
+
+    <div class="vcell vcell-a2" data-src="https://pub-d4bf81c67c0343cdb0bcf1e1737e0afe.r2.dev/Klubblivet_lufs23.mp4" data-poster="img/Klubbliv.png" data-title="Klipp 2">
+      <div class="vthumb" style="background-image: url('img/Klubbliv.png'); background-size: cover; background-position: center;"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 2</div>
+    </div>
+
+    <div class="vcell vcell-b1" data-src="https://pub-d4bf81c67c0343cdb0bcf1e1737e0afe.r2.dev/H11.mp4" data-poster="img/H1.png" data-title="Klipp 3">
+      <div class="vthumb" style="background-image: url('img/H1.png'); background-size: cover; background-position: center;"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 3</div>
+    </div>
+
+    <div class="vcell vcell-b2" data-src="media/stadmani.mp4" data-title="Klipp 4">
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 4</div>
+    </div>
+
+    <div class="vcell vcell-b3" data-src="media/stadmani.mp4" data-title="Klipp 5">
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 5</div>
+    </div>
+
+    <div class="vcell vcell-b4" data-src="media/stadmani.mp4" data-title="Klipp 6">
+      <div class="vthumb" style="background-image: url('img/harry_hero.png'); background-size: cover; background-position: center;"></div>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 6</div>
+    </div>
+
+    <div class="vcell vcell-c1" data-src="https://www.plopfiler.se/media/harry/foto-liten.mp4" data-title="Klipp 7">
+      <video class="vthumb" src="https://www.plopfiler.se/media/harry/foto-liten.mp4" muted autoplay loop playsinline></video>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 7</div>
+    </div>
+
+    <div class="vcell vcell-c2" data-src="media/stadmani.mp4" data-title="Klipp 8">
+      <video class="vthumb" src="media/stadmani.mp4" muted autoplay loop playsinline></video>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 8</div>
+    </div>
+
+    <div class="vcell vcell-c3" data-src="media/stadmani.mp4" data-title="Klipp 9">
+      <video class="vthumb" src="media/stadmani.mp4" muted autoplay loop playsinline></video>
+      <div class="vcell-overlay"><div class="vplay-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+      <div class="vcell-label">Klipp 9</div>
+    </div>
+
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="vlightbox" id="vlightbox">
+    <div class="vlb-inner">
+      <button class="vlb-close" id="vlb-close">&#x2715;</button>
+      <video id="vlb-video" controls playsinline></video>
+    </div>
+    <div class="vlb-title" id="vlb-title"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     ASYMMETRISKT GRID — samma struktur som andunge.se
+     ═══════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════
+     KAPITELGRID — Folkoperans indelning
+     Hela kvadrater (fc-full) och halva (fc-half).
+     Vänster: 1,1,0.5,1,1   Höger: 0.5,1,1,0.5,1,0.5
+     Båda kolumnerna summerar till 4.5 — möts i topp & botten.
+     11 rutor. Ren 50/50 centrumdelning.
+     ═══════════════════════════════════════════════════════ -->
+<div class="folk-grid" id="filmen">
+  <div class="folk-col">
+    <div class="f-img fc-full">
+      <div class="inner"><img src="img/Verkstad.JPG" alt="Uppväxt på Åland"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Åland</p>
+        <h2 class="h2">Uppväxt på Åland</h2>
+        <p class="body">Bilder från barndomshemmet på Sottunga, Första gången Harry fick hjälpa morbror i båtbyggeriet efter skolan , 8-10 år gammal.Väljer själv att bli båtbyggare, alternativen sjöman eller jordbrukare.Rövarhistorier om kor, får, jakt, fiske och spritsmuggling</p>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner"><img src="img/stockholm_4.jpg" alt="Stockholm"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Stockholm</p>
+        <h2 class="h2">Flyttar till Stockholm</h2>
+        <p class="body">När/varför Andra jobb innan båtar på heltid.</p>
+      </div>
+    </div>
+    <div class="f-img fc-half">
+      <div class="inner ph ph-3"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Henriksdal</p>
+        <h2 class="h2">Egen verkstad</h2>
+        <p class="body">Första egna verkstaden vid Lugnet.Klippa mellan bilder hur det såg ut då och hur det ser ut nu.Jobbar åt Svenska Sjö/försäkringsjobb.I princip den enda båtrenoveraren i Stockholm.Ingen bil, åker med verktygslåda på bussen tillsammans med snorkiga överklassdamer.</p>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner"><img src="img/Uppväxt.JPG" alt="Nybygge"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Sjäklvhushåll</p>
+        <h2 class="h2">Självhushåll</h2>
+        <p class="body">Jordbruk, fiske och jakt</p>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner"><img src="img/05-verkstad.jpg" alt="Egen verkstad"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Egen verkstad</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+  </div>
+  <div class="folk-col">
+    <div class="f-img fc-half">
+      <div class="inner ph ph-2"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Thomas</p>
+        <h2 class="h2">Thomas</h2>
+        <p class="body">Börjar jobba med Thomas Larsson 1975</p>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner"><img src="img/02-beatrice.jpg" alt="Beatrice Aurore"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Beatrice Aurore</p>
+        <h2 class="h2">Beatrice Aurore</h2>
+        <p class="body">Renoveringen av Beatrice Auror 1987-1991</p>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner"><img src="img/extra-harry.jpg" alt="Renoveringar"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Båtar</p>
+        <h2 class="h2">Renoveringar</h2>
+        <p class="body">Båtar som Harry jobbat med</p>
+      </div>
+    </div>
+    <div class="f-img fc-half">
+      <div class="inner ph ph-1"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Lärlingar</h2>
+        <p class="body">De halva rutorna har ingen bild men mer text, med samma formatering som de hela rutorna så hierarkin hålls konsekvent genom hela griden.</p>
+      </div>
+    </div>
+    <div class="f-img fc-full">
+      <div class="inner"><img src="img/10-nutid.jpg" alt="Nutid"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">Träbåtar</p>
+        <h2 class="h2">Båttyper</h2>
+        <p class="body">Genomgång av båttyper, allmogebåtar, klink och olika typer av segelbåtar</p>
+      </div>
+    </div>
+    <div class="f-img fc-half">
+      <div class="inner ph ph-3"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Självhushåll</h2>
+        <p class="body">De halva rutorna har ingen bild men mer text, med samma formatering som de hela rutorna så hierarkin hålls konsekvent genom hela griden.</p>
+      </div>
+    </div>
+  </div>
+</div><!-- /folk-grid -->
+
+<!-- ═══════════════════════════════════════════════════════
+     VIDEOGRID — testklipp, samma mosaik-upplägg som referensen
+     ═══════════════════════════════════════════════════════ -->
+<style>
+  .vgallery {
+    --vg-gap: 3px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, minmax(150px, 1fr));
+    grid-template-areas:
+      "a1 b1 c1"
+      "a2 b2 c1"
+      "b3 c2 c3"
+      "b4 c2 c3";
+    gap: var(--vg-gap);
+    background: #0a0a0a;
+    padding: var(--vg-gap);
+    max-width: var(--max-w);
+    margin: 0 auto;
+  }
+
+  .vcell-a1 { grid-area: a1; }
+  .vcell-a2 { grid-area: a2; }
+  .vcell-b1 { grid-area: b1; }
+  .vcell-b2 { grid-area: b2; }
+  .vcell-b3 { grid-area: b3; }
+  .vcell-b4 { grid-area: b4; }
+  .vcell-c1 { grid-area: c1; }
+  .vcell-c2 { grid-area: c2; }
+  .vcell-c3 { grid-area: c3; }
+
+  .vcell {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: #111;
+  }
+
+  .vcell video,
+  .vcell .vthumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.25,0,0,1);
+  }
+
+  .vcell:hover video,
+  .vcell:hover .vthumb {
+    transform: scale(1.04);
+  }
+
+  .vthumb {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .vcell-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vcell:hover .vcell-overlay {
+    background: rgba(0,0,0,0.25);
+  }
+
+  .vplay-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .vplay-icon svg { fill: white; width: 20px; height: 20px; margin-left: 3px; }
+  .vcell:hover .vplay-icon {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .vcell-label {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #f5f5f3;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+  }
+
+  /* ── LIGHTBOX ─────────────────────────────────── */
+  .vlightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.92);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .vlightbox.open { display: flex; }
+
+  .vlb-inner {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+  }
+  .vlb-inner video {
+    max-width: 90vw;
+    max-height: 85vh;
+    display: block;
+  }
+
+  .vlb-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #f5f5f3;
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+
+  .vlb-title {
+    margin-top: 16px;
+    color: #f5f5f3;
+    font-family: 'Archivo', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+</style>
+
+
+<script>
+  (function() {
+    const lightbox = document.getElementById('vlightbox');
+    const lbVideo = document.getElementById('vlb-video');
+    const lbTitle = document.getElementById('vlb-title');
+    const lbClose = document.getElementById('vlb-close');
+
+    document.querySelectorAll('.vcell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const src = cell.dataset.src;
+        const title = cell.dataset.title;
+        const poster = cell.dataset.poster;
+        lbVideo.poster = poster || '';
+        lbVideo.src = src;
+        lbTitle.textContent = title;
+        lightbox.classList.add('open');
+        lbVideo.play();
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lbVideo.pause();
+      lbVideo.src = '';
+      lbVideo.poster = '';
+    }
+
+    lbClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // Grid-förhandsvisningarna (vthumb <video>) loopar bara sina första
+    // LOOP_SECONDS sekunder istället för hela klippet.
+    const LOOP_SECONDS = 10;
+    document.querySelectorAll('.vthumb').forEach(v => {
+      if (v.tagName !== 'VIDEO') return;
+      v.addEventListener('timeupdate', () => {
+        if (v.currentTime >= LOOP_SECONDS) {
+          v.currentTime = 0;
+        }
+      });
+    });
+  })();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     EXTRA SEKTION — 1/3·1/3·1/3 sen 1/2·1/2 i två rader
+     Fyll med text / bild / video allt eftersom.
+     ═══════════════════════════════════════════════════════ -->
+<div class="mix-grid" id="mer">
+
+  <!-- Rad 1: tre tredjedelar -->
+  <div class="mix-row mix-thirds">
+    <div class="f-img">
+      <div class="inner ph ph-1"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Tredjedel 1</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+    <div class="f-img">
+      <div class="inner ph ph-2"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Tredjedel 2</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+    <div class="f-img">
+      <div class="inner ph ph-3"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Tredjedel 3</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rad 2: två halvor -->
+  <div class="mix-row mix-halves">
+    <div class="f-img">
+      <div class="inner ph ph-4"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Halva 1</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+    <div class="f-img">
+      <div class="inner ph ph-1"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Halva 2</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rad 3: två halvor -->
+  <div class="mix-row mix-halves">
+    <div class="f-img">
+      <div class="inner ph ph-2"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Halva 3</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+    <div class="f-img">
+      <div class="inner ph ph-3"></div>
+      <div class="f-overlay"></div>
+      <div class="f-body reveal">
+        <p class="lbl">KORT RUBRIK</p>
+        <h2 class="h2">Halva 4</h2>
+        <p class="body">Lite längre beskrivande text som visar hur ett stycke ser ut här nere i rutan.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /mix-grid -->
+
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer id="kontakt">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">Projekt Varvet</div>
+        <p>En dokumentärfilm under produktion.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Filmen</h4>
+        <ul>
+          <li><a href="#filmen">Om filmen</a></li>
+          <li><a href="#harry">Harry</a></li>
+          <li><a href="#material">Materialet</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Utforska</h4>
+        <ul>
+          <li><a href="viewer.html">3D-scenen</a></li>
+          <li><a href="moodboard.html">Moodboard</a></li>
+          <li><a href="Singoalla/index.html">Singoalla</a></li>
+          <li><a href="#kontakt">Kontakt</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Projekt Varvet</span>
+      <span>Bohuslän · Sverige</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/header.js"></script>
+</body>
+</html>
