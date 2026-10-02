@@ -1,163 +1,63 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marga III — Projektplanering</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
-  <style>
-    body { background: #F5F0E8; min-height: 100vh; }
-    #marga-root { padding: 80px 0 40px; }
-
-    /* ── Login overlay ── */
-    .marga-login {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      font-family: 'Cormorant Garamond', Georgia, serif;
-    }
-    .marga-login-box {
-      background: #FFFDF8; border-radius: 16px; padding: 48px 40px 40px;
-      box-shadow: 0 8px 40px rgba(80,60,40,0.13); width: 340px; text-align: center;
-    }
-
-    /* ── App shell ── */
-    .marga-app { max-width: 1400px; margin: 0 auto; padding: 0 24px; font-family: 'Archivo', sans-serif; }
-
-    /* ── Header ── */
-    .marga-header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 50%, #1a2a3a 100%);
-      border-radius: 12px; padding: 16px 24px; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    }
-    .marga-header h1 { margin: 0; color: #C4B89E; font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; letter-spacing: 0.08em; }
-    .marga-header-sub { color: #8A7D6B; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
-    .marga-nav-btn {
-      padding: 6px 12px; border: 1px solid rgba(255,253,248,0.2); border-radius: 7px;
-      background: transparent; color: #C4B89E; font-size: 11px; font-weight: 600; cursor: pointer;
-      font-family: inherit;
-    }
-    .marga-nav-btn:hover { background: rgba(255,253,248,0.08); }
-
-    /* ── Tabs ── */
-    .marga-tabs { display: flex; gap: 4px; border-bottom: 2px solid #E5DDD0; margin-bottom: 20px; }
-    .marga-tab {
-      padding: 8px 18px; border: none; background: none; font-family: inherit;
-      font-size: 13px; font-weight: 600; color: #8A7D6B; cursor: pointer;
-      border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s;
-    }
-    .marga-tab.active { color: #3A2E22; border-bottom-color: #3A2E22; }
-    .marga-tab:hover { color: #3A2E22; }
-
-    /* ── Kanban ── */
-    .kanban-board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; }
-    .kanban-col { min-width: 220px; max-width: 260px; flex: 1 1 220px; background: transparent; border-radius: 12px; padding: 10px; }
-    .kanban-col-header { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; padding: 4px 0; border-bottom: 2px solid #E5DDD0; }
-    .kanban-card {
-      background: #FFFDF8; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
-      cursor: grab; border-left: 4px solid #aaa;
-      box-shadow: 0 1px 3px rgba(80,60,40,0.08); transition: box-shadow 0.15s, transform 0.15s;
-    }
-    .kanban-card:hover { box-shadow: 0 3px 10px rgba(80,60,40,0.15); transform: translateY(-1px); }
-
-    /* ── Gantt ── */
-    .gantt-wrap { overflow-x: auto; }
-    .gantt-row { display: flex; align-items: center; border-bottom: 1px solid #F0EBE2; }
-    .gantt-label { width: 180px; flex-shrink: 0; padding: 6px 10px; font-size: 12px; color: #3A2E22; }
-    .gantt-bar-area { flex: 1; position: relative; height: 32px; }
-    .gantt-bar { position: absolute; top: 6px; height: 20px; border-radius: 4px; opacity: 0.85; }
-
-    /* ── Modal ── */
-    .marga-modal-bg {
-      position: fixed; inset: 0; background: rgba(30,20,10,0.55);
-      display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
-    }
-    .marga-modal {
-      background: #FFFDF8; border-radius: 14px; padding: 28px 28px 20px;
-      width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(30,20,10,0.25);
-    }
-    .marga-modal h2 { margin: 0 0 20px; font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #3A2E22; }
-    .marga-field { margin-bottom: 14px; }
-    .marga-label { display: block; font-size: 11px; font-weight: 700; color: #8A7D6B; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
-    .marga-input {
-      width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #DDD5C8;
-      background: #FAF6EF; color: #3A2E22; font-size: 14px; font-family: inherit;
-      outline: none; box-sizing: border-box; transition: border 0.15s;
-    }
-    .marga-input:focus { border-color: #8A7D6B; }
-    .marga-btn {
-      padding: 9px 18px; border: none; border-radius: 8px; font-size: 13px;
-      font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s;
-    }
-    .marga-btn-primary { background: #5B7F6E; color: #fff; }
-    .marga-btn-primary:hover { background: #4a6b5c; }
-    .marga-btn-danger { background: #C75B4A; color: #fff; }
-    .marga-btn-secondary { background: #E5DDD0; color: #6B5D4E; }
-
-    /* ── Upload dropzone ── */
-    .marga-dropzone {
-      border: 2px dashed #C4B89E; border-radius: 8px; padding: 14px;
-      text-align: center; cursor: pointer; background: #FAF6EF; transition: all 0.15s;
-    }
-    .marga-dropzone:hover, .marga-dropzone.drag { border-color: #5B7F6E; background: rgba(91,127,110,0.06); }
-
-    /* ── File cards ── */
-    .file-card { display: flex; align-items: center; gap: 10px; padding: 7px 10px; background: #FAF6EF; border-radius: 8px; border: 1px solid #E5DDD0; }
-    .file-icon { width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; color: #fff; }
-
-    /* ── Lightbox ── */
-    .marga-lightbox { position: fixed; inset: 0; background: rgba(10,8,5,0.92); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-    .marga-lightbox img { max-width: 90vw; max-height: 85vh; border-radius: 4px; object-fit: contain; }
-
-    /* ── Sync indicator ── */
-    .sync-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-
-    /* ── Stats ── */
-    .marga-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-    .stat-card { background: #FFFDF8; border-radius: 10px; padding: 14px 18px; flex: 1 1 120px; border: 1px solid #E5DDD0; }
-    .stat-num { font-size: 28px; font-weight: 700; color: #3A2E22; font-family: 'Cormorant Garamond', serif; }
-    .stat-label { font-size: 11px; color: #8A7D6B; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
-
-    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spin { animation: spin 1s linear infinite; display: inline-block; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marga III — Projektplanering</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif; background: #EDF2F7; min-height: 100vh; }
+::-webkit-scrollbar { height: 8px; width: 8px; }
+::-webkit-scrollbar-track { background: #F0EBE2; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #C4B89E; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #A89878; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: #3A2E22; color: #FFFDF8; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.lightbox { position: fixed; inset: 0; background: rgba(30,24,16,0.85); z-index: 3000; display: flex; align-items: center; justify-content: center; cursor: zoom-out; backdrop-filter: blur(4px); }
+.lightbox img { max-width: 90vw; max-height: 85vh; border-radius: 10px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.lightbox-caption { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); color: #FFFDF8; font-size: 13px; background: rgba(58,46,34,0.8); padding: 6px 16px; border-radius: 6px; }
+.file-card { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #FAF6EF; border: 1.5px solid #E5DDD0; border-radius: 8px; transition: border-color 0.15s, box-shadow 0.15s; }
+.file-card:hover { border-color: #C4B89E; box-shadow: 0 2px 8px rgba(80,60,40,0.1); }
+.file-icon { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; letter-spacing: 0.02em; }
+.file-actions a, .file-actions button { font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: none; padding: 2px 6px; border-radius: 4px; text-decoration: none; transition: background 0.15s; }
+.file-actions a:hover, .file-actions button:hover { background: rgba(0,0,0,0.06); }
+.hj-navbar { background: #0b0c0e; border-bottom: 1px solid rgba(61,106,143,.2); padding: 14px clamp(1.5rem, 5vw, 6rem); display: flex; justify-content: flex-end; }
+.hj-navbar .nav-links { display: flex; flex-wrap: wrap; gap: .2rem 1rem; justify-content: flex-end; }
+.hj-navbar .nav-links a { font-family: sans-serif; font-size: 0.68rem; letter-spacing: .12em; text-transform: uppercase; color: #8a8f96; text-decoration: none; transition: color .2s; }
+.hj-navbar .nav-links a:hover, .hj-navbar .nav-links a.active { color: #eceef0; }
+</style>
 </head>
 <body>
-
-<nav class="navbar" id="navbar">
+<nav class="hj-navbar">
   <div class="nav-links">
     <a href="../">Hem</a>
     <a href="../#filmen">Filmen</a>
     <a href="../#harry">Harry</a>
     <a href="../viewer.html">3D-scenen</a>
     <a href="../#material">Materialet</a>
+    <a href="../filmgrid.html">Filmgrid</a>
     <a href="../moodboard.html">Moodboard</a>
     <a href="../artikel.html">Artikel</a>
     <a href="../Singoalla/index.html">Singoalla</a>
     <a href="../process.html">Process</a>
     <a href="../marga-rapport.html">Rapport</a>
-    <a href="./index.html" class="active">Marga</a>
+    <a href="./" class="active">Marga</a>
     <a href="../#kontakt">Kontakt</a>
   </div>
 </nav>
-
-<div id="marga-root"></div>
+<div id="root"></div>
+<div id="toast" class="toast"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef, useCallback } = React;
+const { useState, useRef, useEffect, useCallback } = React;
 
-// ── Constants ────────────────────────────────────────────────
-const SITE_PASSWORD  = "marga2025";
-const SITE_AUTH_KEY  = "marga_site_auth";
-const GITHUB_REPO    = "matsbprod/marga";
-const GITHUB_RAW     = "https://raw.githubusercontent.com/matsbprod/marga/main";
-
+// ─── Constants ───
 const PHASES = [
   { id: "Mallställ och resning",                 label: "Mallställ och resning",                              color: "#5A6B7A" },
   { id: "CAD design och konstruktion",           label: "CAD design och konstruktion",                                color: "#8B7355" },
@@ -183,364 +83,392 @@ const STATUSES = [
   { id: "done",        label: "Klart",     icon: "●" },
 ];
 
-const FILE_TYPES = {
-  image: { color: "#5B7F6E", icon: "🖼" },
-  pdf:   { color: "#C75B4A", icon: "📄" },
-  cad:   { color: "#5B6E8A", icon: "📐" },
-  doc:   { color: "#8A6B5B", icon: "📝" },
-  other: { color: "#8A7D6B", icon: "📎" },
-};
 
-function detectFileType(name = "") {
-  const ext = name.split(".").pop().toLowerCase();
-  if (["jpg","jpeg","png","gif","webp","svg","bmp"].includes(ext)) return "image";
-  if (ext === "pdf") return "pdf";
-  if (["dwg","dxf","step","stp","stl","3dm","iges","igs"].includes(ext)) return "cad";
-  if (["doc","docx","xls","xlsx","txt","md"].includes(ext)) return "doc";
-  return "other";
+const STORAGE_KEY = "boat_restoration_planner_v2";
+const TOTAL_WEEKS = 120;
+
+// ╔══════════════════════════════════════════════════════════╗
+// ─── Supabase konfiguration ───
+
+function isCloudConfigured() { return true; }
+function isJsonBinConfigured() { return isCloudConfigured(); }
+
+function apiHeaders() {
+  return { "Content-Type": "application/json", "X-Marga-Password": localStorage.getItem(SITE_AUTH_KEY) === "1" ? SITE_PASSWORD : "" };
 }
 
-function isGithubUrl(url = "") { return url.includes("raw.githubusercontent.com"); }
-
-// ── API helpers ──────────────────────────────────────────────
-function getPassword() { return localStorage.getItem(SITE_AUTH_KEY) === "1" ? SITE_PASSWORD : ""; }
-
-async function apiGet() {
-  const res = await fetch("/api/marga-data", {
-    headers: { "X-Marga-Password": getPassword() }
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+function normalizeTasks(arr) {
+  if (!Array.isArray(arr)) return null;
+  return arr.map(t => ({ ...t, files: (t.files || []).map(f => ({ ...f, type: f.type || detectFileType(f.name || f.url) })) }));
 }
 
-async function apiSave(data) {
-  const res = await fetch("/api/marga-data", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Marga-Password": getPassword() },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+async function loadFromCloud() {
+  try {
+    const res = await fetch("/api/marga-data", { headers: apiHeaders() });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const record = await res.json();
+    if (Array.isArray(record)) return { tasks: normalizeTasks(record), gallery: null };
+    if (record && Array.isArray(record.tasks) && record.tasks.length) return { tasks: normalizeTasks(record.tasks), gallery: record.gallery || null };
+    return null;
+  } catch (e) { console.warn("Kunde inte hämta data:", e); return null; }
 }
 
-async function apiUpload(path, base64content, filename) {
-  const res = await fetch("/api/marga-upload", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Marga-Password": getPassword() },
-    body: JSON.stringify({ path, content: base64content, message: `Uppladdning: ${filename}` }),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || `HTTP ${res.status}`);
+async function saveToCloud(tasks, gallery) {
+  try {
+    const res = await fetch("/api/marga-data", { method: "POST", headers: apiHeaders(), body: JSON.stringify({ tasks, gallery }) });
+    return res.ok;
+  } catch (e) { console.warn("Kunde inte spara data:", e); return false; }
+}
+
+
+// Debounce helper for combined save
+function createDebouncedSaver(delayMs = 1500) {
+  let timer = null;
+  return function debouncedSave(tasks, gallery, onStatus) {
+    if (timer) clearTimeout(timer);
+    onStatus("saving");
+    saveTasksLocal(tasks);
+    saveGalleryLocal(gallery);
+    if (!isCloudConfigured()) { onStatus("offline"); return; }
+    timer = setTimeout(async () => {
+      const ok = await saveToCloud(tasks, gallery);
+      onStatus(ok ? "saved" : "error");
+    }, delayMs);
+  };
+}
+
+// ─── Sync Status Indicator Component ───
+function SyncIndicator({ status }) {
+  const configs = {
+    idle:    { color: "#A89878", text: "—" },
+    saving:  { color: "#D4A76A", text: "Sparar…" },
+    saved:   { color: "#5B7F6E", text: "Synkad ✓" },
+    error:   { color: "#C75B4A", text: "Synkfel ✗" },
+    offline: { color: "#8A7D6B", text: "Lokal" },
+    loading: { color: "#D4A76A", text: "Laddar…" },
+  };
+  const cfg = configs[status] || configs.idle;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: cfg.color, fontWeight: 600 }}>
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: cfg.color, display: "inline-block", animation: status === "saving" || status === "loading" ? "pulse 1s infinite" : "none" }} />
+      {cfg.text}
+      <style>{"@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }"}</style>
+    </div>
+  );
+}
+
+// ─── Gallery Storage ───
+const GALLERY_KEY = "boat_gallery_v1";
+const GITHUB_REPO = "matsbprod/marga";
+const GITHUB_RAW = "https://raw.githubusercontent.com/matsbprod/marga/main";
+const GITHUB_API = "/api/marga-gh?path=";
+
+const SITE_PASSWORD = "marga2025";
+const SITE_AUTH_KEY = "marga_site_auth";
+
+// GitHub read token — stored in localStorage, never in code
+const GITHUB_TOKEN_KEY = "marga_gh_read_token";
+function getGithubReadToken() { return localStorage.getItem(GITHUB_TOKEN_KEY) || ""; }
+function setGithubReadToken(t) { if (t) localStorage.setItem(GITHUB_TOKEN_KEY, t); else localStorage.removeItem(GITHUB_TOKEN_KEY); }
+
+function ghApiHeaders() {
+  return { "X-Marga-Password": localStorage.getItem(SITE_AUTH_KEY) === "1" ? SITE_PASSWORD : "" };
+}
+const IMAGE_EXTS = ["jpg","jpeg","png","gif","webp","svg","bmp","tiff"];
+const DOC_EXTS   = ["pdf","dwg","dxf","step","stp","stl","3dm","doc","docx","xls","xlsx","txt"];
+
+function isImageFile(name) { const ext = name.split(".").pop().toLowerCase(); return IMAGE_EXTS.includes(ext); }
+function isDocFile(name)   { const ext = name.split(".").pop().toLowerCase(); return DOC_EXTS.includes(ext); }
+
+function getWeekLabel(week) {
+  const d = new Date(2026, 2, 2);
+  d.setDate(d.getDate() + (week - 1) * 7);
+  return d.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
+}
+
+const DEFAULT_FOLDERS = [];
+const DEFAULT_TASKS = [];
+
+function loadTasksLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed.map(t => ({ ...t, files: (t.files || []).map(f => ({ ...f, type: f.type || detectFileType(f.name || f.url) })) }));
+    }
+  } catch (e) { console.warn("Kunde inte ladda sparad data:", e); }
+  return null;
+}
+
+function saveTasksLocal(tasks) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+  catch (e) { console.warn("Kunde inte spara lokalt:", e); }
+}
+
+function loadGalleryLocal() {
+  try {
+    const raw = localStorage.getItem(GALLERY_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { console.warn("Kunde inte ladda bildarkiv:", e); }
+  return DEFAULT_FOLDERS;
+}
+
+function saveGalleryLocal(folders) {
+  try { localStorage.setItem(GALLERY_KEY, JSON.stringify(folders)); }
+  catch (e) { console.warn("Kunde inte spara bildarkiv:", e); }
+}
+
+// ─── URL helpers — stödjer GitHub raw och Google Drive ───
+function isGithubUrl(url) {
+  return url && (url.includes("raw.githubusercontent.com") || url.includes("github.com"));
+}
+
+function isGdriveUrl(url) {
+  return url && (url.includes("drive.google.com") || url.includes("docs.google.com"));
+}
+
+function extractGdriveId(url) {
+  const patterns = [/\/file\/d\/([a-zA-Z0-9_-]+)/, /id=([a-zA-Z0-9_-]+)/, /\/d\/([a-zA-Z0-9_-]+)/];
+  for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
+  return null;
+}
+
+// Konvertera github.com blob-URL till raw
+function toGithubRaw(url) {
+  return url
+    .replace("github.com", "raw.githubusercontent.com")
+    .replace("/blob/", "/");
+}
+
+// Thumbnail/förhandsgransknings-URL för bilder
+function fileThumbUrl(url) {
+  if (!url) return url;
+  if (isGdriveUrl(url)) {
+    const id = extractGdriveId(url);
+    return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w400` : url;
   }
-  return res.json();
+  if (isGithubUrl(url)) return toGithubRaw(url);
+  return url;
 }
 
-// ── Toast ────────────────────────────────────────────────────
-let toastTimer;
+// Stor bild för lightbox
+function fileViewUrl(url) {
+  if (!url) return url;
+  if (isGdriveUrl(url)) {
+    const id = extractGdriveId(url);
+    return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1600` : url;
+  }
+  if (isGithubUrl(url)) return toGithubRaw(url);
+  return url;
+}
+
+// Nedladdnings-URL
+function fileDownloadUrl(url) {
+  if (!url) return url;
+  if (isGdriveUrl(url)) {
+    const id = extractGdriveId(url);
+    return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+  }
+  if (isGithubUrl(url)) return toGithubRaw(url);
+  return url;
+}
+
+// Öppna i webbläsare
+function fileOpenUrl(url) {
+  if (!url) return url;
+  if (isGdriveUrl(url)) {
+    const id = extractGdriveId(url);
+    return id ? `https://drive.google.com/file/d/${id}/view` : url;
+  }
+  return url; // GitHub och övriga öppnas direkt
+}
+
+// ─── Lightbox ───
+function Lightbox({ src, caption, onClose, images, currentIndex, onNavigate }) {
+  // images = [{src, caption}], currentIndex = number
+  const hasNav = images && images.length > 1;
+  const hasPrev = hasNav && currentIndex > 0;
+  const hasNext = hasNav && currentIndex < images.length - 1;
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft" && hasPrev) onNavigate(currentIndex - 1);
+      if (e.key === "ArrowRight" && hasNext) onNavigate(currentIndex + 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [currentIndex, hasPrev, hasNext]);
+
+  if (!src) return null;
+
+  const btnStyle = (enabled) => ({
+    position: "fixed", top: "50%", transform: "translateY(-50%)",
+    background: enabled ? "rgba(58,46,34,0.7)" : "rgba(58,46,34,0.2)",
+    border: "none", borderRadius: "50%", width: 44, height: 44,
+    color: enabled ? "#FFFDF8" : "rgba(255,253,248,0.3)",
+    fontSize: 20, cursor: enabled ? "pointer" : "default",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    zIndex: 3001, transition: "background 0.15s",
+  });
+
+  return (
+    <div className="lightbox" onClick={onClose}>
+      <img src={src} alt={caption || "Bild"} onClick={e => e.stopPropagation()} />
+      {caption && <div className="lightbox-caption">{hasNav ? `${currentIndex + 1} / ${images.length} — ${caption}` : caption}</div>}
+      {hasPrev && (
+        <button style={{ ...btnStyle(true), left: 16 }} onClick={e => { e.stopPropagation(); onNavigate(currentIndex - 1); }}>‹</button>
+      )}
+      {hasNext && (
+        <button style={{ ...btnStyle(true), right: 16 }} onClick={e => { e.stopPropagation(); onNavigate(currentIndex + 1); }}>›</button>
+      )}
+    </div>
+  );
+}
+
+function detectFileType(nameOrUrl) {
+  if (!nameOrUrl) return "doc";
+  const name = nameOrUrl.split("?")[0].split("/").pop();
+  const ext = name.split(".").pop().toLowerCase();
+  if (IMAGE_EXTS.includes(ext)) return "image";
+  if (ext === "pdf") return "pdf";
+  if (["stl","3dm","step","stp","obj","glb","gltf"].includes(ext)) return "3d";
+  return "doc";
+}
+
+function getFileTypeDef(type) {
+  const defs = {
+    image: { icon: "🖼", color: "#5B7F6E", label: "Bild" },
+    pdf:   { icon: "📄", color: "#C75B4A", label: "PDF" },
+    "3d":  { icon: "📐", color: "#7D6B91", label: "3D" },
+    doc:   { icon: "📎", color: "#8B7355", label: "Fil" },
+  };
+  return defs[type] || defs.doc;
+}
+
 function showToast(msg) {
-  const el = document.getElementById("marga-toast");
+  const el = document.getElementById("toast");
   if (!el) return;
   el.textContent = msg;
-  el.style.opacity = "1";
-  el.style.transform = "translateY(0)";
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.style.opacity = "0"; el.style.transform = "translateY(8px)"; }, 2500);
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2500);
 }
 
-// ── Site Login ───────────────────────────────────────────────
-function SiteLogin({ onAuth }) {
-  const [pw, setPw] = useState("");
-  const [err, setErr] = useState(false);
-  const [shake, setShake] = useState(false);
-  function attempt() {
-    if (pw === SITE_PASSWORD) { localStorage.setItem(SITE_AUTH_KEY, "1"); onAuth(); }
-    else { setErr(true); setShake(true); setPw(""); setTimeout(() => setShake(false), 500); }
-  }
+// ─── File Card (single file row) ───
+function FileCard({ file, index, onRemove, onPreview }) {
+  const typeDef = getFileTypeDef(file.type || detectFileType(file.name || file.url));
+  const isImage = (file.type || detectFileType(file.name || file.url)) === "image";
+  const driveId = extractGdriveId(file.url);
+  const showThumb = isImage && (driveId || isGithubUrl(file.url));
   return (
-    <div className="marga-login">
-      <div className="marga-login-box" style={{ animation: shake ? "shake 0.4s ease" : "none" }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>⚓</div>
-        <div style={{ fontSize: 24, fontWeight: 700, color: "#3A2E22", marginBottom: 4, letterSpacing: "0.02em", fontFamily: "'Cormorant Garamond', serif" }}>Marga III</div>
-        <div style={{ fontSize: 13, color: "#8A7D6B", marginBottom: 28 }}>Projektplanering</div>
-        <input type="password" placeholder="Lösenord…" value={pw} autoFocus
-          onChange={e => { setPw(e.target.value); setErr(false); }}
-          onKeyDown={e => e.key === "Enter" && attempt()}
-          className="marga-input" style={{ marginBottom: 8 }}
+    <div className="file-card">
+      {showThumb ? (
+        <img src={fileThumbUrl(file.url)} alt={file.name}
+          style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover", cursor: "pointer", flexShrink: 0, border: "1px solid #E5DDD0" }}
+          onClick={() => onPreview(fileViewUrl(file.url), file.name)}
+          onError={e => { e.target.style.display = "none"; e.target.nextSibling && (e.target.nextSibling.style.display = "flex"); }}
         />
-        {err && <div style={{ fontSize: 12, color: "#C75B4A", marginBottom: 8, fontWeight: 600 }}>Fel lösenord</div>}
-        <button onClick={attempt} className="marga-btn marga-btn-primary" style={{ width: "100%", padding: 11, fontSize: 14, letterSpacing: "0.04em" }}>
-          Logga in
-        </button>
+      ) : null}
+      <div className="file-icon" style={{ background: typeDef.color, display: showThumb ? "none" : "flex" }}>
+        {typeDef.icon}
       </div>
-    </div>
-  );
-}
 
-// ── Lightbox ─────────────────────────────────────────────────
-function Lightbox({ src, caption, images, currentIndex, onClose, onNavigate }) {
-  useEffect(() => {
-    const handler = e => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight" && images?.length > 1) onNavigate(1);
-      if (e.key === "ArrowLeft"  && images?.length > 1) onNavigate(-1);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose, onNavigate, images]);
+      {/* Name & meta */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "#3A2E22", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{file.name}</div>
+        <div style={{ fontSize: 10, color: "#A89878" }}>{typeDef.label} • {file.addedAt ? new Date(file.addedAt).toLocaleDateString("sv-SE") : ""}</div>
+      </div>
 
-  return (
-    <div className="marga-lightbox" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, maxWidth: "92vw" }}>
-        <img src={src} alt={caption} />
-        {caption && <div style={{ color: "#C4B89E", fontSize: 13 }}>{caption}</div>}
-        {images?.length > 1 && (
-          <div style={{ display: "flex", gap: 16 }}>
-            <button onClick={() => onNavigate(-1)} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "#fff", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 18 }}>‹</button>
-            <span style={{ color: "#8A7D6B", fontSize: 12, alignSelf: "center" }}>{currentIndex + 1} / {images.length}</span>
-            <button onClick={() => onNavigate(1)}  style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "#fff", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 18 }}>›</button>
-          </div>
+      {/* Actions */}
+      <div className="file-actions" style={{ display: "flex", gap: 2, flexShrink: 0 }}>
+        {isImage && (
+          <button onClick={() => onPreview(fileViewUrl(file.url), file.name)} title="Förhandsgranska" style={{ color: "#5B7F6E" }}>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.5"/><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" strokeWidth="1.5"/></svg>
+          </button>
         )}
+        <a href={fileOpenUrl(file.url)} target="_blank" rel="noopener noreferrer" title="Öppna fil" style={{ color: "#5A7A8A" }}>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M11 3h6v6M17 3L9 11M7 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </a>
+        <a href={fileDownloadUrl(file.url)} target="_blank" rel="noopener noreferrer" title="Ladda ner" style={{ color: "#6E7F8D" }}>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M3 16h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </a>
+        <button onClick={() => onRemove(index)} title="Ta bort" style={{ color: "#C75B4A" }}>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+        </button>
       </div>
     </div>
   );
 }
 
-// ── Upload Dropzone ───────────────────────────────────────────
-function UploadDropzone({ targetPath, onUploaded }) {
-  const [queue, setQueue] = useState([]);
-  const [dragging, setDragging] = useState(false);
-  const inputId = "marga-file-" + targetPath.replace(/\//g, "-");
-
-  function addFiles(files) {
-    setQueue(prev => [...prev, ...Array.from(files).map(f => ({ file: f, status: "idle", msg: "" }))]);
-  }
-
-  async function uploadOne(idx) {
-    const f = queue[idx].file;
-    setQueue(prev => prev.map((e,i) => i===idx ? {...e, status:"uploading"} : e));
-    try {
-      const base64 = await new Promise((res, rej) => {
-        const r = new FileReader();
-        r.onload = e => res(e.target.result.split(",")[1]);
-        r.onerror = () => rej(new Error("Läsfel"));
-        r.readAsDataURL(f);
-      });
-      const path = `${targetPath}/${f.name}`;
-      const result = await apiUpload(path, base64, f.name);
-      setQueue(prev => prev.map((e,i) => i===idx ? {...e, status:"done"} : e));
-      if (onUploaded) onUploaded({ url: result.url, name: f.name, type: detectFileType(f.name), addedAt: new Date().toISOString() });
-    } catch(e) {
-      setQueue(prev => prev.map((e2,i) => i===idx ? {...e2, status:"error", msg:e.message} : e2));
-    }
-  }
-
-  async function uploadAll() {
-    for (let i = 0; i < queue.length; i++) {
-      if (queue[i].status === "idle") await uploadOne(i);
-    }
-  }
-
-  const pendingCount = queue.filter(e => e.status === "idle").length;
-  const doneCount = queue.filter(e => e.status === "done").length;
-
-  return (
-    <div>
-      <div className={`marga-dropzone${dragging ? " drag" : ""}`}
-        onDragOver={e => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={e => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); }}
-        onClick={() => document.getElementById(inputId)?.click()}>
-        <input id={inputId} type="file" multiple style={{ display: "none" }}
-          onChange={e => { if (e.target.files.length) addFiles(e.target.files); e.target.value = ""; }} />
-        <div style={{ fontSize: 18, marginBottom: 2 }}>↑</div>
-        <div style={{ fontSize: 12, color: "#8A7D6B" }}>Dra hit eller klicka — flera filer OK</div>
-      </div>
-
-      {queue.length > 0 && (
-        <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 3 }}>
-          {queue.map((e, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, padding: "3px 6px",
-              background: e.status==="done" ? "rgba(91,127,110,0.07)" : e.status==="error" ? "rgba(199,91,74,0.07)" : "#FAF6EF", borderRadius: 5 }}>
-              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#3A2E22" }}>{e.file.name}</span>
-              <span style={{ fontSize: 10, flexShrink: 0, color: e.status==="done" ? "#5B7F6E" : e.status==="error" ? "#C75B4A" : e.status==="uploading" ? "#C9A84C" : "#A89878" }}>
-                {e.status==="uploading" ? "laddar…" : e.status==="done" ? "✓" : e.status==="error" ? `✗ ${e.msg}` : `${(e.file.size/1024).toFixed(0)} KB`}
-              </span>
-              {e.status === "idle" && <button onClick={() => setQueue(prev => prev.filter((_,j)=>j!==i))} style={{ fontSize: 10, color: "#A89878", background: "none", border: "none", cursor: "pointer" }}>✕</button>}
-            </div>
-          ))}
-        </div>
-      )}
-      {pendingCount > 0 && (
-        <button onClick={uploadAll} className="marga-btn marga-btn-primary" style={{ marginTop: 6, width: "100%", padding: "8px 0", fontSize: 12 }}>
-          ↑ Ladda upp {pendingCount} {pendingCount === 1 ? "fil" : "filer"}
-        </button>
-      )}
-      {doneCount > 0 && pendingCount === 0 && (
-        <button onClick={() => setQueue([])} className="marga-btn marga-btn-secondary" style={{ marginTop: 6, width: "100%", padding: "6px 0", fontSize: 11 }}>
-          Rensa ({doneCount} uppladdade)
-        </button>
-      )}
-    </div>
-  );
-}
-
-// ── File Attachments ─────────────────────────────────────────
+// ─── File Attachments Section ───
 function FileAttachments({ files, onChange, onPreview, taskTitle }) {
   function slugify(str) {
-    return (str || "okant").toLowerCase()
-      .replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o")
-      .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0, 40) || "okant";
+    return (str || "okant").toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0, 40) || "okant";
   }
   const targetPath = "BILDER/uppgifter/" + slugify(taskTitle);
-
   return (
     <div style={{ marginTop: 14 }}>
-      <div className="marga-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#8A7D6B", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
         <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10.5 2.5l-6 6a4.24 4.24 0 006 6l6.5-6.5a2.83 2.83 0 00-4-4L6.5 10.5a1.41 1.41 0 002 2L14 7" stroke="#8A7D6B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         Bifogade filer ({files.length})
       </div>
-
       {files.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
-          {files.map((f, i) => {
-            const typeDef = FILE_TYPES[f.type || detectFileType(f.name || f.url)] || FILE_TYPES.other;
-            const isImg = (f.type || detectFileType(f.name || f.url)) === "image";
-            return (
-              <div key={i} className="file-card">
-                {isImg && isGithubUrl(f.url) ? (
-                  <img src={f.url} alt={f.name}
-                    style={{ width: 36, height: 36, borderRadius: 5, objectFit: "cover", cursor: "pointer", border: "1px solid #E5DDD0" }}
-                    onClick={() => onPreview(f.url, f.name)}
-                    onError={e => { e.target.style.display="none"; }}
-                  />
-                ) : (
-                  <div className="file-icon" style={{ background: typeDef.color }}>{typeDef.icon}</div>
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#3A2E22", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
-                  <div style={{ fontSize: 10, color: "#A89878" }}>{f.addedAt ? new Date(f.addedAt).toLocaleDateString("sv-SE") : ""}</div>
-                </div>
-                <button onClick={() => onChange(files.filter((_,j) => j !== i))}
-                  style={{ fontSize: 11, color: "#A89878", background: "none", border: "none", cursor: "pointer", padding: "0 4px", flexShrink: 0 }}>✕</button>
-              </div>
-            );
-          })}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+          {files.map((f, i) => <FileCard key={i} file={f} index={i} onRemove={idx => onChange(files.filter((_, j) => j !== idx))} onPreview={onPreview} />)}
+          {files.length > 1 && (
+            <div style={{ textAlign: "right", marginTop: 2 }}>
+              <button onClick={() => { files.forEach((f, i) => { setTimeout(() => { window.open(fileDownloadUrl(f.url), "_blank"); }, i * 500); }); showToast("Laddar ner alla filer…"); }}
+                style={{ fontSize: 11, fontWeight: 700, color: "#5A7A8A", background: "none", border: "1.5px solid #5A7A8A", borderRadius: 6, padding: "5px 12px", cursor: "pointer" }}>
+                ↓ Ladda ner alla ({files.length} filer)
+              </button>
+            </div>
+          )}
         </div>
       )}
-
-      <UploadDropzone targetPath={targetPath} onUploaded={f => onChange([...files, f])} />
+      <GithubUploader targetPath={targetPath} onUploaded={fileObj => onChange([...files, fileObj])} compact />
     </div>
   );
 }
 
-// ── Task Modal ───────────────────────────────────────────────
-function TaskModal({ task, phases, onSave, onDelete, onClose, onPreview }) {
-  const [form, setForm] = useState({
-    title: task.title || "",
-    phase: task.phase || phases[0]?.id,
-    startWeek: task.startWeek || 1,
-    duration: task.duration || 1,
-    status: task.status || "todo",
-    notes: task.notes || "",
-    files: task.files || [],
-  });
-
-  function save() {
-    if (!form.title.trim()) return;
-    onSave({ ...task, ...form, startWeek: +form.startWeek, duration: +form.duration });
-  }
-
-  return (
-    <div className="marga-modal-bg" onClick={onClose}>
-      <div className="marga-modal" onClick={e => e.stopPropagation()}>
-        <h2>{task.id ? "Redigera uppgift" : "Ny uppgift"}</h2>
-
-        <div className="marga-field">
-          <label className="marga-label">Titel</label>
-          <input className="marga-input" value={form.title} onChange={e => setForm({...form, title: e.target.value})} autoFocus />
-        </div>
-
-        <div style={{ display: "flex", gap: 12 }}>
-          <div className="marga-field" style={{ flex: 2 }}>
-            <label className="marga-label">Fas</label>
-            <select className="marga-input" value={form.phase} onChange={e => setForm({...form, phase: e.target.value})}>
-              {phases.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-            </select>
-          </div>
-          <div className="marga-field" style={{ flex: 1 }}>
-            <label className="marga-label">Startvecka</label>
-            <input className="marga-input" type="number" min="1" value={form.startWeek} onChange={e => setForm({...form, startWeek: e.target.value})} />
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 12 }}>
-          <div className="marga-field" style={{ flex: 1 }}>
-            <label className="marga-label">Varaktighet (veckor)</label>
-            <input className="marga-input" type="number" min="1" value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} />
-          </div>
-          <div className="marga-field" style={{ flex: 1 }}>
-            <label className="marga-label">Status</label>
-            <select className="marga-input" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
-              {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-            </select>
-          </div>
-        </div>
-
-        <div className="marga-field">
-          <label className="marga-label">Anteckningar</label>
-          <textarea className="marga-input" rows={3} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} style={{ resize: "vertical" }} />
-        </div>
-
-        <FileAttachments files={form.files} onChange={files => setForm({...form, files})} onPreview={onPreview} taskTitle={form.title} />
-
-        <div style={{ display: "flex", gap: 8, marginTop: 20, justifyContent: "space-between" }}>
-          <div>
-            {task.id && <button className="marga-btn marga-btn-danger" onClick={() => onDelete(task.id)}>Ta bort</button>}
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="marga-btn marga-btn-secondary" onClick={onClose}>Avbryt</button>
-            <button className="marga-btn marga-btn-primary" onClick={save}>Spara</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Kanban ───────────────────────────────────────────────────
+// ─── Kanban Card ───
 function KanbanCard({ task, phases, onEdit, onDragStart, onDragOver, onDrop, onPreview }) {
   const phase = phases.find(p => p.id === task.phase);
   const files = task.files || [];
-  const imageFiles = files.filter(f => (f.type || detectFileType(f.name || f.url)) === "image" && isGithubUrl(f.url));
-  const nonImageCount = files.length - imageFiles.length;
-  const allImgs = imageFiles.map(f => ({ src: f.url, caption: f.name }));
-
+  const imageFiles = files.filter(f => (f.type || detectFileType(f.name || f.url)) === "image");
+  const nonImageFiles = files.filter(f => (f.type || detectFileType(f.name || f.url)) !== "image");
+  const filesByType = {};
+  nonImageFiles.forEach(f => { const t = f.type || "other"; filesByType[t] = (filesByType[t] || 0) + 1; });
+  const allImageObjs = imageFiles.map(f => ({ src: fileViewUrl(f.url), caption: f.name }));
   return (
-    <div className="kanban-card" draggable
-      style={{ borderLeftColor: phase?.color || "#aaa" }}
+    <div draggable
       onDragStart={e => { e.dataTransfer.setData("taskId", String(task.id)); onDragStart(task.id); }}
       onDragOver={e => { e.preventDefault(); e.stopPropagation(); if (onDragOver) onDragOver(task.id); }}
       onDrop={e => { e.preventDefault(); e.stopPropagation(); if (onDrop) onDrop(e); }}
-      onClick={() => onEdit(task)}>
-      <div style={{ fontWeight: 600, color: "#3A2E22", marginBottom: 4, fontSize: 13, lineHeight: 1.3 }}>{task.title}</div>
+      onClick={() => onEdit(task)}
+      style={{ background: "#FFFDF8", borderRadius: 8, padding: "10px 12px", marginBottom: 8, cursor: "grab", borderLeft: `4px solid ${phase?.color || "#aaa"}`, boxShadow: "0 1px 3px rgba(80,60,40,0.08)", transition: "box-shadow 0.15s, transform 0.15s", fontSize: 13 }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 3px 10px rgba(80,60,40,0.15)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 1px 3px rgba(80,60,40,0.08)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
+      <div style={{ fontWeight: 600, color: "#3A2E22", marginBottom: 4, lineHeight: 1.3 }}>{task.title}</div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: phase?.color, textTransform: "uppercase", letterSpacing: "0.05em" }}>{phase?.label}</span>
-        {nonImageCount > 0 && <span style={{ fontSize: 10, color: "#A89878" }}>📎 {nonImageCount}</span>}
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.05em", color: phase?.color, textTransform: "uppercase" }}>{phase?.label}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          {Object.entries(filesByType).map(([type, count]) => { const def = getFileTypeDef(type); return <span key={type} style={{ fontSize: 8, fontWeight: 800, background: def.color, color: "#fff", padding: "1px 4px", borderRadius: 3, letterSpacing: "0.03em" }}>{def.icon} {count > 1 ? count : ""}</span>; })}
+        </div>
       </div>
-      {task.notes && <div style={{ fontSize: 11, color: "#8A7D6B", marginTop: 4, lineHeight: 1.35 }}>{task.notes.length > 60 ? task.notes.slice(0,60)+"…" : task.notes}</div>}
+      {task.notes && <div style={{ fontSize: 11, color: "#8A7D6B", marginTop: 4, lineHeight: 1.35, whiteSpace: "pre-wrap" }}>{task.notes.length > 60 ? task.notes.slice(0, 60) + "…" : task.notes}</div>}
       {imageFiles.length > 0 && (
         <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" }} onClick={e => e.stopPropagation()}>
-          {imageFiles.slice(0,4).map((f, i) => (
+          {imageFiles.slice(0, 4).map((f, i) => (
             <div key={i} style={{ position: "relative" }}>
-              <img src={f.url} alt={f.name}
-                onClick={e => { e.stopPropagation(); onPreview(f.url, f.name, allImgs, i); }}
+              <img src={fileThumbUrl(f.url)} alt={f.name}
+                onClick={e => { e.stopPropagation(); if (onPreview) onPreview(fileViewUrl(f.url), f.name, allImageObjs, i); }}
                 style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 5, border: "1.5px solid #E5DDD0", cursor: "zoom-in", display: "block" }}
                 onError={e => { e.target.style.display = "none"; }} />
               {i === 3 && imageFiles.length > 4 && (
-                <div onClick={e => { e.stopPropagation(); onPreview(imageFiles[3].url, imageFiles[3].name, allImgs, 3); }}
+                <div onClick={e => { e.stopPropagation(); if (onPreview) onPreview(fileViewUrl(imageFiles[3].url), imageFiles[3].name, allImageObjs, 3); }}
                   style={{ position: "absolute", inset: 0, background: "rgba(40,30,20,0.55)", borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-in" }}>
-                  <span style={{ color: "#fff", fontSize: 11, fontWeight: 700 }}>+{imageFiles.length-3}</span>
+                  <span style={{ color: "#fff", fontSize: 11, fontWeight: 700 }}>+{imageFiles.length - 3}</span>
                 </div>
               )}
             </div>
@@ -551,296 +479,1839 @@ function KanbanCard({ task, phases, onEdit, onDragStart, onDragOver, onDrop, onP
   );
 }
 
-function KanbanBoard({ tasks, phases, onEdit, onDrop, onReorder, onPreview }) {
-  const [dragOverStatus, setDragOverStatus] = useState(null);
-  const [draggingId, setDraggingId] = useState(null);
+// ─── Kanban Column ───
+function KanbanColumn({ status, tasks, phases, onEdit, onDrop, onDragStart, dragOverStatus, setDragOverStatus, onReorder, onPreview }) {
   const dragOverCard = useRef(null);
-
   return (
-    <div className="kanban-board">
-      {STATUSES.map(s => {
-        const colTasks = tasks.filter(t => t.status === s.id);
-        return (
-          <div key={s.id} className="kanban-col"
-            style={{ background: dragOverStatus === s.id ? "rgba(90,122,138,0.07)" : "transparent" }}
-            onDragOver={e => { e.preventDefault(); setDragOverStatus(s.id); }}
-            onDragLeave={() => setDragOverStatus(null)}
-            onDrop={e => { e.preventDefault(); setDragOverStatus(null); onDrop(parseInt(e.dataTransfer.getData("taskId")), s.id); }}>
-            <div className="kanban-col-header">
-              <span style={{ fontSize: 15 }}>{s.icon}</span>
-              <span style={{ fontWeight: 700, fontSize: 13, color: "#3A2E22", textTransform: "uppercase", letterSpacing: "0.03em" }}>{s.label}</span>
-              <span style={{ marginLeft: "auto", fontSize: 11, background: "#E5DDD0", borderRadius: 10, padding: "1px 8px", color: "#6B5D4E", fontWeight: 600 }}>{colTasks.length}</span>
-            </div>
-            <div style={{ minHeight: 40 }}>
-              {colTasks.map(t => (
-                <KanbanCard key={t.id} task={t} phases={phases} onEdit={onEdit}
-                  onDragStart={setDraggingId} onPreview={onPreview}
-                  onDragOver={cardId => { dragOverCard.current = cardId; }}
-                  onDrop={e => {
-                    const draggedId = parseInt(e.dataTransfer.getData("taskId"));
-                    if (onReorder && dragOverCard.current && draggedId !== dragOverCard.current) {
-                      onReorder(draggedId, dragOverCard.current, s.id);
-                    }
-                    dragOverCard.current = null;
-                  }} />
-              ))}
-            </div>
-          </div>
-        );
-      })}
+    <div style={{ minWidth: 220, maxWidth: 260, flex: "1 1 220px", background: dragOverStatus === status.id ? "rgba(90,122,138,0.07)" : "transparent", borderRadius: 12, padding: 10, transition: "background 0.2s" }}
+      onDragOver={e => { e.preventDefault(); setDragOverStatus(status.id); }}
+      onDragLeave={() => setDragOverStatus(null)}
+      onDrop={e => { e.preventDefault(); setDragOverStatus(null); onDrop(parseInt(e.dataTransfer.getData("taskId")), status.id); }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, padding: "4px 0", borderBottom: "2px solid #E5DDD0" }}>
+        <span style={{ fontSize: 15 }}>{status.icon}</span>
+        <span style={{ fontWeight: 700, fontSize: 13, color: "#3A2E22", letterSpacing: "0.03em", textTransform: "uppercase" }}>{status.label}</span>
+        <span style={{ marginLeft: "auto", fontSize: 11, background: "#E5DDD0", borderRadius: 10, padding: "1px 8px", color: "#6B5D4E", fontWeight: 600 }}>{tasks.length}</span>
+      </div>
+      <div style={{ minHeight: 40 }}>
+        {tasks.map(t => <KanbanCard key={t.id} task={t} phases={phases} onEdit={onEdit} onDragStart={onDragStart} onPreview={onPreview}
+        onDragOver={cardId => { dragOverCard.current = cardId; }}
+        onDrop={e => { const draggedId = parseInt(e.dataTransfer.getData("taskId")); if (onReorder && dragOverCard.current && draggedId !== dragOverCard.current) { onReorder(draggedId, dragOverCard.current, status.id); } dragOverCard.current = null; }}
+      />)}
+      </div>
     </div>
   );
 }
 
-// ── Gantt ────────────────────────────────────────────────────
-function GanttChart({ tasks, phases }) {
-  const totalWeeks = Math.max(20, ...tasks.map(t => (t.startWeek || 1) + (t.duration || 1)));
-  const weeks = Array.from({ length: totalWeeks }, (_, i) => i + 1);
+// ─── Task Modal ───
+function TaskModal({ task, onSave, onDelete, onClose, phases, onPreview }) {
+  const [form, setForm] = useState({ ...task, files: task.files || [] });
+  const isNew = !task.id;
+
+  const inputStyle = { width: "100%", padding: "8px 10px", borderRadius: 7, border: "1.5px solid #DDD5C8", background: "#FBF8F2", fontSize: 14, color: "#3A2E22", outline: "none", boxSizing: "border-box", fontFamily: "inherit" };
+  const labelStyle = { display: "block", fontSize: 11, fontWeight: 700, color: "#8A7D6B", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4, marginTop: 12 };
+  const btnStyle = { padding: "8px 18px", border: "none", borderRadius: 7, fontWeight: 700, fontSize: 13, cursor: "pointer", letterSpacing: "0.02em" };
 
   return (
-    <div className="gantt-wrap">
-      {/* Header */}
-      <div style={{ display: "flex", borderBottom: "2px solid #E5DDD0", marginBottom: 4 }}>
-        <div style={{ width: 180, flexShrink: 0 }} />
-        <div style={{ flex: 1, display: "flex" }}>
-          {weeks.map(w => (
-            <div key={w} style={{ flex: 1, textAlign: "center", fontSize: 9, color: "#A89878", padding: "4px 0", borderLeft: "1px solid #F0EBE2" }}>
-              {w % 4 === 1 ? `V${w}` : ""}
-            </div>
-          ))}
+    <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(40,30,20,0.45)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#FFFDF8", borderRadius: 14, padding: 28, width: 520, maxWidth: "94vw", maxHeight: "92vh", overflow: "auto", boxShadow: "0 12px 40px rgba(40,30,20,0.25)" }}>
+        <h3 style={{ margin: "0 0 18px", fontFamily: "'Playfair Display', Georgia, serif", color: "#3A2E22", fontSize: 20 }}>
+          {isNew ? "Lägg till uppgift" : "Redigera uppgift"}
+        </h3>
+
+        <label style={labelStyle}>Titel</label>
+        <input style={inputStyle} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} autoFocus />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div>
+            <label style={labelStyle}>Fas</label>
+            <select style={inputStyle} value={form.phase} onChange={e => setForm({ ...form, phase: e.target.value })}>
+              {phases.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={labelStyle}>Startvecka</label>
+            <input type="number" min={1} max={TOTAL_WEEKS} style={inputStyle} value={form.startWeek} onChange={e => setForm({ ...form, startWeek: Math.max(1, +e.target.value) })} />
+          </div>
+          <div>
+            <label style={labelStyle}>Varaktighet (veckor)</label>
+            <input type="number" min={1} max={20} style={inputStyle} value={form.duration} onChange={e => setForm({ ...form, duration: Math.max(1, +e.target.value) })} />
+          </div>
+        </div>
+
+        <label style={labelStyle}>Status</label>
+        <select style={inputStyle} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+          {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+
+        <label style={labelStyle}>Anteckningar</label>
+        <textarea rows={3} style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+
+        <FileAttachments files={form.files} onChange={files => setForm({ ...form, files })} onPreview={onPreview} taskTitle={form.title} />
+
+        <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "flex-end" }}>
+          {!isNew && <button onClick={() => { onDelete(form.id); onClose(); }} style={{ ...btnStyle, background: "#C75B4A", color: "#fff" }}>Ta bort</button>}
+          <button onClick={onClose} style={{ ...btnStyle, background: "#E5DDD0", color: "#6B5D4E" }}>Avbryt</button>
+          <button onClick={() => { onSave(form); onClose(); }} style={{ ...btnStyle, background: "#5B7F6E", color: "#fff" }} disabled={!form.title.trim()}>{isNew ? "Lägg till" : "Spara"}</button>
         </div>
       </div>
-      {/* Rows */}
-      {tasks.map(task => {
-        const phase = phases.find(p => p.id === task.phase);
-        const start = Math.max(1, task.startWeek || 1);
-        const dur   = Math.max(1, task.duration || 1);
-        const left  = ((start - 1) / totalWeeks) * 100;
-        const width = (dur / totalWeeks) * 100;
-        return (
-          <div key={task.id} className="gantt-row">
-            <div className="gantt-label" title={task.title}>{task.title.length > 22 ? task.title.slice(0,22)+"…" : task.title}</div>
-            <div className="gantt-bar-area">
-              <div className="gantt-bar" style={{ left: `${left}%`, width: `${width}%`, background: phase?.color || "#8A7D6B" }} title={`V${start}–V${start+dur-1}`} />
-            </div>
-          </div>
-        );
-      })}
     </div>
   );
 }
 
-// ── Stats ────────────────────────────────────────────────────
-function Stats({ tasks }) {
-  const total = tasks.length;
-  const done  = tasks.filter(t => t.status === "done").length;
-  const pct   = total ? Math.round((done/total)*100) : 0;
-  return (
-    <div className="marga-stats">
-      {[
-        { num: total, label: "Uppgifter totalt" },
-        { num: tasks.filter(t=>t.status==="ongoing").length, label: "Pågående" },
-        { num: done, label: "Klara" },
-        { num: `${pct}%`, label: "Färdigställt" },
-      ].map((s,i) => (
-        <div key={i} className="stat-card">
-          <div className="stat-num">{s.num}</div>
-          <div className="stat-label">{s.label}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
+// ─── Gantt Chart ───
+function GanttChart({ tasks, phases, onEdit, filterPhase, onUpdateTask }) {
+  const filtered = filterPhase === "all" ? tasks : tasks.filter(t => t.phase === filterPhase);
+  const sorted = filtered; // Preserve tasks array order (same as kanban)
+  const [weekWidth, setWeekWidth] = useState(46);
+  const rowHeight = 34, labelWidth = 250;
+  const today = new Date(), projectStart = new Date(2026, 2, 2);
+  const diffDays = Math.max(0, (today - projectStart) / (1000 * 60 * 60 * 24));
+  const currentWeek = Math.min(TOTAL_WEEKS, 1 + diffDays / 7);
 
-// ── Main App ─────────────────────────────────────────────────
-function App() {
-  const [tasks, setTasks]         = useState([]);
-  const [view, setView]           = useState("board"); // board | gantt | stats
-  const [editingTask, setEditing] = useState(null);
-  const [lightbox, setLightbox]   = useState(null);
-  const [syncStatus, setSyncStatus] = useState("idle"); // idle | saving | error
-  const [filter, setFilter]       = useState("");
-  const saveTimer = useRef(null);
+  const scrollRef = useRef(null);
+  const dragging = useRef(null);
+  const [dragState, setDragState] = useState({});
+  const dragStateRef = useRef({});
 
-  // Load on mount
+  function updateDragState(taskId, val) {
+    dragStateRef.current = { ...dragStateRef.current, [taskId]: val };
+    setDragState({ ...dragStateRef.current });
+  }
+
   useEffect(() => {
-    apiGet().then(data => {
-      if (data?.tasks) setTasks(data.tasks);
-    }).catch(e => {
-      console.warn("Kunde inte ladda data:", e);
-      setSyncStatus("error");
-    });
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = Math.max(0, (currentWeek - 3) * weekWidth);
+    }
   }, []);
 
-  // Auto-save with debounce
-  function saveTasks(newTasks) {
-    setTasks(newTasks);
-    setSyncStatus("saving");
-    clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      try {
-        await apiSave({ tasks: newTasks });
-        setSyncStatus("idle");
-        showToast("Sparat ✓");
-      } catch(e) {
-        setSyncStatus("error");
-        showToast("Fel vid sparning");
+  function onBarMouseDown(e, task, mode) {
+    e.stopPropagation();
+    e.preventDefault();
+    dragging.current = { taskId: task.id, mode, startX: e.clientX, origStart: task.startWeek, origDuration: task.duration };
+    updateDragState(task.id, { startWeek: task.startWeek, duration: task.duration });
+
+    function onMouseMove(ev) {
+      if (!dragging.current) return;
+      const dx = ev.clientX - dragging.current.startX;
+      const dWeeks = Math.round(dx / weekWidth);
+      const { taskId, mode, origStart, origDuration } = dragging.current;
+      const cur = dragStateRef.current[taskId] || { startWeek: origStart, duration: origDuration };
+      if (mode === "move") {
+        updateDragState(taskId, { startWeek: Math.max(1, Math.min(TOTAL_WEEKS, origStart + dWeeks)), duration: cur.duration });
+      } else {
+        updateDragState(taskId, { startWeek: cur.startWeek, duration: Math.max(1, Math.min(TOTAL_WEEKS - origStart + 1, origDuration + dWeeks)) });
       }
-    }, 800);
+    }
+
+    function onMouseUp() {
+      if (!dragging.current) return;
+      const { taskId } = dragging.current;
+      const updated = dragStateRef.current[taskId];
+      if (updated) onUpdateTask(taskId, updated);
+      dragging.current = null;
+      delete dragStateRef.current[taskId];
+      setDragState({ ...dragStateRef.current });
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   }
 
-  function handleSave(task) {
-    const isNew = !task.id;
-    const updated = isNew
-      ? [...tasks, { ...task, id: Date.now() }]
-      : tasks.map(t => t.id === task.id ? task : t);
-    saveTasks(updated);
-    setEditing(null);
-    showToast(isNew ? "Uppgift skapad ✓" : "Uppgift uppdaterad ✓");
+  // Use dragState for live preview
+  function getBar(t) {
+    const ds = dragState[t.id];
+    return { startWeek: ds?.startWeek ?? t.startWeek, duration: ds?.duration ?? t.duration };
   }
-
-  function handleDelete(id) {
-    if (!confirm("Ta bort uppgiften?")) return;
-    saveTasks(tasks.filter(t => t.id !== id));
-    setEditing(null);
-  }
-
-  function handleDrop(taskId, newStatus) {
-    saveTasks(tasks.map(t => t.id === taskId ? {...t, status: newStatus} : t));
-  }
-
-  function handleReorder(draggedId, targetId, status) {
-    const arr = [...tasks];
-    const di = arr.findIndex(t => t.id === draggedId);
-    const ti = arr.findIndex(t => t.id === targetId);
-    if (di < 0 || ti < 0) return;
-    const [moved] = arr.splice(di, 1);
-    moved.status = status;
-    arr.splice(ti, 0, moved);
-    saveTasks(arr);
-  }
-
-  function handleExport() {
-    const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "marga-iii-backup.json"; a.click();
-    URL.revokeObjectURL(url);
-    showToast("Backup exporterad ✓");
-  }
-
-  function handleImport() {
-    const input = document.createElement("input");
-    input.type = "file"; input.accept = ".json";
-    input.onchange = e => {
-      const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        try {
-          let imported = JSON.parse(ev.target.result);
-          if (!Array.isArray(imported) && Array.isArray(imported?.tasks)) imported = imported.tasks;
-          if (!Array.isArray(imported) || !imported.length || !imported[0].title) { showToast("Ogiltig fil ✗"); return; }
-          if (tasks.length && !confirm(`Ersätta ${tasks.length} befintliga uppgifter med ${imported.length} från filen?`)) return;
-          const cleaned = imported.map(t => ({ ...t, files: (t.files || []).map(f => ({ ...f, type: f.type || detectFileType(f.name || f.url) })) }));
-          saveTasks(cleaned);
-          showToast(`${cleaned.length} uppgifter importerade ✓`);
-        } catch { showToast("Kunde inte läsa filen ✗"); }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  }
-
-  function openLightbox(src, caption, images, idx) {
-    setLightbox({ src, caption, images: images || [{ src, caption }], currentIndex: idx || 0 });
-  }
-
-  function navigateLightbox(dir) {
-    if (!lightbox?.images) return;
-    const next = (lightbox.currentIndex + dir + lightbox.images.length) % lightbox.images.length;
-    const img  = lightbox.images[next];
-    setLightbox({ ...lightbox, src: img.src, caption: img.caption, currentIndex: next });
-  }
-
-  const filtered = filter
-    ? tasks.filter(t => t.title.toLowerCase().includes(filter.toLowerCase()) || (t.notes||"").toLowerCase().includes(filter.toLowerCase()))
-    : tasks;
-
-  const syncColor = syncStatus === "saving" ? "#C9A84C" : syncStatus === "error" ? "#C75B4A" : "#5B7F6E";
-  const syncLabel = syncStatus === "saving" ? "Sparar…" : syncStatus === "error" ? "Synkfel" : "Synkad";
 
   return (
-    <div className="marga-app">
-      {/* Header */}
-      <div className="marga-header">
-        <div>
-          <div className="marga-header-sub">Projektplanering</div>
-          <h1>Marga III</h1>
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, justifyContent: "flex-end" }}>
+        <span style={{ fontSize: 11, color: "#8A7D6B", fontWeight: 600 }}>Zoom</span>
+        <button onClick={() => setWeekWidth(w => Math.max(20, w - 8))} style={{ width: 26, height: 26, border: "1px solid #DDD5C8", borderRadius: 6, background: "#FAF6EF", cursor: "pointer", fontSize: 15, color: "#5A4A38", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+        <input type="range" min="20" max="120" value={weekWidth} onChange={e => setWeekWidth(+e.target.value)} style={{ width: 80, accentColor: "#5B7F6E", cursor: "pointer" }} />
+        <button onClick={() => setWeekWidth(w => Math.min(120, w + 8))} style={{ width: 26, height: 26, border: "1px solid #DDD5C8", borderRadius: 6, background: "#FAF6EF", cursor: "pointer", fontSize: 15, color: "#5A4A38", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+        <button onClick={() => setWeekWidth(46)} style={{ padding: "3px 8px", border: "1px solid #DDD5C8", borderRadius: 6, background: "#FAF6EF", cursor: "pointer", fontSize: 10, color: "#8A7D6B", fontWeight: 600 }}>1:1</button>
+        <span style={{ fontSize: 10, color: "#A89878", marginLeft: 8 }}>Dra för att flytta · Dra i kanten för att ändra längd</span>
+      </div>
+
+      <div ref={scrollRef} style={{ overflow: "auto", borderRadius: 10, border: "1px solid #E5DDD0" }}>
+      <div style={{ display: "flex", minWidth: labelWidth + TOTAL_WEEKS * weekWidth }}>
+        <div style={{ width: labelWidth, flexShrink: 0, borderRight: "1px solid #E5DDD0", background: "#FAF6EF" }}>
+          <div style={{ height: 36, borderBottom: "1px solid #E5DDD0", padding: "8px 12px", fontSize: 11, fontWeight: 700, color: "#8A7D6B", textTransform: "uppercase", letterSpacing: "0.06em" }}>Uppgift</div>
+          {sorted.map(t => {
+            const phase = phases.find(p => p.id === t.phase);
+            return (
+              <div key={t.id} onClick={() => onEdit(t)} style={{ height: rowHeight, display: "flex", alignItems: "center", padding: "0 12px", fontSize: 12, fontWeight: 500, color: "#3A2E22", borderBottom: "1px solid #F0EBE2", cursor: "pointer", gap: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: phase?.color, flexShrink: 0 }} />
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{t.title}</span>
+                {(t.files||[]).length > 0 && <span style={{ fontSize: 9, color: "#A89878", flexShrink: 0 }}>📎{(t.files||[]).length}</span>}
+              </div>
+            );
+          })}
         </div>
-        <div style={{ display: "flex", gap: 6, marginLeft: "auto", alignItems: "center", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, color: "#8A7D6B", display: "flex", alignItems: "center" }}>
-            <span className="sync-dot" style={{ background: syncColor }} />
-            {syncLabel}
-          </span>
-          <button className="marga-nav-btn" onClick={() => setEditing({ files: [] })}>+ Ny uppgift</button>
-          <button className="marga-nav-btn" onClick={handleExport}>↓ Backup</button>
-          <button className="marga-nav-btn" onClick={handleImport}>↑ Importera</button>
-          <button className="marga-nav-btn" onClick={() => { localStorage.removeItem(SITE_AUTH_KEY); location.reload(); }}>⎋ Logga ut</button>
+        <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ display: "flex", borderBottom: "1px solid #E5DDD0", height: 36 }}>
+            {Array.from({ length: TOTAL_WEEKS }, (_, i) => (
+              <div key={i} style={{ width: weekWidth, flexShrink: 0, textAlign: "center", fontSize: 10, color: "#8A7D6B", padding: "4px 0", borderRight: "1px solid #F0EBE2", lineHeight: 1.2, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <div style={{ fontWeight: 700 }}>V{i + 1}</div>
+                {weekWidth >= 36 && <div>{getWeekLabel(i + 1)}</div>}
+              </div>
+            ))}
+          </div>
+          <div style={{ position: "relative" }}>
+            <div style={{ position: "absolute", left: (currentWeek - 1) * weekWidth + weekWidth / 2 - 1, top: 0, bottom: 0, width: 2, background: "#C75B4A", opacity: 0.5, zIndex: 5, pointerEvents: "none" }} />
+            {sorted.map(t => {
+              const phase = phases.find(p => p.id === t.phase);
+              const { startWeek, duration } = getBar(t);
+              const left = (startWeek - 1) * weekWidth;
+              const width = duration * weekWidth - 4;
+              const isDraggingThis = !!dragState[t.id];
+              const isDone = t.status === "done", isInProgress = t.status === "in_progress";
+              return (
+                <div key={t.id} style={{ height: rowHeight, position: "relative", borderBottom: "1px solid #F0EBE2" }}>
+                  {Array.from({ length: TOTAL_WEEKS }, (_, i) => <div key={i} style={{ position: "absolute", left: i * weekWidth, top: 0, bottom: 0, width: 1, background: "#F0EBE2" }} />)}
+                  <div
+                    style={{ position: "absolute", left: left + 2, top: 6, width: Math.max(width, 16), height: rowHeight - 12,
+                      background: isDone ? `repeating-linear-gradient(135deg, ${phase?.color}CC, ${phase?.color}CC 4px, ${phase?.color}99 4px, ${phase?.color}99 8px)` : isInProgress ? `linear-gradient(90deg, ${phase?.color}, ${phase?.color}BB)` : `${phase?.color}55`,
+                      borderRadius: 5, border: `1.5px solid ${phase?.color}${isDraggingThis ? "" : ""}`,
+                      boxShadow: isDraggingThis ? "0 4px 16px rgba(0,0,0,0.25)" : "none",
+                      cursor: "grab", display: "flex", alignItems: "center", paddingLeft: 6, overflow: "hidden",
+                      transform: isDraggingThis ? "scaleY(1.15)" : "scaleY(1)", transition: isDraggingThis ? "none" : "transform 0.12s",
+                      userSelect: "none", zIndex: isDraggingThis ? 10 : 1,
+                    }}
+                    onMouseDown={e => onBarMouseDown(e, { ...t, startWeek, duration }, "move")}
+                    onDoubleClick={() => onEdit(t)}
+                  >
+                    {width > 50 && <span style={{ fontSize: 10, fontWeight: 600, color: isDone || isInProgress ? "#fff" : "#3A2E22", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textShadow: isDone || isInProgress ? "0 1px 2px rgba(0,0,0,0.2)" : "none", flex: 1 }}>{t.title}</span>}
+                    {/* Resize handle — right edge */}
+                    <div
+                      onMouseDown={e => { e.stopPropagation(); onBarMouseDown(e, { ...t, startWeek, duration }, "resize"); }}
+                      style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 8, cursor: "ew-resize", background: `${phase?.color}88`, borderRadius: "0 4px 4px 0", display: "flex", alignItems: "center", justifyContent: "center" }}
+                    >
+                      <div style={{ width: 2, height: 10, background: phase?.color, borderRadius: 1, margin: "0 1px" }} />
+                      <div style={{ width: 2, height: 10, background: phase?.color, borderRadius: 1 }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      </div>
+      </div>
+  );
+}
+
+// ─── Stats ───
+function Stats({ tasks }) {
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === "done").length;
+  const inProgress = tasks.filter(t => t.status === "in_progress").length;
+  const totalFiles = tasks.reduce((sum, t) => sum + (t.files || []).length, 0);
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const statItems = [
+    { label: "Totalt uppgifter", value: total, color: "#3A2E22" },
+    { label: "Avklarade", value: done + " (" + pct + "%)", color: "#5B7F6E" },
+    { label: "Pågående", value: inProgress, color: "#D4A76A" },
+    { label: "Bifogade filer", value: totalFiles, color: "#5A7A8A" },
+  ];
+
+  return (
+    <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
+      {statItems.map(s => (
+        <div key={s.label} style={{ flex: "1 1 120px", background: "#FFFDF8", borderRadius: 10, padding: "14px 18px", border: "1px solid #E5DDD0" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#8A7D6B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>{s.label}</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: s.color, fontFamily: "'Playfair Display', Georgia, serif" }}>{s.value}</div>
+        </div>
+      ))}
+      <div style={{ flex: "1 1 100%", background: "#FFFDF8", borderRadius: 10, padding: "14px 18px", border: "1px solid #E5DDD0" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#8A7D6B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Total framdrift</div>
+        <div style={{ height: 10, background: "#E5DDD0", borderRadius: 5, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, #5B7F6E, #7BA08A)", borderRadius: 5, transition: "width 0.6s ease" }} />
+        </div>
+      </div>
+      </div>
+  );
+}
+
+// ─── PDF Thumbnail (renders first page via PDF.js) ───
+function PdfThumbnail({ url, onClick }) {
+  const canvasRef = useRef(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!window.pdfjsLib) { setFailed(true); return; }
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    let cancelled = false;
+    window.pdfjsLib.getDocument({ url, withCredentials: false }).promise.then(pdf => {
+      if (cancelled) return;
+      return pdf.getPage(1);
+    }).then(page => {
+      if (cancelled || !canvasRef.current) return;
+      const viewport = page.getViewport({ scale: 1 });
+      const scale = 170 / viewport.width;
+      const scaled = page.getViewport({ scale });
+      const canvas = canvasRef.current;
+      canvas.width = scaled.width;
+      canvas.height = scaled.height;
+      page.render({ canvasContext: canvas.getContext("2d"), viewport: scaled });
+    }).catch(() => { if (!cancelled) setFailed(true); });
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (failed) return (
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+      <span style={{ fontSize: 32 }}>📄</span>
+      <span style={{ fontSize: 11, fontWeight: 700, color: "#8A7D6B", background: "#E5DDD0", padding: "2px 6px", borderRadius: 4 }}>PDF</span>
+    </div>
+  );
+
+  return (
+    <canvas ref={canvasRef} onClick={onClick}
+      style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in", display: "block" }} />
+  );
+}
+
+// ─── PDF Page Canvas (renders one page) ───
+function PdfPageCanvas({ pdf, pageNum, scale }) {
+  const canvasRef = useRef(null);
+  const renderTask = useRef(null);
+
+  useEffect(() => {
+    if (!pdf || !canvasRef.current) return;
+    let cancelled = false;
+    pdf.getPage(pageNum).then(page => {
+      if (cancelled) return;
+      const vp = page.getViewport({ scale });
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      canvas.width = vp.width;
+      canvas.height = vp.height;
+      if (renderTask.current) { renderTask.current.cancel(); }
+      renderTask.current = page.render({ canvasContext: canvas.getContext("2d"), viewport: vp });
+      renderTask.current.promise.catch(() => {});
+    });
+    return () => { cancelled = true; if (renderTask.current) renderTask.current.cancel(); };
+  }, [pdf, pageNum, scale]);
+
+  return (
+    <canvas ref={canvasRef} style={{ display: "block", borderRadius: 3, boxShadow: "0 2px 10px rgba(0,0,0,0.25)", margin: "0 auto" }} />
+  );
+}
+
+// ─── PDF Viewer Modal ───
+function PdfViewerModal({ url, name, onClose }) {
+  const [pdf, setPdf] = useState(null);
+  const [numPages, setNumPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [scale, setScale] = useState(1.4);
+
+  useEffect(() => {
+    if (!window.pdfjsLib) { setError("PDF.js ej tillgänglig"); setLoading(false); return; }
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    let cancelled = false;
+    window.pdfjsLib.getDocument({ url, withCredentials: false }).promise
+      .then(doc => {
+        if (cancelled) return;
+        setPdf(doc);
+        setNumPages(doc.numPages);
+        setLoading(false);
+      })
+      .catch(e => { if (!cancelled) { setError(e.message); setLoading(false); } });
+    return () => { cancelled = true; };
+  }, [url]);
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,15,10,0.88)", zIndex: 9999, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", overflowY: "auto" }}>
+      {/* Sticky header */}
+      <div onClick={e => e.stopPropagation()} style={{ position: "sticky", top: 0, zIndex: 10, width: "min(860px, 95vw)", background: "#FAF6EF", borderRadius: "0 0 10px 10px", borderBottom: "1px solid #E5DDD0", padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(0,0,0,0.3)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#3A2E22", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "40%" }}>📄 {name}</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+          {numPages > 0 && <span style={{ fontSize: 11, color: "#8A7D6B" }}>{numPages} sidor</span>}
+          <button onClick={() => setScale(s => Math.max(0.5, +(s - 0.2).toFixed(1)))} style={{ padding: "3px 9px", border: "1px solid #DDD5C8", borderRadius: 5, background: "#fff", cursor: "pointer", fontSize: 15, color: "#5A4A38", lineHeight: 1 }}>−</button>
+          <span style={{ fontSize: 11, color: "#8A7D6B", minWidth: 38, textAlign: "center" }}>{Math.round(scale * 100)}%</span>
+          <button onClick={() => setScale(s => Math.min(3, +(s + 0.2).toFixed(1)))} style={{ padding: "3px 9px", border: "1px solid #DDD5C8", borderRadius: 5, background: "#fff", cursor: "pointer", fontSize: 15, color: "#5A4A38", lineHeight: 1 }}>+</button>
+          <a href={url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
+            style={{ padding: "5px 12px", background: "#5B7F6E", color: "#fff", borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: "none" }}>↓ Ladda ner</a>
+          <button onClick={onClose} style={{ padding: "5px 10px", background: "none", border: "1px solid #DDD5C8", borderRadius: 6, fontSize: 13, cursor: "pointer", color: "#6B5D4E" }}>✕</button>
         </div>
       </div>
 
-      {/* Tabs + filter */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-        <div className="marga-tabs" style={{ flex: 1 }}>
-          {[["board","Tavla"],["gantt","Gantt-schema"],["stats","Statistik"]].map(([id, label]) => (
-            <button key={id} className={`marga-tab${view===id?" active":""}`} onClick={() => setView(id)}>{label}</button>
-          ))}
-        </div>
-        <input placeholder="Sök uppgift…" value={filter} onChange={e => setFilter(e.target.value)}
-          style={{ padding: "6px 10px", borderRadius: 7, border: "1.5px solid #DDD5C8", background: "#FAF6EF", fontSize: 12, color: "#3A2E22", outline: "none", width: 160 }} />
+      {/* Pages */}
+      <div onClick={e => e.stopPropagation()} style={{ width: "min(860px, 95vw)", padding: "16px 0 40px", display: "flex", flexDirection: "column", gap: 12, overflowX: "auto" }}>
+        {loading && <div style={{ padding: 60, color: "#C4B89E", fontSize: 13, textAlign: "center" }}>Laddar PDF…</div>}
+        {error && <div style={{ padding: 20, color: "#C75B4A", fontSize: 13, textAlign: "center" }}>⚠ {error}</div>}
+        {pdf && Array.from({ length: numPages }, (_, i) => (
+          <PdfPageCanvas key={`${url}-${i}-${scale}`} pdf={pdf} pageNum={i + 1} scale={scale} />
+        ))}
       </div>
-
-      {/* Views */}
-      {view === "board" && (
-        <KanbanBoard tasks={filtered} phases={PHASES}
-          onEdit={setEditing} onDrop={handleDrop} onReorder={handleReorder}
-          onPreview={(src, cap, imgs, idx) => openLightbox(src, cap, imgs, idx)} />
-      )}
-      {view === "gantt" && <GanttChart tasks={filtered} phases={PHASES} />}
-      {view === "stats" && <Stats tasks={tasks} />}
-
-      {/* Modals */}
-      {editingTask && (
-        <TaskModal task={editingTask} phases={PHASES}
-          onSave={handleSave} onDelete={handleDelete}
-          onClose={() => setEditing(null)}
-          onPreview={(src, cap) => openLightbox(src, cap)} />
-      )}
-      {lightbox && (
-        <Lightbox src={lightbox.src} caption={lightbox.caption}
-          images={lightbox.images} currentIndex={lightbox.currentIndex}
-          onClose={() => setLightbox(null)} onNavigate={navigateLightbox} />
-      )}
-
-      {/* Toast */}
-      <div id="marga-toast" style={{
-        position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%) translateY(8px)",
-        background: "#3A2E22", color: "#C4B89E", padding: "8px 20px", borderRadius: 8,
-        fontSize: 13, fontWeight: 600, opacity: 0, transition: "opacity 0.2s, transform 0.2s",
-        pointerEvents: "none", zIndex: 3000,
-      }} />
     </div>
   );
 }
 
-// ── Root ─────────────────────────────────────────────────────
+// ─── GitHub Uploader — hardcoded accounts ───
+// XOR-obfuskering: inte kryptografi men hindrar tokens från att synas i klartext
+function xorObfuscate(str, key = "marga1918") {
+  return Array.from(str).map((c, i) =>
+    String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length))
+  ).join("");
+}
+function encodeToken(tok) { return btoa(xorObfuscate(tok)); }
+function decodeToken(enc) { return xorObfuscate(atob(enc), "marga1918"); }
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  KONTON — byt ut TOKEN_ENC mot encodeToken("ghp_xxx")  ║
+// ║  Kör encodeToken("ghp_ditt_token") i webbkonsolen       ║
+// ║  och klistra in resultatet som TOKEN_ENC nedan          ║
+// ╚══════════════════════════════════════════════════════════╝
+const UPLOAD_ACCOUNTS = [
+  { id: "konto1", name: "Mats",    password: "marga1",  tokenEnc: "server" },
+  { id: "konto2", name: "Konto 2", password: "marga2",  tokenEnc: "" },
+  { id: "konto3", name: "Konto 3", password: "marga3",  tokenEnc: "" },
+  { id: "konto4", name: "Konto 4", password: "marga4",  tokenEnc: "" },
+];
+
+const UPLOAD_SESSION_KEY = "marga_upload_account_ls";
+
+function GithubUploader({ targetPath, onDone, onUploaded, compact }) {
+  function getAutoSession() {
+    if (localStorage.getItem(SITE_AUTH_KEY) === "1") {
+      const account = UPLOAD_ACCOUNTS[0];
+      if (account?.tokenEnc) return { id: account.id, name: account.name };
+    }
+    const saved = localStorage.getItem(UPLOAD_SESSION_KEY);
+    return saved ? JSON.parse(saved) : null;
+  }
+  const [loggedIn, setLoggedIn] = useState(getAutoSession);
+  const [selectedId, setSelectedId] = useState(UPLOAD_ACCOUNTS[0].id);
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [queue, setQueue] = useState([]);
+  const [dragging, setDragging] = useState(false);
+  const effectiveLogin = loggedIn || getAutoSession();
+  const inputStyle = { padding: "7px 10px", borderRadius: 6, border: "1.5px solid #DDD5C8", background: "#FFFDF8", fontSize: 12, color: "#3A2E22", outline: "none", fontFamily: "inherit" };
+
+  function login() {
+    const account = UPLOAD_ACCOUNTS.find(a => a.id === selectedId);
+    if (!account) return;
+    if (account.password !== password) { setLoginError("Fel lösenord"); return; }
+    if (!account.tokenEnc) { setLoginError("Token ej konfigurerat"); return; }
+    const session = { id: account.id, name: account.name };
+    localStorage.setItem(UPLOAD_SESSION_KEY, JSON.stringify(session));
+    setLoggedIn(session); setPassword(""); setLoginError("");
+  }
+  function logout() { localStorage.removeItem(UPLOAD_SESSION_KEY); setLoggedIn(null); setQueue([]); }
+
+  function addFiles(newFiles) {
+    setQueue(prev => [...prev, ...Array.from(newFiles).map(f => ({ file: f, status: "idle", msg: "" }))]);
+  }
+  async function uploadOne(idx) {
+    setQueue(prev => prev.map((e,i) => i===idx ? {...e, status:"uploading"} : e));
+    const f = queue[idx].file;
+    try {
+      const base64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result.split(",")[1]); r.onerror = () => rej(new Error("Läsfel")); r.readAsDataURL(f); });
+      const path = `${targetPath}/${f.name}`;
+      const res = await fetch("/api/marga-upload", {
+        method: "POST", headers: apiHeaders(),
+        body: JSON.stringify({ path, content: base64, message: `${effectiveLogin.name}: laddar upp ${f.name}` }),
+      });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || `HTTP ${res.status}`); }
+      setQueue(prev => prev.map((e,i) => i===idx ? {...e, status:"done"} : e));
+      if (onUploaded) onUploaded({ url: `${GITHUB_RAW}/${path}`, name: f.name, type: detectFileType(f.name), addedAt: new Date().toISOString() });
+    } catch(e) { setQueue(prev => prev.map((e2,i) => i===idx ? {...e2, status:"error", msg:e.message} : e2)); }
+  }
+  async function uploadAll() {
+    for (let i = 0; i < queue.length; i++) { if (queue[i].status === "idle") await uploadOne(i); }
+  }
+  function onDrop(e) { e.preventDefault(); setDragging(false); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); }
+  const inputId = `file-input-${targetPath.replace(/\//g,"-")}`;
+  const pendingCount = queue.filter(e => e.status === "idle").length;
+  const doneCount = queue.filter(e => e.status === "done").length;
+
+  if (!effectiveLogin) return (
+    <div style={{ background: "#FAF6EF", border: "1.5px dashed #DDD5C8", borderRadius: compact ? 8 : 10, padding: compact ? 12 : 16, marginTop: compact ? 0 : 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#8A7D6B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>↑ Ladda upp till GitHub</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <select value={selectedId} onChange={e => { setSelectedId(e.target.value); setLoginError(""); }} style={{ ...inputStyle, cursor: "pointer" }}>
+          {UPLOAD_ACCOUNTS.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+        </select>
+        <input type="password" placeholder="Lösenord…" value={password} onChange={e => { setPassword(e.target.value); setLoginError(""); }} onKeyDown={e => e.key === "Enter" && login()} style={{ ...inputStyle, width: 130 }} />
+        <button onClick={login} disabled={!password} style={{ padding: "7px 14px", background: password ? "#5B7F6E" : "#E5DDD0", color: password ? "#fff" : "#A89878", border: "none", borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: password ? "pointer" : "default" }}>Logga in</button>
+      </div>
+      {loginError && <div style={{ fontSize: 11, color: "#C75B4A", marginTop: 6, fontWeight: 600 }}>{loginError}</div>}
+    </div>
+  );
+
+  return (
+    <div style={{ marginTop: compact ? 0 : 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#5B7F6E", textTransform: "uppercase", letterSpacing: "0.06em" }}>↑ Ladda upp — {effectiveLogin.name}</div>
+        {loggedIn && !localStorage.getItem(SITE_AUTH_KEY) && <button onClick={logout} style={{ fontSize: 10, color: "#A89878", background: "none", border: "none", cursor: "pointer" }}>Logga ut</button>}
+      </div>
+      <div onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}
+        onClick={() => document.getElementById(inputId)?.click()}
+        style={{ border: `2px dashed ${dragging ? "#5B7F6E" : "#C4B89E"}`, borderRadius: 8, padding: "14px", textAlign: "center", cursor: "pointer", background: dragging ? "rgba(91,127,110,0.06)" : "#FAF6EF", transition: "all 0.15s" }}>
+        <input id={inputId} type="file" multiple style={{ display: "none" }} onChange={e => { if (e.target.files.length) addFiles(e.target.files); e.target.value=""; }} />
+        <div style={{ fontSize: 18, marginBottom: 2 }}>↑</div>
+        <div style={{ fontSize: 12, color: "#8A7D6B" }}>Dra hit eller klicka — flera filer OK</div>
+      </div>
+      {queue.length > 0 && (
+        <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 3 }}>
+          {queue.map((e, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, padding: "3px 6px", background: e.status==="done" ? "rgba(91,127,110,0.07)" : e.status==="error" ? "rgba(199,91,74,0.07)" : "#FAF6EF", borderRadius: 5 }}>
+              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#3A2E22" }}>{e.file.name}</span>
+              <span style={{ fontSize: 10, flexShrink: 0, color: e.status==="done" ? "#5B7F6E" : e.status==="error" ? "#C75B4A" : e.status==="uploading" ? "#C9A84C" : "#A89878" }}>
+                {e.status==="uploading" ? "laddar…" : e.status==="done" ? "✓" : e.status==="error" ? `✗ ${e.msg}` : `${(e.file.size/1024).toFixed(0)} KB`}
+              </span>
+              {e.status === "idle" && <button onClick={() => setQueue(prev => prev.filter((_,j)=>j!==i))} style={{ fontSize: 10, color: "#A89878", background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}>✕</button>}
+            </div>
+          ))}
+        </div>
+      )}
+      {pendingCount > 0 && <button onClick={uploadAll} style={{ marginTop: 6, width: "100%", padding: "8px 0", background: "#5B7F6E", color: "#fff", border: "none", borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>↑ Ladda upp {pendingCount} {pendingCount===1?"fil":"filer"}</button>}
+      {doneCount > 0 && pendingCount === 0 && <button onClick={() => setQueue([])} style={{ marginTop: 6, width: "100%", padding: "6px 0", background: "none", border: "1px solid #DDD5C8", borderRadius: 7, color: "#8A7D6B", fontSize: 11, cursor: "pointer" }}>Rensa ({doneCount} uppladdade)</button>}
+    </div>
+  );
+}
+
+// ─── Image Gallery ───
+function ImageGallery({ onPreview, folders, setFolders, onOpen3dModel }) {
+  const [ghFolders, setGhFolders] = useState([]);
+  const [activeFolder, setActiveFolder] = useState(null);
+  const [folderFiles, setFolderFiles] = useState([]);
+  const [ghLoading, setGhLoading] = useState(false);
+  const [ghError, setGhError] = useState("");
+  const [pdfViewer, setPdfViewer] = useState(null);
+
+  const inputStyle = { padding: "8px 10px", borderRadius: 7, border: "1.5px solid #DDD5C8", background: "#FBF8F2", fontSize: 13, color: "#3A2E22", outline: "none", fontFamily: "inherit" };
+
+  // Fetch top-level folders from GitHub on mount
+  useEffect(() => {
+    fetchGhFolders();
+  }, []);
+
+  async function fetchGhFolders() {
+    setGhLoading(true);
+    setGhError("");
+    try {
+      const res = await fetch(`${GITHUB_API}`, { headers: ghApiHeaders() });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(`GitHub API: HTTP ${res.status}${errBody.message ? ` — ${errBody.message}` : ""}`);
+      }
+      const items = await res.json();
+      // Get all subdirectories (bilder/, dokument/, 3d-modeller/ etc.)
+      const topDirs = items.filter(i => i.type === "dir");
+      // Recursively collect all sub-folders
+      const allFolders = [];
+      for (const dir of topDirs) {
+        const sub = await fetch(`${GITHUB_API}/${dir.name}`, { headers: ghApiHeaders() });
+        if (!sub.ok) continue;
+        const subItems = await sub.json();
+        const subDirs = subItems.filter(i => i.type === "dir");
+        if (subDirs.length > 0) {
+          for (const sd of subDirs) {
+            allFolders.push({ path: sd.path, name: sd.name, parent: dir.name, thumb: null });
+          }
+          // Fetch thumbnails for each subfolder
+          for (const sd of subDirs) {
+            const subRes = await fetch(`${GITHUB_API}/${sd.path}`, { headers: ghApiHeaders() });
+            if (!subRes.ok) continue;
+            const subSubItems = await subRes.json();
+            const firstImg = subSubItems.find(i => i.type === "file" && isImageFile(i.name));
+            const first3dm = subSubItems.find(i => i.type === "file" && i.name.toLowerCase().endsWith(".3dm"));
+            const firstPdf = subSubItems.find(i => i.type === "file" && i.name.toLowerCase().endsWith(".pdf"));
+            const folderEntry = allFolders.find(f => f.path === sd.path);
+            if (folderEntry) {
+              if (firstImg) folderEntry.thumb = `${GITHUB_RAW}/${sd.path}/${firstImg.name}`;
+              else if (firstPdf) folderEntry.hasPdf = true;
+              else if (first3dm) folderEntry.has3dm = true;
+            }
+          }
+        } else {
+          const hasFiles = subItems.some(i => i.type === "file" && (isImageFile(i.name) || isDocFile(i.name)));
+          if (hasFiles) {
+            const firstImg = subItems.find(i => i.type === "file" && isImageFile(i.name));
+            const firstPdf = subItems.find(i => i.type === "file" && i.name.toLowerCase().endsWith(".pdf"));
+            const first3dm = subItems.find(i => i.type === "file" && i.name.toLowerCase().endsWith(".3dm"));
+            allFolders.push({
+              path: dir.path, name: dir.name, parent: "",
+              thumb: firstImg ? `${GITHUB_RAW}/${dir.path}/${firstImg.name}` : null,
+              hasPdf: !!firstPdf,
+              has3dm: !!first3dm,
+            });
+          }
+        }
+      }
+      setGhFolders(allFolders);
+    } catch(e) {
+      setGhError(e.message);
+    }
+    setGhLoading(false);
+  }
+
+  async function openFolder(folder) {
+    setActiveFolder(folder);
+    setFolderFiles([]);
+    setGhLoading(true);
+    try {
+      const res = await fetch(`${GITHUB_API}/${folder.path}`, { headers: ghApiHeaders() });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const items = await res.json();
+      const files = items.filter(i => i.type === "file" && (isImageFile(i.name) || isDocFile(i.name)));
+      setFolderFiles(files);
+      // Update thumb if not set
+      if (!folder.thumb) {
+        const firstImg = files.find(f => isImageFile(f.name));
+        if (firstImg) {
+          setGhFolders(prev => prev.map(f => f.path === folder.path ? { ...f, thumb: `${GITHUB_RAW}/${firstImg.path}` } : f));
+        }
+      }
+    } catch(e) {
+      setGhError(e.message);
+    }
+    setGhLoading(false);
+  }
+
+  const groupedFolders = ghFolders.reduce((acc, f) => {
+    const key = f.parent || "Övrigt";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(f);
+    return acc;
+  }, {});
+
+  // Sort groups: PDF first, then BILDER, then rest
+  const groupOrder = ["PDF", "BILDER", "Övrigt"];
+  const sortedGroups = Object.entries(groupedFolders).sort(([a], [b]) => {
+    const ai = groupOrder.findIndex(g => g.toLowerCase() === a.toLowerCase());
+    const bi = groupOrder.findIndex(g => g.toLowerCase() === b.toLowerCase());
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+
+  function folderThumb(f) {
+    const nameLower = f.path.toLowerCase();
+    const is3d = nameLower.includes("3d") || nameLower.includes("modell") || f.has3dm;
+    const isPdfFolder = nameLower.includes("pdf") || (f.parent || "").toLowerCase() === "pdf" || f.hasPdf;
+
+    if (f.thumb) {
+      return (
+        <img src={f.thumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          onError={e => { e.target.style.display = "none"; e.target.parentNode.innerHTML = '<span style="font-size:18px">📁</span>'; }} />
+      );
+    }
+    if (isPdfFolder) return <span style={{ fontSize: 20 }}>📄</span>;
+    if (is3d) return <span style={{ fontSize: 20 }}>◈</span>;
+    return <span style={{ fontSize: 18 }}>📁</span>;
+  }
+
+  function saveToken() {
+    setGithubReadToken(tokenInput.trim());
+    setHasToken(!!tokenInput.trim());
+    setTokenInput("");
+    setShowTokenInput(false);
+    setGhError("");
+    fetchGhFolders();
+  }
+
+  function clearToken() {
+    setGithubReadToken("");
+    setHasToken(false);
+    setGhFolders([]);
+  }
+
+  return (
+    <div>
+      {pdfViewer && <PdfViewerModal url={pdfViewer.url} name={pdfViewer.name} onClose={() => setPdfViewer(null)} />}
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
+        <div>
+          <h2 style={{ margin: 0, fontFamily: "'Playfair Display', Georgia, serif", color: "#3A2E22", fontSize: 22 }}>Bildarkiv</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "#8A7D6B" }}>
+            GitHub: {GITHUB_REPO} •
+            <span style={{ marginLeft: 6, cursor: "pointer", color: "#5B7F6E", fontWeight: 600 }} onClick={fetchGhFolders}>⟳ Uppdatera</span>
+          </p>
+        </div>
+        <a href={`https://github.com/${GITHUB_REPO}`} target="_blank" rel="noreferrer"
+          style={{ padding: "8px 14px", background: "#3A2E22", color: "#C4B89E", borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
+          ↗ Öppna GitHub
+        </a>
+      </div>
+
+      {ghError && (
+        <div style={{ padding: "10px 14px", background: "#FFF0ED", borderRadius: 8, border: "1px solid #F5C4BA", fontSize: 12, color: "#C75B4A", marginBottom: 16 }}>
+          ⚠ {ghError}
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 20, minHeight: 500 }}>
+        {/* Sidebar */}
+        <div style={{ width: 220, flexShrink: 0 }}>
+          {ghLoading && !activeFolder && (
+            <div style={{ color: "#A89878", fontSize: 12, padding: 12 }}>Hämtar mappar…</div>
+          )}
+          {sortedGroups.map(([group, foldersInGroup]) => (
+            <div key={group} style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#A89878", textTransform: "uppercase", letterSpacing: "0.06em", padding: "4px 8px", marginBottom: 4 }}>{group}</div>
+              {foldersInGroup.map(f => (
+                <div key={f.path}
+                  onClick={() => openFolder(f)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "7px 10px",
+                    borderRadius: 8, cursor: "pointer", marginBottom: 3,
+                    background: activeFolder?.path === f.path ? "#FFFDF8" : "transparent",
+                    border: activeFolder?.path === f.path ? "1.5px solid #E5DDD0" : "1.5px solid transparent",
+                    boxShadow: activeFolder?.path === f.path ? "0 2px 8px rgba(80,60,40,0.06)" : "none",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={e => { if (activeFolder?.path !== f.path) e.currentTarget.style.background = "rgba(255,253,248,0.5)"; }}
+                  onMouseLeave={e => { if (activeFolder?.path !== f.path) e.currentTarget.style.background = "transparent"; }}
+                >
+                  <div style={{ width: 36, height: 36, borderRadius: 6, overflow: "hidden", flexShrink: 0, background: "#E8E0D4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {folderThumb(f)}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#3A2E22", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* File grid */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {!activeFolder ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, color: "#A89878", fontSize: 14, flexDirection: "column", gap: 12 }}>
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="6" y="10" width="36" height="28" rx="4" stroke="#C4B89E" strokeWidth="2"/><circle cx="18" cy="22" r="4" stroke="#C4B89E" strokeWidth="1.5"/><path d="M6 32l10-8 6 5 8-10 12 13" stroke="#C4B89E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span>Välj en mapp till vänster</span>
+              <div style={{ fontSize: 11, color: "#C4B89E", textAlign: "center", maxWidth: 280 }}>
+                Filer laddas direkt från GitHub-repot. Lägg till filer via GitHub Desktop och tryck ⟳ Uppdatera.
+              </div>
+            </div>
+          ) : (
+            <div>
+              {/* Folder header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 6, overflow: "hidden", flexShrink: 0, background: "#E8E0D4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {activeFolder.thumb ? <img src={activeFolder.thumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 18 }}>📁</span>}
+                  </div>
+                  <h3 style={{ margin: 0, fontFamily: "'Playfair Display', Georgia, serif", color: "#3A2E22", fontSize: 18 }}>{activeFolder.name}</h3>
+                  <span style={{ fontSize: 12, color: "#A89878" }}>({folderFiles.length} filer)</span>
+                </div>
+                <a href={`https://github.com/${GITHUB_REPO}/tree/main/${activeFolder.path}`} target="_blank" rel="noreferrer"
+                  style={{ fontSize: 11, color: "#5B7F6E", fontWeight: 600, textDecoration: "none" }}>↗ Öppna i GitHub</a>              </div>
+
+              {ghLoading ? (
+                <div style={{ color: "#A89878", fontSize: 13, padding: 20 }}>Laddar filer…</div>
+              ) : folderFiles.length === 0 ? (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 180, flexDirection: "column", gap: 8, color: "#A89878", fontSize: 13, background: "#FAF6EF", borderRadius: 10, border: "1.5px dashed #E5DDD0" }}>
+                  <span>Inga filer i den här mappen</span>
+                  <span style={{ fontSize: 11 }}>Lägg till filer via GitHub Desktop och tryck ⟳ Uppdatera</span>
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 12 }}>
+                  {folderFiles.map((file, idx) => {
+                    const isImg = isImageFile(file.name);
+                    const isPdf = file.name.toLowerCase().endsWith(".pdf");
+                    const rawUrl = `${GITHUB_RAW}/${file.path}`;
+                    const ext = file.name.split(".").pop().toUpperCase();
+                    const allImages = folderFiles.filter(f => isImageFile(f.name)).map(f => ({ src: `${GITHUB_RAW}/${f.path}`, caption: f.name }));
+                    const imgIndex = allImages.findIndex(i => i.src === rawUrl);
+                    const is3dm = file.name.toLowerCase().endsWith(".3dm");
+                    const handleClick = () => {
+                      if (isImg) onPreview(rawUrl, file.name, allImages, imgIndex);
+                      else if (isPdf) setPdfViewer({ url: rawUrl, name: file.name });
+                      else if (is3dm && onOpen3dModel) onOpen3dModel(rawUrl);
+                      else window.open(rawUrl, "_blank");
+                    };
+                    return (
+                      <div key={idx}
+                        style={{ background: "#FFFDF8", borderRadius: 10, border: "1.5px solid #E5DDD0", overflow: "hidden", transition: "box-shadow 0.15s, transform 0.15s", cursor: "pointer" }}
+                        onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(80,60,40,0.12)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}
+                        onClick={handleClick}
+                      >
+                        {/* Thumbnail */}
+                        <div style={{ width: "100%", height: 130, background: "#F0EBE2", overflow: "hidden", position: "relative" }}>
+                          {isImg ? (
+                            <img src={rawUrl} alt={file.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : isPdf ? (
+                            <PdfThumbnail url={rawUrl} onClick={handleClick} />
+                          ) : (
+                            <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                              <span style={{ fontSize: 32 }}>{is3dm ? "◈" : ext === "DWG" || ext === "DXF" ? "📐" : "📎"}</span>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: "#8A7D6B", background: "#E5DDD0", padding: "2px 6px", borderRadius: 4 }}>{ext}</span>
+                            </div>
+                          )}
+                        </div>
+                        {/* Name + actions */}
+                        <div style={{ padding: "8px 10px" }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: "#3A2E22", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={file.name}>{file.name}</div>
+                          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                            {(isImg || isPdf || is3dm) && (
+                              <button onClick={e => { e.stopPropagation(); handleClick(); }}
+                                style={{ flex: 1, padding: "4px 0", fontSize: 10, fontWeight: 700, background: "#F0EBE2", border: "none", borderRadius: 5, cursor: "pointer", color: "#5A4A38" }}>
+                                {isPdf ? "📄 Öppna" : is3dm ? "◈ 3D-vy" : "👁 Visa"}
+                              </button>
+                            )}
+                            <a href={rawUrl} download target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
+                              style={{ flex: 1, padding: "4px 0", fontSize: 10, fontWeight: 700, background: "#E8F0EC", border: "none", borderRadius: 5, cursor: "pointer", color: "#3A5A4A", textDecoration: "none", textAlign: "center" }}>↓ Ladda ner</a>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <GithubUploader targetPath={activeFolder.path} onDone={() => openFolder(activeFolder)} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ─── CORS Proxy config ───
+const CORS_PROXY_URL = "https://young-fire-596e.matsbprod.workers.dev";
+function isProxyConfigured() { return CORS_PROXY_URL.length > 0; }
+
+// ─── Rhino 3D Viewer ───
+function Rhino3DViewer({ pendingUrl, onPendingConsumed }) {
+  const containerRef = useRef(null);
+  const rendererRef = useRef(null);
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const animRef = useRef(null);
+  const isDragging = useRef(false);
+  const isPanning = useRef(false);
+  const prevMouse = useRef({ x: 0, y: 0 });
+  const rotation = useRef({ x: 0.5, y: -0.8 }); // elevation, azimuth (Z-up perspective)
+  const panOffset = useRef(new THREE.Vector3(0, 0, 0));
+  const zoomRef = useRef(1);
+
+  const [status, setStatus] = useState("idle"); // idle | loading | ready | error
+  const [errorMsg, setErrorMsg] = useState("");
+  const [driveUrl, setDriveUrl] = useState("");
+  const [modelInfo, setModelInfo] = useState(null);
+  const [rhinoModule, setRhinoModule] = useState(null);
+  const [layers, setLayers] = useState([]); // [{ name, color, visible, index }]
+  const sceneObjects = useRef([]); // [{ threeObj, layerIndex }]
+  const [clips, setClips] = useState({
+    x: { enabled: false, value: 0, flipped: false },
+    y: { enabled: false, value: 0, flipped: false },
+    z: { enabled: false, value: 0, flipped: false },
+  });
+  const clipsRef = useRef(null);
+  const modelBounds = useRef({ min: new THREE.Vector3(-50,-50,-50), max: new THREE.Vector3(50,50,50) });
+
+  function applyClippingPlanes() {
+    if (!rendererRef.current) return;
+    const c = clipsRef.current;
+    if (!c) return;
+    const planes = [];
+    const b = modelBounds.current;
+    const axes = {
+      x: { normal: new THREE.Vector3(1,0,0), min: b.min.x, max: b.max.x },
+      y: { normal: new THREE.Vector3(0,1,0), min: b.min.y, max: b.max.y },
+      z: { normal: new THREE.Vector3(0,0,1), min: b.min.z, max: b.max.z },
+    };
+    for (const [key, ax] of Object.entries(axes)) {
+      if (c[key].enabled) {
+        const range = ax.max - ax.min;
+        const pos = ax.min + (c[key].value + 1) / 2 * range;
+        const normal = c[key].flipped ? ax.normal.clone().negate() : ax.normal.clone();
+        const constant = c[key].flipped ? pos : -pos;
+        planes.push(new THREE.Plane(normal, constant));
+      }
+    }
+    rendererRef.current.clippingPlanes = planes;
+    rendererRef.current.localClippingEnabled = planes.length > 0;
+  }
+
+  useEffect(() => {
+    clipsRef.current = clips;
+    applyClippingPlanes();
+  }, [clips]);
+
+  // Load rhino3dm WASM module on mount
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/rhino3dm@8.4.0/rhino3dm.min.js";
+    script.onload = () => {
+      if (window.rhino3dm) {
+        window.rhino3dm().then(m => { setRhinoModule(m); });
+      }
+    };
+    document.head.appendChild(script);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, []);
+
+  // Auto-load when navigated from file browser
+  useEffect(() => {
+    if (pendingUrl && rhinoModule) {
+      setDriveUrl(pendingUrl);
+      if (onPendingConsumed) onPendingConsumed();
+      setTimeout(() => loadFromDrive(pendingUrl), 100);
+    }
+  }, [pendingUrl, rhinoModule]);
+
+  // Initialize Three.js scene
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const w = containerRef.current.clientWidth;
+    const h = containerRef.current.clientHeight || 500;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xF5F0E6);
+
+    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 10000);
+    camera.up.set(0, 0, 1); // Z-up like Rhino
+    camera.position.set(30, -40, 30);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    containerRef.current.appendChild(renderer.domElement);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(50, 50, 80);
+    scene.add(dirLight);
+    const dirLight2 = new THREE.DirectionalLight(0xD4A76A, 0.3);
+    dirLight2.position.set(-30, -40, -20);
+    scene.add(dirLight2);
+
+    // Grid on XY plane (Z-up, like Rhino)
+    const grid = new THREE.GridHelper(100, 20, 0xDDD5C8, 0xE5DDD0);
+    grid.rotation.x = Math.PI / 2; // rotate to XY plane
+    scene.add(grid);
+
+    sceneRef.current = scene;
+    cameraRef.current = camera;
+    rendererRef.current = renderer;
+
+    const animate = () => {
+      animRef.current = requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Mouse/touch controls: left=rotate, middle/2-finger=pan, scroll/pinch=zoom
+    const el = renderer.domElement;
+    let pinchStartDist = null;
+    let pinchStartZoom = null;
+    let touch2Start = null;
+
+    const getTouchDist = (t) => {
+      const dx = t[0].clientX - t[1].clientX;
+      const dy = t[0].clientY - t[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+    const getTouchMid = (t) => ({
+      x: (t[0].clientX + t[1].clientX) / 2,
+      y: (t[0].clientY + t[1].clientY) / 2,
+    });
+
+    const onDown = (e) => {
+      if (e.touches) {
+        if (e.touches.length === 2) {
+          // Start pinch-zoom + 2-finger pan
+          pinchStartDist = getTouchDist(e.touches);
+          pinchStartZoom = zoomRef.current;
+          touch2Start = getTouchMid(e.touches);
+          prevMouse.current = touch2Start;
+          isDragging.current = false;
+          isPanning.current = false;
+        } else {
+          isDragging.current = true;
+          prevMouse.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          pinchStartDist = null;
+        }
+      } else if (e.button === 1 || e.button === 2) {
+        e.preventDefault();
+        isPanning.current = true;
+        prevMouse.current = { x: e.clientX, y: e.clientY };
+      } else {
+        isDragging.current = true;
+        prevMouse.current = { x: e.clientX, y: e.clientY };
+      }
+    };
+
+    const onMove = (e) => {
+      if (e.touches) {
+        if (e.touches.length === 2) {
+          // Pinch = zoom
+          const dist = getTouchDist(e.touches);
+          if (pinchStartDist) {
+            const scale = pinchStartDist / dist;
+            zoomRef.current = Math.max(0.05, Math.min(50, pinchStartZoom * scale));
+          }
+          // 2-finger drag = pan
+          const mid = getTouchMid(e.touches);
+          const dx = mid.x - prevMouse.current.x;
+          const dy = mid.y - prevMouse.current.y;
+          prevMouse.current = mid;
+          const panSpeed = 0.002 * 50 * zoomRef.current;
+          const cam = cameraRef.current;
+          if (cam) {
+            const right = new THREE.Vector3();
+            const up = new THREE.Vector3();
+            right.setFromMatrixColumn(cam.matrixWorld, 0);
+            up.setFromMatrixColumn(cam.matrixWorld, 1);
+            panOffset.current.addScaledVector(right, -dx * panSpeed);
+            panOffset.current.addScaledVector(up, dy * panSpeed);
+          }
+          updateCamera();
+          return;
+        }
+        // 1-finger = rotate
+        const pt = e.touches[0];
+        const dx = pt.clientX - prevMouse.current.x;
+        const dy = pt.clientY - prevMouse.current.y;
+        prevMouse.current = { x: pt.clientX, y: pt.clientY };
+        if (isDragging.current) {
+          rotation.current.y -= dx * 0.005;
+          rotation.current.x += dy * 0.005;
+          rotation.current.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.current.x));
+          updateCamera();
+        }
+        return;
+      }
+
+      const dx = e.clientX - prevMouse.current.x;
+      const dy = e.clientY - prevMouse.current.y;
+      prevMouse.current = { x: e.clientX, y: e.clientY };
+
+      if (isPanning.current) {
+        const panSpeed = 0.002 * 50 * zoomRef.current;
+        const cam = cameraRef.current;
+        if (cam) {
+          const right = new THREE.Vector3();
+          const up = new THREE.Vector3();
+          right.setFromMatrixColumn(cam.matrixWorld, 0);
+          up.setFromMatrixColumn(cam.matrixWorld, 1);
+          panOffset.current.addScaledVector(right, -dx * panSpeed);
+          panOffset.current.addScaledVector(up, dy * panSpeed);
+        }
+        updateCamera();
+      } else if (isDragging.current) {
+        rotation.current.y -= dx * 0.005;
+        rotation.current.x += dy * 0.005;
+        rotation.current.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.current.x));
+        updateCamera();
+      }
+    };
+
+    const onUp = (e) => {
+      isDragging.current = false;
+      isPanning.current = false;
+      if (!e.touches || e.touches.length < 2) {
+        pinchStartDist = null;
+        pinchStartZoom = null;
+      }
+    };
+    const onWheel = (e) => { e.preventDefault(); zoomRef.current = Math.max(0.05, Math.min(50, zoomRef.current * (1 + e.deltaY * 0.001))); updateCamera(); };
+    const onContextMenu = (e) => { e.preventDefault(); };
+
+    el.addEventListener("mousedown", onDown);
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseup", onUp);
+    el.addEventListener("mouseleave", onUp);
+    el.addEventListener("touchstart", onDown, { passive: false });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onUp);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("contextmenu", onContextMenu);
+
+    const onResize = () => {
+      if (!containerRef.current || !containerRef.current.parentElement) return;
+      const nw = containerRef.current.parentElement.clientWidth;
+      const nh = containerRef.current.parentElement.clientHeight || 500;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", onResize);
+      renderer.dispose();
+    };
+  }, []);
+
+  function updateCamera() {
+    if (!cameraRef.current || !sceneRef.current) return;
+    const dist = 50 * zoomRef.current;
+    const elevation = rotation.current.x; // up/down angle from XY plane
+    const azimuth = rotation.current.y;   // rotation around Z axis
+    const target = panOffset.current;
+    cameraRef.current.position.set(
+      target.x + dist * Math.cos(elevation) * Math.cos(azimuth),
+      target.y + dist * Math.cos(elevation) * Math.sin(azimuth),
+      target.z + dist * Math.sin(elevation)
+    );
+    cameraRef.current.lookAt(target);
+  }
+
+  function clearModel() {
+    if (!sceneRef.current) return;
+    const toRemove = [];
+    sceneRef.current.traverse(child => { if (child.isMesh || child.isLine) toRemove.push(child); });
+    toRemove.forEach(obj => { sceneRef.current.remove(obj); if (obj.geometry) obj.geometry.dispose(); if (obj.material) obj.material.dispose(); });
+  }
+
+  async function loadFromDrive(urlOverride) {
+    const targetUrl = (urlOverride || driveUrl || "").trim();
+    if (!targetUrl) return;
+    if (!rhinoModule) { setErrorMsg("rhino3dm laddas fortfarande, vänta en stund…"); return; }
+
+    setStatus("loading");
+    setErrorMsg("");
+    setModelInfo(null);
+
+    try {
+      // Build fetch URL — GitHub raw doesn't need proxy, Drive does
+      let fetchUrl;
+      if (isGithubUrl(targetUrl)) {
+        fetchUrl = toGithubRaw(targetUrl);
+      } else if (isGdriveUrl(targetUrl)) {
+        if (!isProxyConfigured()) { setErrorMsg("CORS-proxy ej konfigurerad. Fyll i CORS_PROXY_URL i koden."); setStatus("error"); return; }
+        const patterns = [/\/file\/d\/([a-zA-Z0-9_-]+)/, /id=([a-zA-Z0-9_-]+)/, /\/d\/([a-zA-Z0-9_-]+)/];
+        let fileId = null;
+        for (const p of patterns) { const m = targetUrl.match(p); if (m) { fileId = m[1]; break; } }
+        if (!fileId) throw new Error("Ogiltig Google Drive-länk");
+        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        fetchUrl = `${CORS_PROXY_URL}?url=${encodeURIComponent(downloadUrl)}`;
+      } else {
+        fetchUrl = isProxyConfigured()
+          ? `${CORS_PROXY_URL}?url=${encodeURIComponent(targetUrl)}`
+          : targetUrl;
+      }
+
+      const res = await fetch(fetchUrl);
+      if (!res.ok) throw new Error(`Nedladdningsfel: HTTP ${res.status}`);
+
+      const buffer = await res.arrayBuffer();
+      const arr = new Uint8Array(buffer);
+
+      // Verify it's a .3dm file
+      const headerStr = new TextDecoder().decode(arr.slice(0, 20));
+      if (!headerStr.startsWith("3D Geometry File")) {
+        throw new Error("Filen verkar inte vara en giltig .3dm-fil. Kontrollera att Google Drive-delningen är 'Alla med länken'.");
+      }
+
+      // Parse .3dm file
+      const doc = rhinoModule.File3dm.fromByteArray(arr);
+      if (!doc) throw new Error("Kunde inte läsa .3dm-filen — filen kan vara skadad eller i ett format som inte stöds");
+
+      clearModel();
+      sceneObjects.current = [];
+
+      // Extract layers and their visibility
+      const rhinoLayers = doc.layers();
+      const layerInfo = [];
+      const visibleLayerIndices = new Set();
+      for (let li = 0; li < rhinoLayers.count; li++) {
+        const layer = rhinoLayers.get(li);
+        const name = layer.name || `Lager ${li}`;
+        const visible = layer.visible;
+        const color = layer.color;
+        const colorHex = color ? `rgb(${color.r},${color.g},${color.b})` : "#8B7355";
+        layerInfo.push({ name, color: colorHex, visible, index: li });
+        if (visible) visibleLayerIndices.add(li);
+        console.log(`Lager ${li}: "${name}" visible=${visible} color=rgb(${color?.r},${color?.g},${color?.b})`);
+      }
+      setLayers(layerInfo);
+
+      const objects = doc.objects();
+      let meshCount = 0, curveCount = 0, skippedCount = 0;
+      const defaultMat = new THREE.MeshPhongMaterial({ color: 0x8B7355, side: THREE.DoubleSide, flatShading: false });
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x5A4A38 });
+      const allPositions = [];
+
+      console.log(`Rhino fil laddad: ${objects.count} objekt`);
+
+      for (let i = 0; i < objects.count; i++) {
+        try {
+          const rhinoObj = objects.get(i);
+          const geo = rhinoObj.geometry();
+          if (!geo) { skippedCount++; continue; }
+
+          // Check layer visibility — load all objects but hide those on hidden layers
+          const attr = rhinoObj.attributes();
+          const layerIndex = attr.layerIndex;
+          const layerVisible = visibleLayerIndices.has(layerIndex);
+
+          const objectType = geo.objectType;
+          const typeName = geo.constructor.name;
+          console.log(`Objekt ${i}: type=${objectType}, constructor=${typeName}`);
+
+          // Detect type using multiple methods (objectType can be number or enum object)
+          const typeNum = typeof objectType === "number" ? objectType : parseInt(String(objectType));
+          const isMesh = typeNum === 32 || typeName === "Mesh";
+          const isBrep = typeNum === 16 || typeName === "Brep";
+          const isExtrusion = typeNum === 1073741824 || typeName === "Extrusion";
+          const isSurface = typeNum === 8 || typeName === "Surface" || typeName === "NurbsSurface";
+          const isSubD = typeNum === 256 || typeName === "SubD";
+          const isCurve = typeNum === 4 || typeName === "NurbsCurve" || typeName === "LineCurve" || typeName === "PolylineCurve" || typeName === "ArcCurve" || typeName === "Curve";
+
+          // Try to get a mesh from any geometry type
+          let rhinoMesh = null;
+
+          if (isMesh) {
+            rhinoMesh = geo;
+          } else if (isExtrusion) {
+            try {
+              const brep = geo.toBrep ? geo.toBrep() : null;
+              if (brep) {
+                const faceCount = brep.faces().count;
+                for (let fi = 0; fi < faceCount; fi++) {
+                  const face = brep.faces().get(fi);
+                  const faceMesh = face.getMesh(rhinoModule.MeshType.Any);
+                  if (faceMesh) { addMeshToScene(faceMesh, rhinoObj, doc, layerVisible); meshCount++; }
+                }
+                brep.delete();
+                continue;
+              }
+            } catch(e) { console.log("Extrusion conversion failed:", e); }
+          } else if (isBrep) {
+            try {
+              const faceCount = geo.faces().count;
+              console.log(`  Brep har ${faceCount} faces`);
+              let gotMesh = false;
+              for (let fi = 0; fi < faceCount; fi++) {
+                const face = geo.faces().get(fi);
+                try {
+                  const faceMesh = face.getMesh(rhinoModule.MeshType.Any);
+                  if (faceMesh) { addMeshToScene(faceMesh, rhinoObj, doc, layerVisible); meshCount++; gotMesh = true; }
+                  else { console.log(`  Face ${fi}: getMesh returned null — prova att använda "Mesh" i Rhino innan export`); }
+                } catch(faceErr) { console.log(`  Face ${fi} getMesh error:`, faceErr); }
+              }
+              if (gotMesh) continue;
+              // Fallback: try toMesh on the brep directly
+              console.log("  Försöker toMesh() på hela Brep:en...");
+            } catch(e) { console.log("Brep face mesh extraction failed:", e); }
+          } else if (isSurface) {
+            try {
+              const brep = geo.toBrep ? geo.toBrep() : null;
+              if (brep) {
+                const faceCount = brep.faces().count;
+                for (let fi = 0; fi < faceCount; fi++) {
+                  const face = brep.faces().get(fi);
+                  const faceMesh = face.getMesh(rhinoModule.MeshType.Any);
+                  if (faceMesh) { addMeshToScene(faceMesh, rhinoObj, doc, layerVisible); meshCount++; }
+                }
+                brep.delete();
+                continue;
+              }
+            } catch(e) { console.log("Surface conversion failed:", e); }
+          } else if (isSubD) {
+            try { if (geo.toMesh) rhinoMesh = geo.toMesh(0); } catch(e) { console.log("SubD conversion failed:", e); }
+          }
+
+          // Handle direct mesh
+          if (rhinoMesh) {
+            addMeshToScene(rhinoMesh, rhinoObj, doc, layerVisible);
+            meshCount++;
+            continue;
+          }
+
+          // Last resort: try generic toMesh or createMesh
+          if (!isCurve) {
+            try {
+              if (typeof geo.toMesh === "function") {
+                const fallbackMesh = geo.toMesh();
+                if (fallbackMesh) {
+                  console.log(`  Fallback toMesh() lyckades för objekt ${i}`);
+                  addMeshToScene(fallbackMesh, rhinoObj, doc, layerVisible);
+                  meshCount++;
+                  continue;
+                }
+              }
+            } catch(e) { console.log("  Fallback toMesh failed:", e); }
+
+            // Try to extract edges as wireframe
+            try {
+              if (isBrep && geo.edges) {
+                const edges = geo.edges();
+                console.log(`  Försöker extrahera ${edges.count} kanter som wireframe...`);
+                for (let ei = 0; ei < edges.count; ei++) {
+                  try {
+                    const edge = edges.get(ei);
+                    const edgeCurve = edge.toNurbsCurve ? edge.toNurbsCurve() : edge.edgeCurve;
+                    if (edgeCurve) {
+                      addCurveToScene(edgeCurve, rhinoObj, layerVisible);
+                      curveCount++;
+                    }
+                  } catch(ee) { /* skip individual edge */ }
+                }
+                continue;
+              }
+            } catch(e) { console.log("  Edge extraction failed:", e); }
+          }
+
+          // Handle curves
+          if (isCurve) {
+            try {
+              addCurveToScene(geo, rhinoObj, layerVisible);              curveCount++;
+              continue;
+            } catch(e) { console.log("Curve parsing failed:", e); }
+          }
+
+          // Handle point objects, annotations etc — skip silently
+          skippedCount++;
+
+        } catch (objErr) {
+          console.warn(`Kunde inte läsa objekt ${i}:`, objErr);
+          skippedCount++;
+        }
+      }
+
+      function addMeshToScene(rhinoMesh, rhinoObj, doc, isVisible) {
+        try {
+          const verts = rhinoMesh.vertices();
+          const faces = rhinoMesh.faces();
+          if (!verts || verts.count === 0) return;
+
+          const positions = [];
+          for (let v = 0; v < verts.count; v++) {
+            const pt = verts.get(v);
+            // pt can be [x,y,z] or {x,y,z} depending on version
+            const x = pt[0] !== undefined ? pt[0] : pt.x;
+            const y = pt[1] !== undefined ? pt[1] : pt.y;
+            const z = pt[2] !== undefined ? pt[2] : pt.z;
+            positions.push(x, y, z);
+            allPositions.push(x, y, z);
+          }
+
+          const indices = [];
+          for (let f = 0; f < faces.count; f++) {
+            const face = faces.get(f);
+            // face can be [a,b,c,d] array or object with A,B,C,D
+            let a, b, c, d;
+            if (Array.isArray(face)) {
+              [a, b, c, d] = face;
+            } else {
+              a = face[0] !== undefined ? face[0] : 0;
+              b = face[1] !== undefined ? face[1] : 0;
+              c = face[2] !== undefined ? face[2] : 0;
+              d = face[3] !== undefined ? face[3] : c;
+            }
+            indices.push(a, b, c);
+            if (d !== c) indices.push(a, c, d); // quad → two triangles
+          }
+
+          if (positions.length === 0 || indices.length === 0) return;
+
+          const geom = new THREE.BufferGeometry();
+          geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+          geom.setIndex(indices);
+          geom.computeVertexNormals();
+
+          // Try to get object color
+          let objMat = defaultMat;
+          try {
+            const attr = rhinoObj.attributes();
+            const color = attr.drawColor(doc);
+            if (color && (color.r + color.g + color.b > 0)) {
+              objMat = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(color.r / 255, color.g / 255, color.b / 255),
+                side: THREE.DoubleSide, flatShading: false,
+              });
+            }
+          } catch(e) { /* use default material */ }
+
+          const mesh3 = new THREE.Mesh(geom, objMat);
+          mesh3.userData.layerIndex = rhinoObj.attributes().layerIndex;
+          mesh3.visible = isVisible !== false;
+          sceneRef.current.add(mesh3);
+          sceneObjects.current.push({ threeObj: mesh3, layerIndex: mesh3.userData.layerIndex });
+        } catch(e) { console.warn("addMeshToScene failed:", e); }
+      }
+
+      function addCurveToScene(geo, rhinoObj, isVisible) {
+        const pts = [];
+        try {
+          // Try different curve approaches
+          let curve = geo;
+          if (geo.toNurbsCurve) {
+            try { curve = geo.toNurbsCurve(); } catch(e) { curve = geo; }
+          }
+
+          // Try to get points via pointAt for smooth sampling
+          if (curve.domain && typeof curve.pointAt === "function") {
+            const domain = curve.domain;
+            const steps = 50;
+            for (let s = 0; s <= steps; s++) {
+              const t = domain[0] + (domain[1] - domain[0]) * (s / steps);
+              const pt = curve.pointAt(t);
+              if (pt) {
+                const x = pt[0] !== undefined ? pt[0] : pt.x;
+                const y = pt[1] !== undefined ? pt[1] : pt.y;
+                const z = pt[2] !== undefined ? pt[2] : pt.z;
+                pts.push(new THREE.Vector3(x, y, z));
+                allPositions.push(x, y, z);
+              }
+            }
+          }
+
+          // Fallback: control points
+          if (pts.length < 2 && curve.points) {
+            const cp = curve.points();
+            for (let p = 0; p < cp.count; p++) {
+              const pt = cp.get(p);
+              const x = pt[0] !== undefined ? pt[0] : pt.x;
+              const y = pt[1] !== undefined ? pt[1] : pt.y;
+              const z = pt[2] !== undefined ? pt[2] : pt.z;
+              pts.push(new THREE.Vector3(x, y, z));
+              allPositions.push(x, y, z);
+            }
+          }
+        } catch(e) { console.log("curve point extraction failed:", e); }
+
+        if (pts.length > 1) {
+          const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+          const line = new THREE.Line(lineGeo, lineMat);
+          line.visible = isVisible !== false;
+          if (rhinoObj) {
+            line.userData.layerIndex = rhinoObj.attributes().layerIndex;
+            sceneObjects.current.push({ threeObj: line, layerIndex: line.userData.layerIndex });
+          }
+          sceneRef.current.add(line);
+        }
+      }
+
+      // Auto-fit camera to model
+      if (allPositions.length > 0) {
+        let minX = Infinity, minY = Infinity, minZ = Infinity;
+        let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+        for (let i = 0; i < allPositions.length; i += 3) {
+          minX = Math.min(minX, allPositions[i]); maxX = Math.max(maxX, allPositions[i]);
+          minY = Math.min(minY, allPositions[i+1]); maxY = Math.max(maxY, allPositions[i+1]);
+          minZ = Math.min(minZ, allPositions[i+2]); maxZ = Math.max(maxZ, allPositions[i+2]);
+        }
+        const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2, cz = (minZ + maxZ) / 2;
+        const size = Math.max(maxX - minX, maxY - minY, maxZ - minZ) || 10;
+
+        // Center all objects
+        sceneRef.current.traverse(child => { if (child.isMesh || child.isLine) child.position.set(-cx, -cy, -cz); });
+
+        panOffset.current.set(0, 0, 0);
+        zoomRef.current = Math.max(0.5, size / 40);
+
+        // Store bounds for clipping planes
+        modelBounds.current = {
+          min: new THREE.Vector3(minX - cx, minY - cy, minZ - cz),
+          max: new THREE.Vector3(maxX - cx, maxY - cy, maxZ - cz),
+        };
+        updateCamera();
+      }
+
+      setModelInfo({ meshes: meshCount, curves: curveCount, objects: objects.count, skipped: skippedCount });
+      setStatus(meshCount + curveCount > 0 ? "ready" : "error");
+      if (meshCount + curveCount === 0) {
+        setErrorMsg(`Filen lästes men inga synliga objekt hittades (${objects.count} objekt, ${skippedCount} överhoppade). Öppna webbkonsolen (F12) för detaljer.`);
+      }
+      doc.delete();
+    } catch (e) {
+      console.error("3D-laddningsfel:", e);
+      setErrorMsg(e.message || "Okänt fel vid laddning");
+      setStatus("error");
+    }
+  }
+
+  const inputStyle = { padding: "9px 12px", borderRadius: 7, border: "1.5px solid #DDD5C8", background: "#FFFDF8", fontSize: 13, color: "#3A2E22", outline: "none", fontFamily: "inherit" };
+
+  function toggleLayer(index) {
+    setLayers(prev => {
+      const updated = prev.map(l => l.index === index ? { ...l, visible: !l.visible } : l);
+      const vis = updated.find(l => l.index === index)?.visible;
+      sceneObjects.current.forEach(o => {
+        if (o.layerIndex === index) o.threeObj.visible = vis;
+      });
+      return updated;
+    });
+  }
+
+  return (
+    <div>
+      {/* URL input */}
+      <div style={{ background: "#FFFDF8", borderRadius: 10, padding: 18, border: "1px solid #E5DDD0", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#8A7D6B", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+            Ladda Rhino 3D-modell — GitHub raw eller Google Drive
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input
+            placeholder="Klistra in GitHub raw-länk eller Google Drive-länk till .3dm-fil…"
+            value={driveUrl}
+            onChange={e => setDriveUrl(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && loadFromDrive()}
+            style={{ ...inputStyle, flex: "1 1 300px" }}
+          />
+          <button
+            onClick={loadFromDrive}
+            disabled={!driveUrl.trim() || status === "loading"}
+            style={{
+              padding: "9px 20px", border: "none", borderRadius: 7,
+              background: driveUrl.trim() && status !== "loading" ? "#5A7A8A" : "#E5DDD0",
+              color: driveUrl.trim() && status !== "loading" ? "#fff" : "#A89878",
+              fontWeight: 700, fontSize: 13, cursor: driveUrl.trim() ? "pointer" : "default",
+            }}
+          >
+            {status === "loading" ? "Laddar…" : "Visa 3D-modell"}
+          </button>
+        </div>
+        {!isProxyConfigured() && (
+          <div style={{ marginTop: 8, padding: "8px 12px", background: "#FFF3E0", borderRadius: 6, fontSize: 11, color: "#8B5E3C", lineHeight: 1.4 }}>
+            ⚠ CORS-proxy ej konfigurerad. Du behöver deploya en Cloudflare Worker och fylla i <code>CORS_PROXY_URL</code> i koden. Se filen <b>cloudflare-worker.js</b> för instruktioner.
+          </div>
+        )}
+        {status === "error" && <div style={{ marginTop: 8, fontSize: 12, color: "#C75B4A", fontWeight: 600 }}>✗ {errorMsg}</div>}
+        {modelInfo && (
+          <div style={{ marginTop: 8, fontSize: 11, color: "#5B7F6E", fontWeight: 600 }}>
+            ✓ Modell laddad — {modelInfo.meshes} ytor, {modelInfo.curves} kurvor ({modelInfo.objects} objekt totalt{modelInfo.skipped > 0 ? `, ${modelInfo.skipped} överhoppade` : ""})
+          </div>
+        )}
+        <div style={{ marginTop: 6, fontSize: 10, color: "#A89878" }}>
+          Vänster mus: rotera • Mittenknapp/högerklick: panorera • Scrolla: zooma • Stödjer .3dm-filer (Rhino 3D)
+        </div>
+      </div>
+
+      {/* 3D viewport */}
+      <div style={{ position: "relative", width: "100%", height: "calc(100vh - 220px)", minHeight: 400, borderRadius: 10, border: "1px solid #E5DDD0", overflow: "hidden", background: "#F5F0E6", cursor: "grab" }}>
+        <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+        {status === "loading" && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(245,240,230,0.8)", zIndex: 10, pointerEvents: "none" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 32, marginBottom: 8, animation: "pulse 1s infinite" }}>⛵</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#5A4A38" }}>Laddar 3D-modell…</div>
+            </div>
+          </div>
+        )}
+        {status === "idle" && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+            <div style={{ textAlign: "center", color: "#A89878" }}>
+              <div style={{ fontSize: 40, marginBottom: 8, opacity: 0.4 }}>◇</div>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>Klistra in en Google Drive-länk ovan för att visa en 3D-modell</div>
+            </div>
+          </div>
+        )}
+        {status === "ready" && (
+          <div style={{
+            position: "absolute", top: 10, right: 10, zIndex: 20,
+            background: "rgba(255,253,248,0.92)", borderRadius: 8,
+            border: "1px solid #E5DDD0", padding: "10px 12px",
+            maxHeight: "calc(100% - 20px)", overflowY: "auto",
+            minWidth: 170, backdropFilter: "blur(8px)",
+            boxShadow: "0 2px 12px rgba(58,46,34,0.1)",
+          }}>
+            {layers.length > 0 && (<>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#8A7D6B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Lager</div>
+              {layers.map(l => (
+                <div key={l.index} onClick={() => toggleLayer(l.index)}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 6px", borderRadius: 5, cursor: "pointer", fontSize: 12, fontWeight: 500, color: l.visible ? "#3A2E22" : "#B0A898", background: l.visible ? "transparent" : "rgba(0,0,0,0.03)", transition: "all 0.15s", marginBottom: 2 }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.05)"}
+                  onMouseLeave={e => e.currentTarget.style.background = l.visible ? "transparent" : "rgba(0,0,0,0.03)"}
+                >
+                  <span style={{ width: 14, height: 14, borderRadius: 3, flexShrink: 0, border: `2px solid ${l.visible ? l.color : "#CCC"}`, background: l.visible ? l.color : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                    {l.visible && <span style={{ color: "#fff", fontSize: 9, fontWeight: 800 }}>✓</span>}
+                  </span>
+                  <span style={{ textDecoration: l.visible ? "none" : "line-through", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.name}</span>
+                </div>
+              ))}
+              <div style={{ height: 1, background: "#E5DDD0", margin: "10px 0" }} />
+            </>)}
+
+            {/* Clipping planes */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#8A7D6B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Genomskärning</div>
+            {["x","y","z"].map(axis => (
+              <div key={axis} style={{ marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 5, cursor: "pointer", fontSize: 12, fontWeight: 600, color: clips[axis].enabled ? "#3A2E22" : "#A89878", flex: 1 }}>
+                    <input type="checkbox" checked={clips[axis].enabled}
+                      onChange={e => setClips(c => ({ ...c, [axis]: { ...c[axis], enabled: e.target.checked } }))}
+                      style={{ accentColor: axis === "x" ? "#C75B4A" : axis === "y" ? "#5B7F6E" : "#5A7A8A", width: 13, height: 13 }} />
+                    {axis.toUpperCase()}
+                  </label>
+                  {clips[axis].enabled && (
+                    <button onClick={() => setClips(c => ({ ...c, [axis]: { ...c[axis], flipped: !c[axis].flipped } }))}
+                      title="Vänd riktning"
+                      style={{ fontSize: 11, padding: "1px 6px", border: "1px solid #DDD5C8", borderRadius: 4, background: clips[axis].flipped ? "#E8EFF0" : "none", cursor: "pointer", color: "#6B5D4E" }}>
+                      {clips[axis].flipped ? "←" : "→"}
+                    </button>
+                  )}
+                </div>
+                {clips[axis].enabled && (
+                  <input type="range" min="-100" max="100" value={Math.round(clips[axis].value * 100)}
+                    onChange={e => setClips(c => ({ ...c, [axis]: { ...c[axis], value: parseInt(e.target.value) / 100 } }))}
+                    style={{ width: "100%", accentColor: axis === "x" ? "#C75B4A" : axis === "y" ? "#5B7F6E" : "#5A7A8A", cursor: "pointer" }} />
+                )}
+              </div>
+            ))}
+            {(clips.x.enabled || clips.y.enabled || clips.z.enabled) && (
+              <button onClick={() => setClips({ x: { enabled: false, value: 0, flipped: false }, y: { enabled: false, value: 0, flipped: false }, z: { enabled: false, value: 0, flipped: false } })}
+                style={{ fontSize: 10, color: "#A89878", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 2 }}>
+                Återställ alla
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main App ───
+const debouncedSave = createDebouncedSaver(1500);
+
+function App() {
+  const [tasks, setTasks] = useState(() => loadTasksLocal() || DEFAULT_TASKS);
+  const [gallery, setGallery] = useState(() => loadGalleryLocal());
+  const [view, setView] = useState("board");
+  const [editingTask, setEditingTask] = useState(null);
+  const [filterPhase, setFilterPhase] = useState("all");
+  const [dragOverStatus, setDragOverStatus] = useState(null);
+  const [draggingId, setDraggingId] = useState(null);
+  const [lightbox, setLightbox] = useState(null); // { src, caption, images, currentIndex }
+
+  function openLightbox(src, caption, images, currentIndex) {
+    setLightbox({ src, caption, images: images || [], currentIndex: currentIndex ?? 0 });
+  }
+  function navigateLightbox(idx) {
+    if (!lightbox?.images) return;
+    const img = lightbox.images[idx];
+    if (img) setLightbox({ ...lightbox, src: img.src, caption: img.caption, currentIndex: idx });
+  }
+  const [syncStatus, setSyncStatus] = useState(isJsonBinConfigured() ? "loading" : "offline");
+  const [pending3dUrl, setPending3dUrl] = useState(null);
+  const isInitialLoad = useRef(true);
+
+  // On mount: load from cloud if configured
+  useEffect(() => {
+    if (!isJsonBinConfigured()) { setSyncStatus("offline"); return; }
+    loadFromCloud().then(cloudData => {
+      if (cloudData) {
+        if (cloudData.tasks && cloudData.tasks.length > 0) {
+          setTasks(cloudData.tasks);
+          saveTasksLocal(cloudData.tasks);
+        }
+        if (cloudData.gallery) {
+          setGallery(cloudData.gallery);
+          saveGalleryLocal(cloudData.gallery);
+        }
+        setSyncStatus("saved");
+      } else {
+        // Cloud is empty, push local data up
+        saveToCloud(tasks, gallery).then(ok => setSyncStatus(ok ? "saved" : "error"));
+      }
+      isInitialLoad.current = false;
+    }).catch(() => { setSyncStatus("error"); isInitialLoad.current = false; });
+  }, []);
+
+  // Auto-save on changes (skip initial load)
+  useEffect(() => {
+    if (isInitialLoad.current) return;
+    debouncedSave(tasks, gallery, setSyncStatus);
+  }, [tasks, gallery]);
+
+  const handleManualSync = async () => {
+    setSyncStatus("loading");
+    const cloudData = await loadFromCloud();
+    if (cloudData) {
+      if (cloudData.tasks && cloudData.tasks.length > 0) {
+        setTasks(cloudData.tasks);
+        saveTasksLocal(cloudData.tasks);
+      }
+      if (cloudData.gallery) {
+        setGallery(cloudData.gallery);
+        saveGalleryLocal(cloudData.gallery);
+      }
+      setSyncStatus("saved");
+      showToast("All data synkad från molnet ✓");
+    } else {
+      setSyncStatus("error");
+      showToast("Kunde inte hämta data ✗");
+    }
+  };
+
+  const nextId = () => Math.max(0, ...tasks.map(t => t.id)) + 1;
+  const handleDrop = (taskId, newStatus) => { setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t)); setDraggingId(null); showToast("Status uppdaterad ✓"); };
+
+  const handleUpdateTask = (taskId, updates) => {
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updates } : t));
+  };
+
+  const handleReorder = (draggedId, targetId, statusId) => {
+    setTasks(prev => {
+      const columnTasks = prev.filter(t => t.status === statusId);
+      const otherTasks = prev.filter(t => t.status !== statusId);
+      const draggedIdx = columnTasks.findIndex(t => t.id === draggedId);
+      const targetIdx = columnTasks.findIndex(t => t.id === targetId);
+      if (draggedIdx === -1 || targetIdx === -1) return prev;
+      const reordered = [...columnTasks];
+      const [moved] = reordered.splice(draggedIdx, 1);
+      reordered.splice(targetIdx, 0, moved);
+      // Preserve overall order: put other tasks first, then reordered column
+      return [...otherTasks.filter(t => prev.indexOf(t) < prev.findIndex(t2 => t2.status === statusId)), ...reordered, ...otherTasks.filter(t => prev.indexOf(t) > prev.findLastIndex(t2 => t2.status === statusId))];
+    });
+    showToast("Ordning uppdaterad ✓");
+  };
+  const handleSave = (form) => { if (form.id) { setTasks(prev => prev.map(t => t.id === form.id ? { ...form } : t)); } else { setTasks(prev => [...prev, { ...form, id: nextId() }]); } showToast(form.id ? "Uppgift sparad ✓" : "Uppgift tillagd ✓"); };
+  const handleDelete = (id) => { setTasks(prev => prev.filter(t => t.id !== id)); showToast("Uppgift borttagen"); };
+  const newTask = () => { setEditingTask({ id: 0, title: "", phase: "survey", status: "backlog", startWeek: 1, duration: 1, notes: "", files: [] }); };
+
+  const handleReset = () => { if (confirm("Är du säker? Detta återställer alla uppgifter och bildarkivet till ursprungsläget och synkar till molnet.")) { setTasks(DEFAULT_TASKS); setGallery(DEFAULT_FOLDERS); showToast("Data återställd"); } };
+  const handleExport = () => { const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "renovering-marga-iii-backup.json"; a.click(); URL.revokeObjectURL(url); showToast("Backup exporterad ✓"); };
+  const handleImport = () => { const input = document.createElement("input"); input.type = "file"; input.accept = ".json"; input.onchange = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { const imported = JSON.parse(ev.target.result); if (Array.isArray(imported) && imported.length > 0 && imported[0].title) { const cleaned = imported.map(t => ({ ...t, files: (t.files || []).map(f => ({ ...f, type: f.type || detectFileType(f.name || f.url) })) })); setTasks(cleaned); showToast(`${imported.length} uppgifter importerade ✓`); } else { showToast("Ogiltig fil ✗"); } } catch { showToast("Kunde inte läsa filen ✗"); } }; reader.readAsText(file); }; input.click(); };
+
+  const filteredTasks = filterPhase === "all" ? tasks : tasks.filter(t => t.phase === filterPhase);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#F0F4F8" }}>
+      <div style={{
+        background: "linear-gradient(to bottom, rgba(10,22,40,0.82) 0%, rgba(10,22,40,0.92) 100%), url('https://raw.githubusercontent.com/matsbprod/marga/main/BILDER/2.%20Historiska%20bilder/Byggfoto%201.jpg') center/cover no-repeat",
+        color: "#FFFDF8",
+        borderBottom: "3px solid #C9A84C",
+        position: "relative",
+        display: "flex",
+        alignItems: "stretch",
+        minHeight: 178,
+      }}>
+        {/* Full-height thumbnail — absolute left panel */}
+        <div style={{ width: 220, height: 150, flexShrink: 0, overflow: "hidden", background: "#000", margin: "16px 24px 16px 16px", boxShadow: "0 0 0 4px #1E3A5F" }}>
+          <img src="https://raw.githubusercontent.com/matsbprod/marga/main/BILDER/2.%20Historiska%20bilder/Byggfoto%201.jpg"
+            alt="Marga III" style={{ width: "100%", height: "100%", objectFit: "contain", opacity: 0.88, display: "block" }} />
+        </div>
+
+        {/* Right side: title + nav stacked */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "28px 32px 20px 24px" }}>
+            {/* Top row: title + new task button */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <h1 style={{ margin: "0 0 6px 0", fontFamily: "'Playfair Display', Georgia, serif", fontSize: 36, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                  Marga III
+                </h1>
+                <p style={{ margin: "0 0 0 0", fontSize: 13, color: "#C9A84C", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" }}>Projektplanering</p>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {view !== "gallery" && view !== "viewer3d" && <button onClick={newTask} style={{ padding: "10px 20px", background: "#5B7F6E", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 2px 8px rgba(91,127,110,0.3)" }}>+ Ny uppgift</button>}
+              </div>
+            </div>
+
+            {/* Bottom row: nav + filter + sync */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", background: "rgba(255,255,255,0.1)", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(201,168,76,0.3)" }}>
+                {[{ id: "board", label: "Tavla" }, { id: "gantt", label: "Gantt-schema" }, { id: "gallery", label: "Bildarkiv" }, { id: "viewer3d", label: "3D-vy" }].map(v => (
+                  <button key={v.id} onClick={() => setView(v.id)} style={{ padding: "7px 18px", border: "none", background: view === v.id ? "rgba(201,168,76,0.25)" : "transparent", color: view === v.id ? "#C9A84C" : "#FFFDF8", fontWeight: view === v.id ? 700 : 400, fontSize: 13, cursor: "pointer", transition: "all 0.2s" }}>{v.label}</button>
+                ))}
+              </div>
+              <select value={filterPhase} onChange={e => setFilterPhase(e.target.value)} style={{ padding: "7px 12px", border: "1px solid rgba(255,253,248,0.2)", borderRadius: 8, background: "rgba(255,253,248,0.08)", color: "#FFFDF8", fontSize: 13, cursor: "pointer", outline: "none", display: (view === "gallery" || view === "viewer3d") ? "none" : "block" }}>
+                <option value="all" style={{ color: "#3A2E22" }}>Alla faser</option>
+                {PHASES.map(p => <option key={p.id} value={p.id} style={{ color: "#3A2E22" }}>{p.label}</option>)}
+              </select>
+              <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
+                <SyncIndicator status={syncStatus} />
+                {isJsonBinConfigured() && (
+                  <button onClick={handleManualSync} title="Hämta senaste data från molnet" style={{ padding: "6px 12px", border: "1px solid rgba(255,253,248,0.2)", borderRadius: 7, background: "transparent", color: "#C4B89E", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>⟳ Synka</button>
+                )}
+                <button onClick={handleExport} title="Exportera backup" style={{ padding: "6px 12px", border: "1px solid rgba(255,253,248,0.2)", borderRadius: 7, background: "transparent", color: "#C4B89E", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>↓ Backup</button>
+                <button onClick={handleImport} title="Importera backup" style={{ padding: "6px 12px", border: "1px solid rgba(255,253,248,0.2)", borderRadius: 7, background: "transparent", color: "#C4B89E", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>↑ Importera</button>
+                <button onClick={() => { localStorage.removeItem(SITE_AUTH_KEY); window.location.reload(); }} title="Logga ut" style={{ padding: "6px 12px", border: "1px solid rgba(255,253,248,0.2)", borderRadius: 7, background: "transparent", color: "#C4B89E", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>⎋ Logga ut</button>
+              </div>
+            </div>
+          </div>
+      </div>
+
+      <div style={{ padding: "24px 24px 40px", maxWidth: 1440, margin: "0 auto" }}>
+        {(view !== "gallery" && view !== "viewer3d") && <Stats tasks={tasks} />}
+        {view === "board" ? (
+          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 16 }}>
+            {STATUSES.map(s => <KanbanColumn key={s.id} status={s} tasks={filteredTasks.filter(t => t.status === s.id)} phases={PHASES} onEdit={setEditingTask} onDrop={handleDrop} onDragStart={setDraggingId} dragOverStatus={dragOverStatus} setDragOverStatus={setDragOverStatus} onReorder={handleReorder} onPreview={(src, caption, images, idx) => openLightbox(src, caption, images, idx)} />)}
+          </div>
+        ) : view === "gantt" ? (
+          <GanttChart tasks={tasks} phases={PHASES} onEdit={setEditingTask} filterPhase={filterPhase} onUpdateTask={handleUpdateTask} />
+        ) : view === "viewer3d" ? (
+          <Rhino3DViewer pendingUrl={pending3dUrl} onPendingConsumed={() => setPending3dUrl(null)} />
+        ) : (
+          <ImageGallery
+            onPreview={(src, caption, images, idx) => openLightbox(src, caption, images, idx)}
+            folders={gallery} setFolders={setGallery}
+            onOpen3dModel={url => { setView("viewer3d"); setPending3dUrl(url); }} />
+        )}
+        {(view !== "gallery" && view !== "viewer3d") && (
+        <div style={{ marginTop: 24, display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
+          {PHASES.map(p => (
+            <div key={p.id} onClick={() => setFilterPhase(filterPhase === p.id ? "all" : p.id)} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "4px 10px", borderRadius: 6, background: filterPhase === p.id ? `${p.color}22` : "transparent", border: filterPhase === p.id ? `1.5px solid ${p.color}` : "1.5px solid transparent", transition: "all 0.2s" }}>
+              <span style={{ width: 10, height: 10, borderRadius: "50%", background: p.color }} />
+              <span style={{ fontSize: 12, fontWeight: 500, color: "#5A4A38" }}>{p.label}</span>
+            </div>
+          ))}
+        </div>
+        )}
+        <div style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: "#A89878" }}>
+          {isJsonBinConfigured()
+            ? "Data synkas automatiskt till molnet • Alla med länken ser samma data"
+            : "⚠ Molnsynk ej konfigurerad — data sparas bara lokalt."}
+        </div>
+      </div>
+
+      {editingTask && <TaskModal task={editingTask} phases={PHASES} onSave={handleSave} onDelete={handleDelete} onClose={() => setEditingTask(null)} onPreview={(src, caption) => setLightbox({ src, caption })} />}
+      {lightbox && <Lightbox src={lightbox.src} caption={lightbox.caption} images={lightbox.images} currentIndex={lightbox.currentIndex} onClose={() => setLightbox(null)} onNavigate={navigateLightbox} />}
+    </div>
+  );
+}
+
+// ─── Site Login ───
+function SiteLogin({ onAuth }) {
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState(false);
+  const [shake, setShake] = useState(false);
+  function attempt() {
+    if (pw === SITE_PASSWORD) { localStorage.setItem(SITE_AUTH_KEY, "1"); onAuth(); }
+    else { setErr(true); setShake(true); setPw(""); setTimeout(() => setShake(false), 500); }
+  }
+  return (
+    <div style={{ minHeight: "100vh", background: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+      <div style={{ background: "#FFFDF8", borderRadius: 16, padding: "48px 40px 40px", boxShadow: "0 8px 40px rgba(80,60,40,0.13)", width: 340, textAlign: "center", animation: shake ? "shake 0.4s ease" : "none" }}>
+        <div style={{ fontSize: 32, marginBottom: 8 }}>⚓</div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: "#3A2E22", marginBottom: 4, letterSpacing: "0.02em" }}>Marga III</div>
+        <div style={{ fontSize: 13, color: "#8A7D6B", marginBottom: 28 }}>Projektplanering</div>
+        <input type="password" placeholder="Lösenord…" value={pw} autoFocus
+          onChange={e => { setPw(e.target.value); setErr(false); }}
+          onKeyDown={e => e.key === "Enter" && attempt()}
+          style={{ width: "100%", padding: "11px 14px", borderRadius: 8, fontSize: 15, fontFamily: "inherit", border: err ? "2px solid #C75B4A" : "2px solid #DDD5C8", background: "#FAF6EF", color: "#3A2E22", outline: "none", boxSizing: "border-box", marginBottom: 8, transition: "border 0.2s" }}
+        />
+        {err && <div style={{ fontSize: 12, color: "#C75B4A", marginBottom: 8, fontWeight: 600 }}>Fel lösenord</div>}
+        <button onClick={attempt}
+          style={{ width: "100%", padding: "11px", border: "none", borderRadius: 8, background: pw ? "#5B7F6E" : "#E5DDD0", color: pw ? "#fff" : "#A89878", fontSize: 14, fontWeight: 700, cursor: pw ? "pointer" : "default", fontFamily: "inherit", letterSpacing: "0.04em", transition: "background 0.2s" }}
+        >Logga in</button>
+      </div>
+      <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}`}</style>
+    </div>
+  );
+}
 function Root() {
   const [authed, setAuthed] = useState(() => localStorage.getItem(SITE_AUTH_KEY) === "1");
   if (!authed) return <SiteLogin onAuth={() => setAuthed(true)} />;
   return <App />;
 }
+ReactDOM.createRoot(document.getElementById("root")).render(<Root />);
 
-ReactDOM.createRoot(document.getElementById("marga-root")).render(<Root />);
 </script>
 </body>
 </html>
