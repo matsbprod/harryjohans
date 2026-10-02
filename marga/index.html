@@ -159,22 +159,28 @@ const GITHUB_REPO    = "matsbprod/marga";
 const GITHUB_RAW     = "https://raw.githubusercontent.com/matsbprod/marga/main";
 
 const PHASES = [
-  { id: "mallstall",   label: "Mallställ och resning",      color: "#6B8CAE" },
-  { id: "cad",         label: "CAD design och konstruktion", color: "#8A6BAE" },
-  { id: "material",    label: "Materialinköp",               color: "#AE8A6B" },
-  { id: "skrov",       label: "Skrov",                       color: "#6BAE8A" },
-  { id: "deck",        label: "Däck och överbyggnad",        color: "#AE6B6B" },
-  { id: "rigg",        label: "Rigg och segel",              color: "#6BAEAD" },
-  { id: "motor",       label: "Motor och teknik",            color: "#8AAE6B" },
-  { id: "interior",    label: "Interiör",                    color: "#AE9B6B" },
-  { id: "finish",      label: "Slutbehandling",              color: "#AE6B8A" },
+  { id: "Mallställ och resning",                 label: "Mallställ och resning",                              color: "#5A6B7A" },
+  { id: "CAD design och konstruktion",           label: "CAD design och konstruktion",                                color: "#8B7355" },
+  { id: "Rivning och demontering",               label: "Rivning och demontering",          color: "#D4A76A" },
+  { id: "Spant och bottenstockar",               label: "Spant och bottenstockar",                             color: "#5B7F6E" },
+  { id: "Skrov och bordläggning",                label: "Skrov och bordläggning",                           color: "#7D6B91" },
+  { id: "Virke och material",                    label: "Virke och material",             color: "#A67B5B" },
+  { id: "Däck och överbyggnader",                label: "Däck och överbyggnader",                                color: "#6E7F8D" },
+  { id: "Ytbehandling",                          label: "Ytbehandling",                            color: "#C49A6C" },
+  { id: "Inredning",                             label: "Inredning",                      color: "#4A7C6F" },
+  { id: "El och instrument",                     label: "El och instrument",                             color: "#C75B4A" },
+  { id: "Övriga installationer",                 label: "Övriga installationer",                               color: "#5A7A8A" },
+  { id: "Mast och bom",                          label: "Mast och bom",                               color: "#7A8A5A" },
+  { id: "Motor",                                  label: "Motor",                                      color: "#6E5A7A" },
+  { id: "Segel och rigg",                        label: "Segel och rigg",         color: "#8B6347" },
+  { id: "Roder",                                 label: "Roder",      color: "#6B7A8B" },
+  { id: "Köl",                                   label: "Köl",      color: "#6B7A8B" },
 ];
 
 const STATUSES = [
-  { id: "todo",       label: "Att göra",  icon: "○" },
-  { id: "ongoing",    label: "Pågående",  icon: "◑" },
-  { id: "done",       label: "Klart",     icon: "●" },
-  { id: "blocked",    label: "Blockerad", icon: "⊘" },
+  { id: "backlog",     label: "Att göra",  icon: "○" },
+  { id: "in_progress", label: "Pågående",  icon: "◑" },
+  { id: "done",        label: "Klart",     icon: "●" },
 ];
 
 const FILE_TYPES = {
@@ -714,6 +720,37 @@ function App() {
     saveTasks(arr);
   }
 
+  function handleExport() {
+    const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "marga-iii-backup.json"; a.click();
+    URL.revokeObjectURL(url);
+    showToast("Backup exporterad ✓");
+  }
+
+  function handleImport() {
+    const input = document.createElement("input");
+    input.type = "file"; input.accept = ".json";
+    input.onchange = e => {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          let imported = JSON.parse(ev.target.result);
+          if (!Array.isArray(imported) && Array.isArray(imported?.tasks)) imported = imported.tasks;
+          if (!Array.isArray(imported) || !imported.length || !imported[0].title) { showToast("Ogiltig fil ✗"); return; }
+          if (tasks.length && !confirm(`Ersätta ${tasks.length} befintliga uppgifter med ${imported.length} från filen?`)) return;
+          const cleaned = imported.map(t => ({ ...t, files: (t.files || []).map(f => ({ ...f, type: f.type || detectFileType(f.name || f.url) })) }));
+          saveTasks(cleaned);
+          showToast(`${cleaned.length} uppgifter importerade ✓`);
+        } catch { showToast("Kunde inte läsa filen ✗"); }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
   function openLightbox(src, caption, images, idx) {
     setLightbox({ src, caption, images: images || [{ src, caption }], currentIndex: idx || 0 });
   }
@@ -746,6 +783,8 @@ function App() {
             {syncLabel}
           </span>
           <button className="marga-nav-btn" onClick={() => setEditing({ files: [] })}>+ Ny uppgift</button>
+          <button className="marga-nav-btn" onClick={handleExport}>↓ Backup</button>
+          <button className="marga-nav-btn" onClick={handleImport}>↑ Importera</button>
           <button className="marga-nav-btn" onClick={() => { localStorage.removeItem(SITE_AUTH_KEY); location.reload(); }}>⎋ Logga ut</button>
         </div>
       </div>
