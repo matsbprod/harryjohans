@@ -1,11 +1,22 @@
 // netlify/functions/marga-gh.js
 // GET /api/marga-gh?path=BILDER/... → listar innehåll i GitHub-repot matsbprod/marga
 // Token används server-side → 5000 anrop/timme istället för 60
+// CORS öppet så att även stockholmsbatsnickeri.se/marga kan anropa
 
 const GITHUB_REPO = "matsbprod/marga";
 
 export default async function handler(req) {
-  const headers = { "Content-Type": "application/json", "Cache-Control": "public, max-age=60" };
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-Marga-Password",
+    "Content-Type": "application/json",
+    "Cache-Control": "public, max-age=60",
+  };
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers });
+  }
 
   if (req.headers.get("x-marga-password") !== process.env.MARGA_PASSWORD) {
     return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401, headers });

@@ -90,6 +90,7 @@ const TOTAL_WEEKS = 120;
 // ╔══════════════════════════════════════════════════════════╗
 // ─── Supabase konfiguration ───
 
+const API_BASE = /(^|\.)harryjohans\.(se|netlify\.app)$/.test(location.hostname) ? "" : "https://harryjohans.se";
 function isCloudConfigured() { return true; }
 function isJsonBinConfigured() { return isCloudConfigured(); }
 
@@ -104,7 +105,7 @@ function normalizeTasks(arr) {
 
 async function loadFromCloud() {
   try {
-    const res = await fetch("/api/marga-data", { headers: apiHeaders() });
+    const res = await fetch(API_BASE + "/api/marga-data", { headers: apiHeaders() });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const record = await res.json();
     if (Array.isArray(record)) return { tasks: normalizeTasks(record), gallery: null };
@@ -115,7 +116,7 @@ async function loadFromCloud() {
 
 async function saveToCloud(tasks, gallery) {
   try {
-    const res = await fetch("/api/marga-data", { method: "POST", headers: apiHeaders(), body: JSON.stringify({ tasks, gallery }) });
+    const res = await fetch(API_BASE + "/api/marga-data", { method: "POST", headers: apiHeaders(), body: JSON.stringify({ tasks, gallery }) });
     return res.ok;
   } catch (e) { console.warn("Kunde inte spara data:", e); return false; }
 }
@@ -161,7 +162,7 @@ function SyncIndicator({ status }) {
 const GALLERY_KEY = "boat_gallery_v1";
 const GITHUB_REPO = "matsbprod/marga";
 const GITHUB_RAW = "https://raw.githubusercontent.com/matsbprod/marga/main";
-const GITHUB_API = "/api/marga-gh?path=";
+const GITHUB_API = API_BASE + "/api/marga-gh?path=";
 
 const SITE_PASSWORD = "marga2025";
 const SITE_AUTH_KEY = "marga_site_auth";
@@ -919,7 +920,7 @@ function GithubUploader({ targetPath, onDone, onUploaded, compact }) {
     try {
       const base64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result.split(",")[1]); r.onerror = () => rej(new Error("Läsfel")); r.readAsDataURL(f); });
       const path = `${targetPath}/${f.name}`;
-      const res = await fetch("/api/marga-upload", {
+      const res = await fetch(API_BASE + "/api/marga-upload", {
         method: "POST", headers: apiHeaders(),
         body: JSON.stringify({ path, content: base64, message: `${effectiveLogin.name}: laddar upp ${f.name}` }),
       });
