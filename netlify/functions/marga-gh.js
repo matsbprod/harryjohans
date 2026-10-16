@@ -23,11 +23,17 @@ export default async function handler(req) {
   }
 
   const url = new URL(req.url);
-  const path = (url.searchParams.get("path") || "").replace(/^\/+/, "");
-  const encoded = path.split("/").map(encodeURIComponent).join("/");
-
   const ghHeaders = { Accept: "application/vnd.github.v3+json" };
   if (process.env.MARGA_GITHUB_TOKEN) ghHeaders.Authorization = `token ${process.env.MARGA_GITHUB_TOKEN}`;
+
+  // ?tree=1 → hela repots filträd i ett enda anrop
+  if (url.searchParams.get("tree")) {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1`, { headers: ghHeaders });
+    return new Response(await res.text(), { status: res.status, headers: { ...headers, "Cache-Control": "public, max-age=30" } });
+  }
+
+  const path = (url.searchParams.get("path") || "").replace(/^\/+/, "");
+  const encoded = path.split("/").map(encodeURIComponent).join("/");
 
   const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${encoded}`, { headers: ghHeaders });
   const body = await res.text();
