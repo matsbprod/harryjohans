@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bilder — Harry Johans</title>
+  <meta name="description" content="Projekt Varvet — bildarkiv om båtbyggaren Harry Johans">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .bilder-wrap {
+      max-width: 1700px;
+      margin: 0 auto;
+      padding: 160px 24px 80px;
+    }
+    .bilder-head {
+      margin-bottom: 40px;
+    }
+    .bilder-head p.lbl {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #999;
+      margin: 0 0 10px;
+    }
+    .bilder-head h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 2.6rem;
+      margin: 0;
+    }
+    .bgallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 3px;
+      background: #0a0a0a;
+      padding: 3px;
+    }
+    .bcell {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      background: #111;
+      cursor: pointer;
+    }
+    .bcell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s cubic-bezier(0.25,0,0,1);
+    }
+    .bcell:hover img {
+      transform: scale(1.05);
+    }
+    .bcell.ph {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Archivo', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: #555;
+      text-align: center;
+      padding: 8px;
+    }
+
+    /* ── LIGHTBOX ─────────────────────────────────── */
+    .blightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.92);
+      align-items: center;
+      justify-content: center;
+    }
+    .blightbox.open { display: flex; }
+    .blb-inner {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+    .blb-inner img {
+      max-width: 90vw;
+      max-height: 90vh;
+      display: block;
+    }
+    .blb-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: none;
+      border: none;
+      color: #f5f5f3;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-links">
+    <a href="index.html">Hem</a>
+    <a href="index.html#filmen">Filmen</a>
+    <a href="index.html#harry">Harry</a>
+    <a href="viewer.html">3D-scenen</a>
+    <a href="index.html#material">Materialet</a>
+    <a href="moodboard.html">Moodboard</a>
+    <a href="bilder.html">Bilder</a>
+    <a href="index.html#kontakt">Kontakt</a>
+  </div>
+</nav>
+
+<div class="bilder-wrap">
+  <div class="bilder-head">
+    <p class="lbl">Bildarkiv</p>
+    <h1>Bilder</h1>
+  </div>
+
+  <div class="bgallery" id="bgallery">
+    <div class="bcell" data-full="img/Elis_verkstad_Sottunga.JPG"><img src="img/Elis_verkstad_Sottunga.JPG" alt="Elis verkstad, Sottunga" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_03.jpg"><img src="img/Harry_03.jpg" alt="Harry" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_06.jpg"><img src="img/Harry_06.jpg" alt="Harry" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_2016.png"><img src="img/Harry_2016.png" alt="Harry, 2016" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_2026_1.jpeg"><img src="img/Harry_2026_1.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_2026_2.jpeg"><img src="img/Harry_2026_2.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_2026_3.jpeg"><img src="img/Harry_2026_3.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_fiske_Sottunga_2015.png"><img src="img/Harry_fiske_Sottunga_2015.png" alt="Harry fiske, Sottunga 2015" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_lask.jpg"><img src="img/Harry_lask.jpg" alt="Harry lask" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_seglar_Bea.png"><img src="img/Harry_seglar_Bea.png" alt="Harry seglar Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_Thomas_01.jpg"><img src="img/Harry_Thomas_01.jpg" alt="Harry och Thomas" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_Thomas_Bea_01.png"><img src="img/Harry_Thomas_Bea_01.png" alt="Harry, Thomas och Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Harry_Thomas_Bea_02.png"><img src="img/Harry_Thomas_Bea_02.png" alt="Harry, Thomas och Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Lugnet_rivning_verkstad.JPG"><img src="img/Lugnet_rivning_verkstad.JPG" alt="Lugnet, rivning av verkstaden" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Lugnet.png"><img src="img/Lugnet.png" alt="Lugnet" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Souttunga_jordbruk.jpeg"><img src="img/Souttunga_jordbruk.jpeg" alt="Jordbruk på Sottunga" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Uppväxt_jakt_Harry i mitten.JPG"><img src="img/Uppväxt_jakt_Harry i mitten.JPG" alt="Uppväxt, jakt — Harry i mitten" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/Verkstad_hammarbyhamnen.jpeg"><img src="img/Verkstad_hammarbyhamnen.jpeg" alt="Verkstad, Hammarbyhamnen" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="blightbox" id="blightbox">
+  <div class="blb-inner">
+    <button class="blb-close" id="blb-close">&#x2715;</button>
+    <img id="blb-img" src="" alt="">
+  </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer id="kontakt">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">Projekt Varvet</div>
+        <p>En dokumentärfilm under produktion.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Filmen</h4>
+        <ul>
+          <li><a href="index.html#filmen">Om filmen</a></li>
+          <li><a href="index.html#harry">Harry</a></li>
+          <li><a href="index.html#material">Materialet</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Utforska</h4>
+        <ul>
+          <li><a href="viewer.html">3D-scenen</a></li>
+          <li><a href="moodboard.html">Moodboard</a></li>
+          <li><a href="index.html#kontakt">Kontakt</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Projekt Varvet</span>
+      <span>Bohuslän · Sverige</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/header.js"></script>
+<script>
+  (function() {
+    const lightbox = document.getElementById('blightbox');
+    const lbImg = document.getElementById('blb-img');
+    const lbClose = document.getElementById('blb-close');
+
+    document.querySelectorAll('.bcell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const full = cell.dataset.full;
+        if (!full) return;
+        lbImg.src = full;
+        lightbox.classList.add('open');
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lbImg.src = '';
+    }
+
+    lbClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  })();
+</script>
+</body>
+</html>
