@@ -68,6 +68,65 @@
       text-align: center;
       padding: 8px;
     }
+    .bcell-dl {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s, transform 0.2s, background 0.2s;
+      z-index: 2;
+    }
+    .bcell-dl svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: #f5f5f3;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .bcell:hover .bcell-dl {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .bcell-dl:hover {
+      background: rgba(0,0,0,0.85);
+    }
+    .blb-dl {
+      position: absolute;
+      top: -40px;
+      right: 44px;
+      background: none;
+      border: none;
+      color: #f5f5f3;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Archivo', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .blb-dl svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: #f5f5f3;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
     /* ── LIGHTBOX ─────────────────────────────────── */
     .blightbox {
@@ -125,30 +184,31 @@
   </div>
 
   <div class="bgallery" id="bgallery">
-    <div class="bcell" data-full="img/artikel/Elis_verkstad_Sottunga.JPG"><img src="img/artikel/Elis_verkstad_Sottunga.JPG" alt="Elis verkstad, Sottunga" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_03.jpg"><img src="img/artikel/Harry_03.jpg" alt="Harry" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_06.jpg"><img src="img/artikel/Harry_06.jpg" alt="Harry" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_2016.png"><img src="img/artikel/Harry_2016.png" alt="Harry, 2016" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_2026_1.jpeg"><img src="img/artikel/Harry_2026_1.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_2026_2.jpeg"><img src="img/artikel/Harry_2026_2.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_2026_3.jpeg"><img src="img/artikel/Harry_2026_3.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_fiske_Sottunga_2015.png"><img src="img/artikel/Harry_fiske_Sottunga_2015.png" alt="Harry fiske, Sottunga 2015" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_lask.jpg"><img src="img/artikel/Harry_lask.jpg" alt="Harry lask" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_seglar_Bea.png"><img src="img/artikel/Harry_seglar_Bea.png" alt="Harry seglar Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_Thomas_01.jpg"><img src="img/artikel/Harry_Thomas_01.jpg" alt="Harry och Thomas" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_Thomas_Bea_01.png"><img src="img/artikel/Harry_Thomas_Bea_01.png" alt="Harry, Thomas och Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Harry_Thomas_Bea_02.png"><img src="img/artikel/Harry_Thomas_Bea_02.png" alt="Harry, Thomas och Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Lugnet_rivning_verkstad.JPG"><img src="img/artikel/Lugnet_rivning_verkstad.JPG" alt="Lugnet, rivning av verkstaden" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Lugnet.png"><img src="img/artikel/Lugnet.png" alt="Lugnet" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Souttunga_jordbruk.jpeg"><img src="img/artikel/Souttunga_jordbruk.jpeg" alt="Jordbruk på Sottunga" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Uppväxt_jakt_Harry i mitten.JPG"><img src="img/artikel/Uppväxt_jakt_Harry i mitten.JPG" alt="Uppväxt, jakt — Harry i mitten" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
-    <div class="bcell" data-full="img/artikel/Verkstad_hammarbyhamnen.jpeg"><img src="img/artikel/Verkstad_hammarbyhamnen.jpeg" alt="Verkstad, Hammarbyhamnen" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Elis_verkstad_Sottunga.JPG"><a class="bcell-dl" href="img/artikel/Elis_verkstad_Sottunga.JPG" download="Elis_verkstad_Sottunga.JPG" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Elis_verkstad_Sottunga.JPG" alt="Elis verkstad, Sottunga" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_03.jpg"><a class="bcell-dl" href="img/artikel/Harry_03.jpg" download="Harry_03.jpg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_03.jpg" alt="Harry" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_06.jpg"><a class="bcell-dl" href="img/artikel/Harry_06.jpg" download="Harry_06.jpg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_06.jpg" alt="Harry" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_2016.png"><a class="bcell-dl" href="img/artikel/Harry_2016.png" download="Harry_2016.png" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_2016.png" alt="Harry, 2016" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_2026_1.jpeg"><a class="bcell-dl" href="img/artikel/Harry_2026_1.jpeg" download="Harry_2026_1.jpeg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_2026_1.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_2026_2.jpeg"><a class="bcell-dl" href="img/artikel/Harry_2026_2.jpeg" download="Harry_2026_2.jpeg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_2026_2.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_2026_3.jpeg"><a class="bcell-dl" href="img/artikel/Harry_2026_3.jpeg" download="Harry_2026_3.jpeg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_2026_3.jpeg" alt="Harry, 2026" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_fiske_Sottunga_2015.png"><a class="bcell-dl" href="img/artikel/Harry_fiske_Sottunga_2015.png" download="Harry_fiske_Sottunga_2015.png" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_fiske_Sottunga_2015.png" alt="Harry fiske, Sottunga 2015" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_lask.jpg"><a class="bcell-dl" href="img/artikel/Harry_lask.jpg" download="Harry_lask.jpg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_lask.jpg" alt="Harry lask" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_seglar_Bea.png"><a class="bcell-dl" href="img/artikel/Harry_seglar_Bea.png" download="Harry_seglar_Bea.png" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_seglar_Bea.png" alt="Harry seglar Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_Thomas_01.jpg"><a class="bcell-dl" href="img/artikel/Harry_Thomas_01.jpg" download="Harry_Thomas_01.jpg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_Thomas_01.jpg" alt="Harry och Thomas" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_Thomas_Bea_01.png"><a class="bcell-dl" href="img/artikel/Harry_Thomas_Bea_01.png" download="Harry_Thomas_Bea_01.png" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_Thomas_Bea_01.png" alt="Harry, Thomas och Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Harry_Thomas_Bea_02.png"><a class="bcell-dl" href="img/artikel/Harry_Thomas_Bea_02.png" download="Harry_Thomas_Bea_02.png" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Harry_Thomas_Bea_02.png" alt="Harry, Thomas och Bea" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Lugnet_rivning_verkstad.JPG"><a class="bcell-dl" href="img/artikel/Lugnet_rivning_verkstad.JPG" download="Lugnet_rivning_verkstad.JPG" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Lugnet_rivning_verkstad.JPG" alt="Lugnet, rivning av verkstaden" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Lugnet.png"><a class="bcell-dl" href="img/artikel/Lugnet.png" download="Lugnet.png" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Lugnet.png" alt="Lugnet" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Souttunga_jordbruk.jpeg"><a class="bcell-dl" href="img/artikel/Souttunga_jordbruk.jpeg" download="Souttunga_jordbruk.jpeg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Souttunga_jordbruk.jpeg" alt="Jordbruk på Sottunga" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Uppväxt_jakt_Harry i mitten.JPG"><a class="bcell-dl" href="img/artikel/Uppväxt_jakt_Harry i mitten.JPG" download="Uppväxt_jakt_Harry i mitten.JPG" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Uppväxt_jakt_Harry i mitten.JPG" alt="Uppväxt, jakt — Harry i mitten" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
+    <div class="bcell" data-full="img/artikel/Verkstad_hammarbyhamnen.jpeg"><a class="bcell-dl" href="img/artikel/Verkstad_hammarbyhamnen.jpeg" download="Verkstad_hammarbyhamnen.jpeg" title="Ladda ner" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></a><img src="img/artikel/Verkstad_hammarbyhamnen.jpeg" alt="Verkstad, Hammarbyhamnen" onerror="this.closest('.bcell').classList.add('ph');this.remove()"></div>
   </div>
 </div>
 
 <!-- LIGHTBOX -->
 <div class="blightbox" id="blightbox">
   <div class="blb-inner">
+    <a class="blb-dl" id="blb-dl" href="" download title="Ladda ner"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg>Ladda ner</a>
     <button class="blb-close" id="blb-close">&#x2715;</button>
     <img id="blb-img" src="" alt="">
   </div>
@@ -192,12 +252,15 @@
     const lightbox = document.getElementById('blightbox');
     const lbImg = document.getElementById('blb-img');
     const lbClose = document.getElementById('blb-close');
+    const lbDl = document.getElementById('blb-dl');
 
     document.querySelectorAll('.bcell').forEach(cell => {
       cell.addEventListener('click', () => {
         const full = cell.dataset.full;
         if (!full) return;
         lbImg.src = full;
+        lbDl.href = full;
+        lbDl.setAttribute('download', full.split('/').pop());
         lightbox.classList.add('open');
       });
     });
