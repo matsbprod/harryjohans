@@ -159,6 +159,39 @@
       font-size: 1.4rem;
       cursor: pointer;
     }
+    .blb-nav {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 90px;
+      max-width: 15vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #f5f5f3;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      z-index: 1001;
+    }
+    .blb-nav:hover { opacity: 1; }
+    .blb-nav svg {
+      width: 32px;
+      height: 32px;
+      fill: none;
+      stroke: #f5f5f3;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .blb-prev { left: 0; }
+    .blb-next { right: 0; }
+    @media (max-width: 640px) {
+      .blb-nav { width: 52px; }
+      .blb-nav svg { width: 24px; height: 24px; }
+    }
 
     /* ── LÖSENORDSSPÄRR ───────────────────────────── */
     body.locked .bgallery {
@@ -313,6 +346,8 @@
 
 <!-- LIGHTBOX -->
 <div class="blightbox" id="blightbox">
+  <button class="blb-nav blb-prev" id="blb-prev" title="Föregående"><svg viewBox="0 0 24 24"><polyline points="15,4 7,12 15,20"/></svg></button>
+  <button class="blb-nav blb-next" id="blb-next" title="Nästa"><svg viewBox="0 0 24 24"><polyline points="9,4 17,12 9,20"/></svg></button>
   <div class="blb-inner">
     <a class="blb-dl" id="blb-dl" href="" download title="Ladda ner"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg>Ladda ner</a>
     <button class="blb-close" id="blb-close">&#x2715;</button>
@@ -383,14 +418,27 @@
     const lbImg = document.getElementById('blb-img');
     const lbClose = document.getElementById('blb-close');
     const lbDl = document.getElementById('blb-dl');
+    const lbPrev = document.getElementById('blb-prev');
+    const lbNext = document.getElementById('blb-next');
 
-    document.querySelectorAll('.bcell').forEach(cell => {
+    const cells = Array.from(document.querySelectorAll('.bcell'));
+    const sources = cells.map(c => c.dataset.full).filter(Boolean);
+    let currentIndex = -1;
+
+    function showImage(index) {
+      if (!sources.length) return;
+      currentIndex = (index + sources.length) % sources.length;
+      const full = sources[currentIndex];
+      lbImg.src = full;
+      lbDl.href = full;
+      lbDl.setAttribute('download', full.split('/').pop());
+    }
+
+    cells.forEach(cell => {
       cell.addEventListener('click', () => {
         const full = cell.dataset.full;
         if (!full) return;
-        lbImg.src = full;
-        lbDl.href = full;
-        lbDl.setAttribute('download', full.split('/').pop());
+        showImage(sources.indexOf(full));
         lightbox.classList.add('open');
       });
     });
@@ -400,12 +448,26 @@
       lbImg.src = '';
     }
 
+    function showPrev(e) {
+      if (e) e.stopPropagation();
+      showImage(currentIndex - 1);
+    }
+    function showNext(e) {
+      if (e) e.stopPropagation();
+      showImage(currentIndex + 1);
+    }
+
     lbClose.addEventListener('click', closeLightbox);
+    lbPrev.addEventListener('click', showPrev);
+    lbNext.addEventListener('click', showNext);
     lightbox.addEventListener('click', e => {
       if (e.target === lightbox) closeLightbox();
     });
     document.addEventListener('keydown', e => {
+      if (!lightbox.classList.contains('open')) return;
       if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') showPrev();
+      if (e.key === 'ArrowRight') showNext();
     });
   })();
 </script>
