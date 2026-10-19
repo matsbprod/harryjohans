@@ -159,9 +159,115 @@
       font-size: 1.4rem;
       cursor: pointer;
     }
+
+    /* ── LÖSENORDSSPÄRR ───────────────────────────── */
+    body.locked .bgallery {
+      filter: blur(26px);
+      pointer-events: none;
+      user-select: none;
+    }
+    body.locked .bilder-head {
+      filter: blur(4px);
+      user-select: none;
+    }
+    .lock-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(10,10,10,0.88);
+      align-items: center;
+      justify-content: center;
+    }
+    body.locked .lock-screen {
+      display: flex;
+    }
+    .lock-box {
+      text-align: center;
+      padding: 0 24px;
+    }
+    .lock-box p.lbl {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #999;
+      margin: 0 0 10px;
+    }
+    .lock-box h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 2rem;
+      color: #f5f5f3;
+      margin: 0 0 28px;
+    }
+    .lock-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .lock-form input[type="password"] {
+      font-family: 'Archivo', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.05);
+      color: #f5f5f3;
+      border-radius: 2px;
+      outline: none;
+      min-width: 220px;
+    }
+    .lock-form input[type="password"]::placeholder {
+      color: #777;
+    }
+    .lock-form input[type="password"]:focus {
+      border-color: rgba(255,255,255,0.6);
+    }
+    .lock-form button {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 12px 22px;
+      border: 1px solid #f5f5f3;
+      background: #f5f5f3;
+      color: #0a0a0a;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .lock-form button:hover {
+      background: transparent;
+      color: #f5f5f3;
+    }
+    .lock-error {
+      margin-top: 14px;
+      font-family: 'Archivo', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: #d98a8a;
+      min-height: 1em;
+    }
   </style>
 </head>
-<body>
+<body class="locked">
+
+<!-- ── Lösenordsspärr ─────────────────────────────────────── -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-box">
+    <p class="lbl">Bildarkiv</p>
+    <h2>Ange lösenord</h2>
+    <form class="lock-form" id="lockForm">
+      <input type="password" id="lockInput" placeholder="Lösenord" autocomplete="off" autofocus>
+      <button type="submit">Lås upp</button>
+    </form>
+    <p class="lock-error" id="lockError"></p>
+  </div>
+</div>
 
 <!-- ── Navbar ─────────────────────────────────────────────── -->
 <nav class="navbar" id="navbar">
@@ -249,6 +355,30 @@
 <script src="js/header.js"></script>
 <script>
   (function() {
+    const LOCK_PASSWORD = 'harry';
+    const lockForm = document.getElementById('lockForm');
+    const lockInput = document.getElementById('lockInput');
+    const lockError = document.getElementById('lockError');
+
+    if (sessionStorage.getItem('bilderUnlocked') === '1') {
+      document.body.classList.remove('locked');
+    }
+
+    if (lockForm) {
+      lockForm.addEventListener('submit', e => {
+        e.preventDefault();
+        if (lockInput.value === LOCK_PASSWORD) {
+          document.body.classList.remove('locked');
+          sessionStorage.setItem('bilderUnlocked', '1');
+          lockError.textContent = '';
+        } else {
+          lockError.textContent = 'Fel lösenord.';
+          lockInput.value = '';
+          lockInput.focus();
+        }
+      });
+    }
+
     const lightbox = document.getElementById('blightbox');
     const lbImg = document.getElementById('blb-img');
     const lbClose = document.getElementById('blb-close');
