@@ -3,7 +3,9 @@
 //   POST /api/marga-delete   body: { paths: ["BILDER/4. Skrov/IMG_5483.jpeg"], message: "..." }
 //                            eller { folder: "BILDER/4. Skrov/Spant 12", message: "..." }
 //                            eller { rename: { from: "BILDER/4. Skrov/IMG_5483.jpeg", to: "BILDER/4. Skrov/Mall spant 12.jpeg" } }
-//   Namnbyte gäller en fil eller ett kort (mapp) och sker inom samma mapp. Filinnehållet kopieras inte — bara namnet ändras.
+//                            eller { rename: { from: "BILDER/4. Skrov/Spant 12", to: "BILDER/6. Inredning/Spant 12", move: true } }
+//   Namnbyte gäller en fil eller ett kort (mapp) inom samma mapp. Med move: true flyttas kortet till en annan lista
+//   (BILDER/<lista> eller en toppmapp som PDF). Filinnehållet kopieras inte — bara sökvägen ändras.
 // Filerna finns kvar i repots historik och kan återställas därifrån.
 // Om en lista (mapp) skulle bli helt tom läggs en tom .gitkeep in, så att listan finns kvar i appen.
 // Kräver miljövariablerna MARGA_PASSWORD och MARGA_GITHUB_TOKEN (Contents: Read and write).
@@ -107,7 +109,11 @@ async function rename(body) {
   const from = clean(body.rename.from), to = clean(body.rename.to);
   if (!from || !to || from === to) return json({ error: "Ogiltigt namnbyte" }, 400);
   if (!allowed(from) || !allowed(to)) return json({ error: "Den sökvägen får inte ändras härifrån" }, 403);
-  if (parentOf(from) !== parentOf(to)) return json({ error: "Namnbyte måste ske i samma mapp" }, 400);
+  const isMove = !!body.rename.move && parentOf(from) !== parentOf(to);
+  const isListFolder = p => allowed(p + "/") && (p.startsWith("BILDER/") ? p.split("/").length === 2 : p.split("/").length === 1);
+  if (!isMove && parentOf(from) !== parentOf(to)) return json({ error: "Namnbyte måste ske i samma mapp" }, 400);
+  if (isMove && (!isListFolder(parentOf(to)) || !isListFolder(parentOf(from)))) return json({ error: "Kort kan bara flyttas mellan listor" }, 400);
+  if (isMove && (from.startsWith("BILDER/uppgifter/") || to.startsWith("BILDER/uppgifter/"))) return json({ error: "Postens filer flyttas inte härifrån" }, 403);
   if (/[\\:*?"<>|]/.test(to.slice(to.lastIndexOf("/") + 1))) return json({ error: "Namnet innehåller otillåtna tecken" }, 400);
   try {
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -119,6 +125,7 @@ async function rename(body) {
       const moving = exact ? [exact] : blobs.filter(e => e.path.startsWith(from + "/"));
       if (!moving.length) return json({ error: "Hittade inte filen — har den redan bytt namn eller tagits bort?" }, 404);
       if (!exact && !isCardFolder(from)) return json({ error: "Listor byter man namn på i GitHub" }, 403);
+      if (isMove && !blobs.some(e => e.path.startsWith(parentOf(to) + "/"))) return json({ error: "Mållistan finns inte" }, 404);
       const lower = to.toLowerCase();
       if (blobs.some(e => e.path.toLowerCase() === lower || e.path.toLowerCase().startsWith(lower + "/"))) {
         // Tillåt bara om det är samma fil med annan skiftläge (t.ex. bild.JPG → bild.jpg)
@@ -130,8 +137,13 @@ async function rename(body) {
         entries.push({ path: e.path, mode: e.mode || "100644", type: "blob", sha: null });
         entries.push({ path: np, mode: e.mode || "100644", type: "blob", sha: e.sha });
       }
+      // Flytt: lägg en .gitkeep i listan som kortet lämnar om den annars blir tom
+      if (isMove) {
+        const src = parentOf(from), movingSet = new Set(moving.map(e => e.path));
+        if (!blobs.some(e => e.path.startsWith(src + "/") && !movingSet.has(e.path))) entries.push({ path: `${src}/.gitkeep`, mode: "100644", type: "blob", content: "" });
+      }
       const newTree = await gh("/git/trees", { method: "POST", body: JSON.stringify({ base_tree: head.tree.sha, tree: entries }) });
-      const message = String(body.message || `Byter namn: ${from.split("/").pop()} → ${to.split("/").pop()}`).slice(0, 200);
+      const message = String(body.message || (isMove ? `Flyttar ${from.split("/").pop()} till ${parentOf(to)}` : `Byter namn: ${from.split("/").pop()} → ${to.split("/").pop()}`)).slice(0, 200);
       const commit = await gh("/git/commits", { method: "POST", body: JSON.stringify({ message, tree: newTree.sha, parents: [ref.object.sha] }) });
       try {
         await gh(`/git/refs/heads/${BRANCH}`, { method: "PATCH", body: JSON.stringify({ sha: commit.sha }) });
