@@ -108,10 +108,12 @@ export default async function handler(req) {
 async function rename(body) {
   const from = clean(body.rename.from), to = clean(body.rename.to);
   if (!from || !to || from === to) return json({ error: "Ogiltigt namnbyte" }, 400);
-  if (!allowed(from) || !allowed(to)) return json({ error: "Den sökvägen får inte ändras härifrån" }, 403);
+  // Listan PDF (en egen toppmapp) byter namn genom att flyttas in bland listorna under BILDER
+  const pdfToList = from === "PDF" && to.startsWith("BILDER/") && to.split("/").length === 2 && to !== "BILDER/uppgifter";
+  if (!pdfToList && (!allowed(from) || !allowed(to))) return json({ error: "Den sökvägen får inte ändras härifrån" }, 403);
   const isMove = !!body.rename.move && parentOf(from) !== parentOf(to);
   const isListFolder = p => allowed(p + "/") && (p.startsWith("BILDER/") ? p.split("/").length === 2 : p.split("/").length === 1);
-  if (!isMove && parentOf(from) !== parentOf(to)) return json({ error: "Namnbyte måste ske i samma mapp" }, 400);
+  if (!isMove && !pdfToList && parentOf(from) !== parentOf(to)) return json({ error: "Namnbyte måste ske i samma mapp" }, 400);
   if (isMove && (!isListFolder(parentOf(to)) || !isListFolder(parentOf(from)))) return json({ error: "Kort kan bara flyttas mellan listor" }, 400);
   if (isMove && (from.startsWith("BILDER/uppgifter/") || to.startsWith("BILDER/uppgifter/"))) return json({ error: "Postens filer flyttas inte härifrån" }, 403);
   if (/[\\:*?"<>|]/.test(to.slice(to.lastIndexOf("/") + 1))) return json({ error: "Namnet innehåller otillåtna tecken" }, 400);
@@ -126,7 +128,7 @@ async function rename(body) {
       if (!moving.length) return json({ error: "Hittade inte filen — har den redan bytt namn eller tagits bort?" }, 404);
       // Mappar: kort får byta namn, och listor under BILDER (inte Poster-listan)
       const isBilderList = p => p.startsWith("BILDER/") && p.split("/").length === 2 && p !== "BILDER/uppgifter";
-      if (!exact && !isCardFolder(from) && !(isBilderList(from) && isBilderList(to) && !isMove)) return json({ error: "Den listan kan inte byta namn härifrån" }, 403);
+      if (!exact && !isCardFolder(from) && !pdfToList && !(isBilderList(from) && isBilderList(to) && !isMove)) return json({ error: "Den listan kan inte byta namn härifrån" }, 403);
       if (!exact && (from === "BILDER/uppgifter" || to === "BILDER/uppgifter")) return json({ error: "Poster-listan kan inte byta namn" }, 403);
       if (isMove && !blobs.some(e => e.path.startsWith(parentOf(to) + "/"))) return json({ error: "Mållistan finns inte" }, 404);
       const lower = to.toLowerCase();
