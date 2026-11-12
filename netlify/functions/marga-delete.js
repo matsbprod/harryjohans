@@ -4,7 +4,7 @@
 //                            eller { folder: "BILDER/4. Skrov/Spant 12", message: "..." }
 //                            eller { rename: { from: "BILDER/4. Skrov/IMG_5483.jpeg", to: "BILDER/4. Skrov/Mall spant 12.jpeg" } }
 //                            eller { rename: { from: "BILDER/4. Skrov/Spant 12", to: "BILDER/6. Inredning/Spant 12", move: true } }
-//   Namnbyte gäller en fil eller ett kort (mapp) inom samma mapp. Med move: true flyttas kortet till en annan lista
+//   Namnbyte gäller en fil, ett kort (mapp) eller en lista under BILDER, inom samma mapp. Med move: true flyttas kortet till en annan lista
 //   (BILDER/<lista> eller en toppmapp som PDF). Filinnehållet kopieras inte — bara sökvägen ändras.
 // Filerna finns kvar i repots historik och kan återställas därifrån.
 // Om en lista (mapp) skulle bli helt tom läggs en tom .gitkeep in, så att listan finns kvar i appen.
@@ -124,7 +124,10 @@ async function rename(body) {
       const exact = blobs.find(e => e.path === from);
       const moving = exact ? [exact] : blobs.filter(e => e.path.startsWith(from + "/"));
       if (!moving.length) return json({ error: "Hittade inte filen — har den redan bytt namn eller tagits bort?" }, 404);
-      if (!exact && !isCardFolder(from)) return json({ error: "Listor byter man namn på i GitHub" }, 403);
+      // Mappar: kort får byta namn, och listor under BILDER (inte Poster-listan)
+      const isBilderList = p => p.startsWith("BILDER/") && p.split("/").length === 2 && p !== "BILDER/uppgifter";
+      if (!exact && !isCardFolder(from) && !(isBilderList(from) && isBilderList(to) && !isMove)) return json({ error: "Den listan kan inte byta namn härifrån" }, 403);
+      if (!exact && (from === "BILDER/uppgifter" || to === "BILDER/uppgifter")) return json({ error: "Poster-listan kan inte byta namn" }, 403);
       if (isMove && !blobs.some(e => e.path.startsWith(parentOf(to) + "/"))) return json({ error: "Mållistan finns inte" }, 404);
       const lower = to.toLowerCase();
       if (blobs.some(e => e.path.toLowerCase() === lower || e.path.toLowerCase().startsWith(lower + "/"))) {
